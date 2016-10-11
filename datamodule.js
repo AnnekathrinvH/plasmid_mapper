@@ -1,8 +1,11 @@
-
 const features = require('./features.json');
 const seq = require('./pcDNA3_1.json');
 
-function getIndices(sequence, feature) {
+console.log(seq.seq.length)
+
+
+getIndices = function(sequence, feature) {
+
     var indices = [];
     var index = sequence.indexOf(feature);
     var prev = 0;
@@ -17,10 +20,13 @@ function getIndices(sequence, feature) {
 }
 
 var indexOfFeature = [];
+
 for (var i in features) {
 
     indexOfFeature.push(getIndices(seq.seq, features[i].seq));
 
 }
-
-console.log(indexOfFeature);
+//it should br stored as an array of objects where 'key' is id and 'value' array or object of indexes
+for (var i = 0; indexOfFeature[i]; i++) {
+    console.log(indexOfFeature[i])
+}
