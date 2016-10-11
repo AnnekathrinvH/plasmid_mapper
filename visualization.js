@@ -12,6 +12,8 @@ seqFeatures = [{
     end: 5.698622193670801
 }];
 
+console.log(dataToViz);
+
 ctx.beginPath();
 ctx.arc(center, center, r, 0, 2*Math.PI, false);
 ctx.stroke();
