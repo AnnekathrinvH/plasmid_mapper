@@ -1,8 +1,11 @@
-function visualize(length, featureLength, cigar, start) {
+function visualize(res) {
     var r = 200;
     var center = 250;
     var cigarArray = [];
     var name = 'pcDNA3.1';
+    console.log(res[1]);
+    var length = res[1][0];
+    console.log(length);
 
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
@@ -16,11 +19,13 @@ function visualize(length, featureLength, cigar, start) {
     ctx.font = "40px sans-serif";
     ctx.fillText(name, center-60, center);
 
+    for (var i = 1; i < res.length; i++) {
+        if ((res[i][1])- (res[i][4]) < 100) {
+            parseCigar(res[i][2], res[i][3], res[i][1]);
+        }
+    }
 
-
-    parseCigar(cigar);
-
-    function parseCigar(str) {
+    function parseCigar(str, featureStart, featureLength) {
         var s = '';
         var letters = 'SMDI';
         for (var i = 0; i < str.length; i++) {
@@ -37,19 +42,18 @@ function visualize(length, featureLength, cigar, start) {
             }
         }
         console.log(cigarArray);
-        calculateAngles(cigarArray);
+        calculateAngles(cigarArray, featureStart, featureLength);
     }
 
 
-    function calculateAngles(cigarArray) {
+    function calculateAngles(cigarArray, featureStart, featureLength) {
         var U = 2*r*Math.PI;
-        var featureStart = start;
         var featureEnd = featureStart + featureLength;
 
 
         for (var i = 0; i < cigarArray.length; i++) {
             var type = cigarArray[i].type;
-            var subFeatureStart = (cigarArray[i-1] === undefined) ? start : (subFeatureStart + cigarArray[i-1].nucleotides);
+            var subFeatureStart = (cigarArray[i-1] === undefined) ? featureStart : (subFeatureStart + cigarArray[i-1].nucleotides);
             var subFeatureEnd = subFeatureStart + cigarArray[i].nucleotides;
             //console.log(subFeatureStart, subFeatureEnd);
             var percentageStart = subFeatureStart/length;
@@ -61,17 +65,17 @@ function visualize(length, featureLength, cigar, start) {
             //winkel berechnen und kreis drehen
             var startAngle = firstLength/r+1.5*Math.PI;
             var endAngle = secondLength/r+1.5*Math.PI;
-            if (i === cigarArray.length -1) {
+            if (i === cigarArray.length -1 && featureLength>200) {
                 drawArrow(endAngle);
                 drawMap(startAngle, endAngle-0.2, type);
             } else {
-                drawMap(startAngle, endAngle, type);
+                drawMap(startAngle, endAngle, type, featureLength);
 
             }
         }
     }
 
-    function drawMap(startAngle, endAngle, type) {
+    function drawMap(startAngle, endAngle, type, featureLength) {
 
         if (featureLength>200) {
             if (type === "M") {
@@ -119,6 +123,7 @@ function visualize(length, featureLength, cigar, start) {
             ctx.arc(center, center, r, startAngle, endAngle, false);
             ctx.stroke();
         }
+        cigarArray = [];
     }
 
     function drawArrow(endAngle) {
