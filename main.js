@@ -36,7 +36,8 @@ b.addEventListener('click', function(e) {
             length: res[feature][0],
             featureLength: res[feature][1],
             cigar: res[feature][2],
-            start: res[feature][3]
+            start: res[feature][3],
+            score: res[feature][4]
         });
     }
     visualize(res);
