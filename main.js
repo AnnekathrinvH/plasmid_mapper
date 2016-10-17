@@ -15,11 +15,15 @@ var features =
 var b = document.getElementById('button');
 
 b.addEventListener('click', function(e) {
+
+    var res = {};
     for (var feature in features) {
 
-        do_align(features[feature].seq)
+        res[feature] = do_align(features[feature].seq);
+        visualize(res[feature][0], res[feature][1], res[feature][2], res[feature][3]);
 
     }
+    console.log(res)
 });
 
 function do_align(query)
@@ -69,8 +73,6 @@ function do_align(query)
     var start = parseInt(rst[1] + '\n', 10);
     var cigar = bsa_cigar2str(rst[2]) + '\n\n';
 
-    console.log('length: '+ length+'featureLength: '+ featureLength+'score: '+ score+'start: '+start+'cigar'+cigar);
-    console.log(typeof length);
-
-    visualize(length, featureLength, cigar, start);
+    return [length, featureLength, cigar, start];
+    //visualize(length, featureLength, cigar, start);
 }
