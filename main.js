@@ -39,7 +39,7 @@ b.addEventListener('click', function(e) {
             start: res[feature][3]
         });
     }
-    visualize(res);
+    visualize(featuresData);
     results.html(Handlebars.templates.mapRes({
         featuresDescription: featuresData
     }));

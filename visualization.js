@@ -3,7 +3,7 @@ function visualize(res) {
     var center = 250;
     var cigarArray = [];
     var name = 'pcDNA3.1';
-    console.log(res[1]);
+    console.log(res);
     var length = res[1][0];
     console.log(length);
 
