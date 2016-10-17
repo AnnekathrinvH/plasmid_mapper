@@ -38,15 +38,13 @@ b.addEventListener('click', function(e) {
         })
 
         visualize(res[feature][0], res[feature][1], res[feature][2], res[feature][3]);
-
     }
 
     results.html(Handlebars.templates.mapRes({
         featuresDescription: featuresData
     }))
-    console.log(featuresData)
-
 });
+
 
 function do_align(query)
 {
@@ -54,7 +52,6 @@ function do_align(query)
 	var time_start = new Date().getTime();
 
 	var target = document.getElementById('target').value.replace(/[\s\n]+/g, '');
-
 
 	//var query  = document.getElementById('query').value.replace(/[\s\n]+/g, '');
 	var ms   = parseInt(document.getElementById('match').value);
@@ -66,7 +63,6 @@ function do_align(query)
 	//var is_local = document.getElementById('is_local').checked;
 
 	var rst = bsa_align(is_local, target, query, [ms, mms], [gapo, gape]);
-
 
 	var str = 'score: ' + rst[0] + '\n';
 	str += 'start: ' + rst[1] + '\n';
