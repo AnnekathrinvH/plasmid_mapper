@@ -5,8 +5,7 @@
         do_align();
     });
 
-    function do_align()
-    {
+    function do_align() {
     	var time_start = new Date().getTime();
 
     	var target = document.getElementById('target').value.replace(/[\s\n]+/g, '');

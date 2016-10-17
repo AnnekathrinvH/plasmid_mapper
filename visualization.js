@@ -1,15 +1,22 @@
 function visualize(length, featureLength, cigar, start) {
-    var canvas = document.getElementById("canvas");
-    var ctx = canvas.getContext("2d");
     var r = 200;
     var center = 250;
     var cigarArray = [];
+    var name = 'pcDNA3.1';
 
+    var canvas = document.getElementById("canvas");
+    var ctx = canvas.getContext("2d");
 
+    clear();
 
     ctx.beginPath();
     ctx.arc(center, center, r, 0, 2*Math.PI, false);
     ctx.stroke();
+
+    ctx.font = "40px sans-serif";
+    ctx.fillText(name, center-60, center);
+
+
 
     parseCigar(cigar);
 
@@ -132,5 +139,9 @@ function visualize(length, featureLength, cigar, start) {
         ctx.lineTo(xOut,yOut);
         ctx.lineTo(xIn,yIn);
         ctx.fill();
+    }
+
+    function clear() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 }
