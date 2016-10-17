@@ -40,4 +40,15 @@
 
     	var elapse = (new Date().getTime() - time_start) / 1000.0;
     	document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
+
+        var length = target.length;
+        var featureLength = query.length;
+        var score = parseInt(rst[0] + '\n', 10);
+        var start = parseInt(rst[1] + '\n', 10);
+        var cigar = bsa_cigar2str(rst[2]) + '\n\n';
+
+        console.log('length: '+ length+'featureLength: '+ featureLength+'score: '+ score+'start: '+start+'cigar'+cigar);
+        console.log(typeof length);
+
+        visualize(length, featureLength, cigar, start);
     }

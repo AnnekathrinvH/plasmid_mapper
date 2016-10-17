@@ -1,12 +1,8 @@
-//function visualize() {
+function visualize(length, featureLength, cigar, start) {
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
     var r = 200;
     var center = 250;
-    var cigar = '12S228M80D481M';
-    var featureLength = 801;
-    var length = 5428;
-    var start = 626;
     var cigarArray = [];
 
 
@@ -137,4 +133,4 @@
         ctx.lineTo(xIn,yIn);
         ctx.fill();
     }
-//}
+}
