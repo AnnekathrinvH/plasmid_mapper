@@ -33,7 +33,7 @@ b.addEventListener('click', function(e) {
 
         featuresData.push({
             id: features[feature].id,
-            length: res[feature][0],
+            fullLength: res[feature][0],
             featureLength: res[feature][1],
             cigar: res[feature][2],
             start: res[feature][3],
