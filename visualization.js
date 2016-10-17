@@ -34,7 +34,6 @@ function visualize(length, featureLength, cigar, start) {
             }
             else if(letters.indexOf(str[i]) <= 0) {
                 s += str[i];
-                console.log(s);
             }
         }
         console.log(cigarArray);
@@ -52,10 +51,10 @@ function visualize(length, featureLength, cigar, start) {
             var type = cigarArray[i].type;
             var subFeatureStart = (cigarArray[i-1] === undefined) ? start : (subFeatureStart + cigarArray[i-1].nucleotides);
             var subFeatureEnd = subFeatureStart + cigarArray[i].nucleotides;
-            console.log(subFeatureStart, subFeatureEnd);
+            //console.log(subFeatureStart, subFeatureEnd);
             var percentageStart = subFeatureStart/length;
             var percentageEnd = subFeatureEnd/length;
-            console.log(percentageStart, percentageEnd);
+            //console.log(percentageStart, percentageEnd);
             //auf umfang bezogen
             var firstLength = U*percentageStart;
             var secondLength = U*percentageEnd;
