@@ -21,11 +21,12 @@ function visualize(res) {
 
     for (var i = 1; i < res.length; i++) {
         if ((res[i][1])- (res[i][4]) < 100) {
-            parseCigar(res[i][2], res[i][3], res[i][1]);
+            parseCigar(res[i]);
         }
     }
 
-    function parseCigar(str, featureStart, featureLength) {
+    function parseCigar(properties) {
+        var str = properties[2];
         var s = '';
         var letters = 'SMDI';
         for (var i = 0; i < str.length; i++) {
@@ -42,12 +43,14 @@ function visualize(res) {
             }
         }
         console.log(cigarArray);
-        calculateAngles(cigarArray, featureStart, featureLength);
+        calculateAngles(cigarArray, properties);
     }
 
 
-    function calculateAngles(cigarArray, featureStart, featureLength) {
+    function calculateAngles(cigarArray, properties) {
         var U = 2*r*Math.PI;
+        var featureStart = properties[3];
+        var featureLength = properties[1];
         var featureEnd = featureStart + featureLength;
 
 
