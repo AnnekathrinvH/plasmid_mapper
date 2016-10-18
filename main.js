@@ -25,45 +25,43 @@ var results = $('#results');
 
 b.addEventListener('click', function(e) {
     var featuresData = [];
-    var res = {};
+
     var target = document.getElementById('target').value.replace(/[\s\n]+/g, '');
 
-
+    var f;
     for (var feature in features) {
-        console.log('hhh')
 
-        res[feature] = do_align(features[feature].seq, target);
+        f = do_align(features[feature].seq, target);
 
-        var end = res[feature][1] + res[feature][3];
+        var end = f[1] + f[3];
 
-        while (end <= res[feature][0] + res[feature][1]) {
-
+        while (end <= target.length + f[1]) {
 
             //[0 fullLength, 1 featureLength, 2 cigar, 3 start, 4 score]
             featuresData.push({
                 id: features[feature].id,
-                fullLength: res[feature][0],
-                featureLength: res[feature][1],
-                cigar: res[feature][2],
-                start: res[feature][3],
-                score: res[feature][4]
+                fullLength: f[0],
+                featureLength: f[1],
+                cigar: f[2],
+                start: f[3],
+                score: f[4]
             });
 
-            var len = res[feature][0]
-            console.log(target.slice(end))
 
+            f = do_align(features[feature].seq, target.slice(end));
 
+            if (f == null) {
+                console.log('braek')
 
-            res[feature] = do_align(features[feature].seq, target.slice(end));
-
-            if (res[feature] == null) {
                 break;
             }
 
-            console.log('do')
+            f[3] += end;
 
-            res[feature][3] += end;
-            end = res[feature][3] + res[feature][1];
+            end = f[3] + f[1];
+            console.log(f[3], f[1], target.length, end, f[0] + f[1])
+
+            console.log(end <= f[0] + f[1], 'sss')
 
         }
     }
