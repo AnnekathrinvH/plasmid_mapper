@@ -1,6 +1,6 @@
 function visualize(res) {
-    var r = 200;
-    var center = 250;
+    var r = 250;
+    var center = 300;
     var cigarArray = [];
     var name = 'pcDNA3.1';
     console.log(res);
@@ -17,7 +17,10 @@ function visualize(res) {
     ctx.stroke();
 
     ctx.font = "40px sans-serif";
-    ctx.fillText(name, center-60, center);
+    var metrics = ctx.measureText(name);
+    var textWidth = metrics.width;
+    console.log(textWidth);
+    ctx.fillText(name, center-(textWidth/2), center);
 
     for (var i = 1; i < res.length; i++) {
         if (res[i].featureLength- res[i].score < 100) {
@@ -58,19 +61,15 @@ function visualize(res) {
             var type = cigarArray[i].type;
             var subFeatureStart = (cigarArray[i-1] === undefined) ? featureStart : (subFeatureStart + cigarArray[i-1].nucleotides);
             var subFeatureEnd = subFeatureStart + cigarArray[i].nucleotides;
-            //console.log(subFeatureStart, subFeatureEnd);
             var percentageStart = subFeatureStart/length;
             var percentageEnd = subFeatureEnd/length;
-            //console.log(percentageStart, percentageEnd);
-            //auf umfang bezogen
             var firstLength = U*percentageStart;
             var secondLength = U*percentageEnd;
-            //winkel berechnen und kreis drehen
             var startAngle = firstLength/r+1.5*Math.PI;
             var endAngle = secondLength/r+1.5*Math.PI;
             if (i === cigarArray.length -1 && featureLength>200) {
                 drawArrow(endAngle);
-                drawMap(startAngle, endAngle-0.2, type);
+                drawMap(startAngle, endAngle-0.2, type, featureLength);
             } else {
                 drawMap(startAngle, endAngle, type, featureLength);
 
@@ -79,11 +78,12 @@ function visualize(res) {
     }
 
     function drawMap(startAngle, endAngle, type, featureLength) {
-
+        console.log(featureLength);
         if (featureLength>200) {
-            if (type === "M") {
-                ctx.strokeStyle = "blue";
-                ctx.lineWidth = 10;
+            if (type === 'M') {
+                console.log('M');
+                ctx.strokeStyle = "rgb(117, 200, 252)";
+                ctx.lineWidth = 35;
                 ctx.beginPath();
                 ctx.arc(center, center, r, startAngle, endAngle, false);
                 ctx.stroke();
@@ -120,7 +120,7 @@ function visualize(res) {
             }
 
         } else {
-            ctx.strokeStyle = "blue";
+            ctx.strokeStyle = "green";
             ctx.lineWidth = 10;
             ctx.beginPath();
             ctx.arc(center, center, r, startAngle, endAngle, false);
@@ -133,14 +133,14 @@ function visualize(res) {
         var x = center + r * Math.cos(endAngle);
         var y = center + r * Math.sin(endAngle);
 
-        var xOut = center + (r + 15) * Math.cos(endAngle-0.2);
-        var yOut = center + (r + 15) * Math.sin(endAngle-0.2);
+        var xOut = center + (r + 25) * Math.cos(endAngle-0.2);
+        var yOut = center + (r + 25) * Math.sin(endAngle-0.2);
 
-        var xIn = center + (r - 15) * Math.cos(endAngle-0.2);
-        var yIn = center + (r - 15) * Math.sin(endAngle-0.2);
+        var xIn = center + (r - 25) * Math.cos(endAngle-0.2);
+        var yIn = center + (r - 25) * Math.sin(endAngle-0.2);
 
-        ctx.strokeStyle = "blue";
-        ctx.fillStyle = "blue";
+        ctx.strokeStyle = "rgb(117, 200, 252)";
+        ctx.fillStyle = "rgb(117, 200, 252)"
         ctx.beginPath();
         ctx.moveTo(x,y);
         ctx.lineTo(xOut,yOut);
