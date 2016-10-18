@@ -28,15 +28,18 @@ b.addEventListener('click', function(e) {
     var res = {};
     var target = document.getElementById('target').value.replace(/[\s\n]+/g, '');
 
+
     for (var feature in features) {
+        console.log('hhh')
 
         res[feature] = do_align(features[feature].seq, target);
+
         var end = res[feature][1] + res[feature][3];
-        console.log(end)
+
+        while (end <= res[feature][0] + res[feature][1]) {
 
 
-        while (end <= res[feature][0]) {
-            //[fullLength, featureLength, cigar, start, score]
+            //[0 fullLength, 1 featureLength, 2 cigar, 3 start, 4 score]
             featuresData.push({
                 id: features[feature].id,
                 fullLength: res[feature][0],
@@ -46,13 +49,23 @@ b.addEventListener('click', function(e) {
                 score: res[feature][4]
             });
 
-            res[feature] = do_align(features[feature].seq, target.slice(0, end));
+            var len = res[feature][0]
+            console.log(target.slice(end))
+
+
+
+            res[feature] = do_align(features[feature].seq, target.slice(end));
+
+            if (res[feature] == null) {
+                break;
+            }
+
+            console.log('do')
 
             res[feature][3] += end;
             end = res[feature][3] + res[feature][1];
 
         }
-
     }
 
     visualize(featuresData);
@@ -73,6 +86,9 @@ function do_align(query, target) {
 	var is_local = true;
 
 	var rst = bsa_align(is_local, target, query, [ms, mms], [gapo, gape]);
+    if (!rst) {
+        return rst;
+    }
 
 	var str = 'score: ' + rst[0] + '\n';
 	str += 'start: ' + rst[1] + '\n';
