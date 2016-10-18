@@ -11,23 +11,44 @@ Array.prototype.slice.call(templates).forEach(function(script) {
 var features =
     {
         "5": {"id":"EcoRI","seq":"GAATTC"},
-        //"6": {"id":"EcoRV","seq":"GATATC"},
-        //"7": {"id":"HindIII","seq":"AAGCTT"},
-        //"8": {"id":"AatII","seq":"GACGTC"},
-        "9": {"id":"te","seq":"TCGAC"}
-        //"10": {"id":"mySeq", "seq":"CCGGGAGCTTGTATATCCATTTTCGGATCTGATCAAGAGACAGGATGAGGATCGTTTCGCATGATTGAACAAGATGGATTGCACGCAGGTTCTCCGGCCGCTTGGGTGGAGAGGCTATTCGGCTATGACTGGGCACAACAGACAATCGGCTGCTCTGATGCCGCCGTGTTCCGGCTGTCAGCGCAGGGGCGCCCGGTTCTTTTTGTCAAGACCGACCTGTCCGGTGCCCTGAATGAACTGCAGGACGAGGCAGCGCGGCTATCGTGGCTGGCCACGACGGGCGTTCCTTGCGCAGCTGTGCTCGACGTTGTCACTGAAGCGGGAAGGGACTGGCTGCTATTGGGCGAAGTGCCGGGGCAGGATCTCCTGTCATCTCACCTTGCTCCTGCCGAGAAAGTATCCATCATGGCTGATGCAATGCGGCGGCTGCATACGCTT"}
+        "6": {"id":"EcoRV","seq":"GATATC"},
+        "7": {"id":"HindIII","seq":"AAGCTT"},
+        "8": {"id":"AatII","seq":"GACGTC"},
+        "9": {"id":"te","seq":"TCGAC"},
+        "10": {"id":"mySeq", "seq":"CCGGGAGCTTGTATATCCATTTTCGGATCTGATCAAGAGACAGGATGAGGATCGTTTCGCATGATTGAACAAGATGGATTGCACGCAGGTTCTCCGGCCGCTTGGGTGGAGAGGCTATTCGGCTATGACTGGGCACAACAGACAATCGGCTGCTCTGATGCCGCCGTGTTCCGGCTGTCAGCGCAGGGGCGCCCGGTTCTTTTTGTCAAGACCGACCTGTCCGGTGCCCTGAATGAACTGCAGGACGAGGCAGCGCGGCTATCGTGGCTGGCCACGACGGGCGTTCCTTGCGCAGCTGTGCTCGACGTTGTCACTGAAGCGGGAAGGGACTGGCTGCTATTGGGCGAAGTGCCGGGGCAGGATCTCCTGTCATCTCACCTTGCTCCTGCCGAGAAAGTATCCATCATGGCTGATGCAATGCGGCGGCTGCATACGCTT"}
 
     };
 
 var b = document.getElementById('button');
 var results = $('#results');
-
+var resultsForReversedTarget = $('#resultsForReversedTarget')
 
 b.addEventListener('click', function(e) {
-    var featuresData = [];
 
     var target = document.getElementById('target').value.replace(/[\s\n]+/g, '');
 
+    var reversedTarget = getOppositeStrand(target);
+
+    var reversed = true;
+
+    var featuresData = getData(features, target);
+
+    var featuresDataReversedTarget = getData(features, reversedTarget);
+
+    //visualize(featuresData);
+    visualize(featuresDataReversedTarget, reversed);
+
+    results.html(Handlebars.templates.mapRes({
+        featuresDescription: featuresData
+    }));
+
+    resultsForReversedTarget.html(Handlebars.templates.mapResRes({
+        featuresDescription: featuresDataReversedTarget
+    }));
+});
+
+function getData(features, target) {
+    var featuresData = [];
     var f;
     for (var feature in features) {
 
@@ -47,7 +68,6 @@ b.addEventListener('click', function(e) {
                 score: f[4]
             });
 
-
             f = do_align(features[feature].seq, target.slice(end));
 
             if (f == null) {
@@ -59,18 +79,10 @@ b.addEventListener('click', function(e) {
             f[3] += end;
 
             end = f[3] + f[1];
-            console.log(f[3], f[1], target.length, end, f[0] + f[1])
-
-            console.log(end <= f[0] + f[1], 'sss')
-
         }
     }
-
-    visualize(featuresData);
-    results.html(Handlebars.templates.mapRes({
-        featuresDescription: featuresData
-    }));
-});
+    return featuresData;
+}
 
 function do_align(query, target) {
 
@@ -102,4 +114,27 @@ function do_align(query, target) {
     var cigar = bsa_cigar2str(rst[2]) + '\n\n';
 
     return [length, featureLength, cigar, start, score];
+}
+
+function getOppositeStrand(sequence) {
+    var oppStrand = '';
+
+    for (var i = 0; i < sequence.length; i++) {
+        switch(sequence[i]) {
+            case 'C':
+            oppStrand += 'G';
+            break;
+            case 'T':
+            oppStrand += 'A';
+            break;
+            case 'A':
+            oppStrand += 'T';
+            break;
+            case 'G':
+            oppStrand += 'C';
+            default:
+            break;
+        }
+    }
+    return oppStrand;
 }
