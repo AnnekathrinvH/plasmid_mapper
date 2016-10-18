@@ -4,7 +4,7 @@ function visualize(res) {
     var cigarArray = [];
     var name = 'pcDNA3.1';
     console.log(res);
-    var length = res[1][0];
+    var length = res[1].fullLength;
     console.log(length);
 
     var canvas = document.getElementById("canvas");
@@ -20,13 +20,13 @@ function visualize(res) {
     ctx.fillText(name, center-60, center);
 
     for (var i = 1; i < res.length; i++) {
-        if ((res[i][1])- (res[i][4]) < 100) {
+        if (res[i].featureLength- res[i].score < 100) {
             parseCigar(res[i]);
         }
     }
 
     function parseCigar(properties) {
-        var str = properties[2];
+        var str = properties.cigar;
         var s = '';
         var letters = 'SMDI';
         for (var i = 0; i < str.length; i++) {
@@ -49,8 +49,8 @@ function visualize(res) {
 
     function calculateAngles(cigarArray, properties) {
         var U = 2*r*Math.PI;
-        var featureStart = properties[3];
-        var featureLength = properties[1];
+        var featureStart = properties.start;
+        var featureLength = properties.featureLength;
         var featureEnd = featureStart + featureLength;
 
 
