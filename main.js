@@ -28,7 +28,6 @@ b.addEventListener('click', function(e) {
     var featuresData = [];
     var res = {};
     for (var feature in features) {
-        do_align(features[feature].seq);
         res[feature] = do_align(features[feature].seq);
 
         featuresData.push({
