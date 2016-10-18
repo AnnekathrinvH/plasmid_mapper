@@ -11,12 +11,11 @@ Array.prototype.slice.call(templates).forEach(function(script) {
 var features =
     {
         "5": {"id":"EcoRI","seq":"GAATTC"},
-        "6": {"id":"EcoRV","seq":"GATATC"},
-        "7": {"id":"HindIII","seq":"AAGCTT"},
-        "8": {"id":"AatII","seq":"GACGTC"},
-        "9": {"id":"te","seq":"TCGAC"},
-        "10": {"id":"mySeq", "seq":"CCGGGAGCTTGTATATCCATTTTCGGATCTGATCAAGAGACAGGATGAGGATCGTTTCGCATGATTGAACAAGATGGATTGCACGCAGGTTCTCCGGCCGCTTGGGTGGAGAGGCTATTCGGCTATGACTGGGCACAACAGACAATCGGCTGCTCTGATGCCGCCGTGTTCCGGCTGTCAGCGCAGGGGCGCCCGGTTCTTTTTGTCAAGACCGACCTGTCCGGTGCCCTGAATGAACTGCAGGACGAGGCAGCGCGGCTATCGTGGCTGGCCACGACGGGCGTTCCTTGCGCAGCTGTGCTCGACGTTGTCACTGAAGCGGGAAGGGACTGGCTGCTATTGGGCGAAGTGCCGGGGCAGGATCTCCTGTCATCTCACCTTGCTCCTGCCGAGAAAGTATCCATCATGGCTGATGCAATGCGGCGGCTGCATACGCTT"}
-
+        //"6": {"id":"EcoRV","seq":"GATATC"},
+        //"7": {"id":"HindIII","seq":"AAGCTT"},
+        //"8": {"id":"AatII","seq":"GACGTC"},
+        "9": {"id":"te","seq":"TCGAC"}
+        //"10": {"id":"mySeq", "seq":"CCGGGAGCTTGTATATCCATTTTCGGATCTGATCAAGAGACAGGATGAGGATCGTTTCGCATGATTGAACAAGATGGATTGCACGCAGGTTCTCCGGCCGCTTGGGTGGAGAGGCTATTCGGCTATGACTGGGCACAACAGACAATCGGCTGCTCTGATGCCGCCGTGTTCCGGCTGTCAGCGCAGGGGCGCCCGGTTCTTTTTGTCAAGACCGACCTGTCCGGTGCCCTGAATGAACTGCAGGACGAGGCAGCGCGGCTATCGTGGCTGGCCACGACGGGCGTTCCTTGCGCAGCTGTGCTCGACGTTGTCACTGAAGCGGGAAGGGACTGGCTGCTATTGGGCGAAGTGCCGGGGCAGGATCTCCTGTCATCTCACCTTGCTCCTGCCGAGAAAGTATCCATCATGGCTGATGCAATGCGGCGGCTGCATACGCTT"}
 
     };
 
@@ -31,13 +30,13 @@ b.addEventListener('click', function(e) {
 
     for (var feature in features) {
 
-
         res[feature] = do_align(features[feature].seq, target);
+        var end = res[feature][1] + res[feature][3];
+        console.log(end)
 
-        var end = res[feature][3] + res[feature][1];
 
-        while (end < res[feature][0]) {
-
+        while (end <= res[feature][0]) {
+            //[fullLength, featureLength, cigar, start, score]
             featuresData.push({
                 id: features[feature].id,
                 fullLength: res[feature][0],
@@ -47,15 +46,15 @@ b.addEventListener('click', function(e) {
                 score: res[feature][4]
             });
 
-            res[feature] = do_align(features[feature].seq, target.slice(end));
+            res[feature] = do_align(features[feature].seq, target.slice(0, end));
 
             res[feature][3] += end;
             end = res[feature][3] + res[feature][1];
 
-
         }
 
     }
+
     visualize(featuresData);
     results.html(Handlebars.templates.mapRes({
         featuresDescription: featuresData
@@ -64,11 +63,7 @@ b.addEventListener('click', function(e) {
 
 function do_align(query, target) {
 
-
-
 	var time_start = new Date().getTime();
-
-
 
 	var ms   = parseInt(document.getElementById('match').value);
 	var mms  = parseInt(document.getElementById('mismatch').value);
