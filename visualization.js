@@ -4,8 +4,7 @@ function visualize(res) {
     var cigarArray = [];
     var name = 'pcDNA3.1';
     console.log(res);
-    var length = res[1].fullLength;
-    console.log(length);
+    var length = res[0].fullLength;
 
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
@@ -133,11 +132,11 @@ function visualize(res) {
         var x = center + r * Math.cos(endAngle);
         var y = center + r * Math.sin(endAngle);
 
-        var xOut = center + (r + 25) * Math.cos(endAngle-0.2);
-        var yOut = center + (r + 25) * Math.sin(endAngle-0.2);
+        var xOut = center + (r + 25) * Math.cos(endAngle-0.25);
+        var yOut = center + (r + 25) * Math.sin(endAngle-0.25);
 
-        var xIn = center + (r - 25) * Math.cos(endAngle-0.2);
-        var yIn = center + (r - 25) * Math.sin(endAngle-0.2);
+        var xIn = center + (r - 25) * Math.cos(endAngle-0.25);
+        var yIn = center + (r - 25) * Math.sin(endAngle-0.25);
 
         ctx.strokeStyle = "rgb(117, 200, 252)";
         ctx.fillStyle = "rgb(117, 200, 252)"
