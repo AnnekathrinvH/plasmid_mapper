@@ -33,7 +33,22 @@ b.addEventListener('click', function(e) {
 
     }
 
+    if (restriction_emzymesCbox) {
 
+        var restriction_emzymesData = getData(restriction_emzymes, target);
+        var restriction_emzymesDataReversedTarget = getData(restriction_emzymes, reversedTarget, true);
+
+    }
+
+    if (selection_markersCbox) {
+        var selection_markersData = getData(selection_markers, target);
+        var selection_markersDataReversedTarget = getData(selection_markers, reversedTarget, true);
+    }
+
+    if (tagsCbox) {
+        var tagsData = getData(tags, target);
+        var tagsDataReversedTarget = getData(tags, reversedTarget, true);
+    }
 
     for (var i = 0; i < featuresDataReversedTarget.length; i++) {
         featuresData.push(featuresDataReversedTarget[i]);
@@ -41,9 +56,9 @@ b.addEventListener('click', function(e) {
 
     visualize(featuresData);
 
-    results.html(Handlebars.templates.mapRes({
-        featuresDescription: featuresData
-    }));
+    // results.html(Handlebars.templates.mapRes({
+    //     featuresDescription: featuresData
+    // }));
     var elapse = (new Date().getTime() - time_start) / 1000.0;
     document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
 
@@ -55,33 +70,36 @@ function getData(features, target, reversed) {
     var f;
     for (var feature in features) {
 
-        f = do_align(features[feature].seq, target);
+        if (features[feature].seq.length > 30) {
 
-        var end = f[1] + f[3];
+            f = do_align(features[feature].seq, target);
 
-        while (end <= target.length + f[1]) {
+            var end = f[1] + f[3];
 
-            featuresData.push({
-                reversed: reversed,
-                id: features[feature].id,
-                fullLength: f[0],
-                featureLength: f[1],
-                cigar: f[2],
-                start: f[3],
-                score: f[4]
-            });
+            while (end <= target.length + f[1]) {
 
-            f = do_align(features[feature].seq, target.slice(end));
+                featuresData.push({
+                    reversed: reversed,
+                    id: features[feature].id,
+                    fullLength: f[0],
+                    featureLength: f[1],
+                    cigar: f[2],
+                    start: f[3],
+                    score: f[4]
+                });
 
-            if (f == null) {
-                console.log('break')
+                f = do_align(features[feature].seq, target.slice(end));
 
-                break;
+                if (f == null) {
+                    console.log('break')
+
+                    break;
+                }
+
+                f[3] += end;
+
+                end = f[3] + f[1];
             }
-
-            f[3] += end;
-
-            end = f[3] + f[1];
         }
     }
     return featuresData;
