@@ -19,49 +19,84 @@ var features =
         "7": {"id":"HindIII","seq":"AAGCTT"},
         "8": {"id":"AatII","seq":"GACGTC"},
         "9": {"id": "neo", "seq":"ATGGGATCGGCCATTGAACAAGATGGATTGCACGCAGGTTCTCCGGCCGCTTGGGTGGAGAGGCTATTCGGCTATGACTGGGCACAACAGACAATCGGCTGCTCTGATGCCGCCGTGTTCCGGCTGTCAGCGCAGGGGCGCCCGGTTCTTTTTGTCAAGACCGACCTGTCCGGTGCCCTGAATGAACTGCAGGACGAGGCAGCGCGGCTATCGTGGCTGGCCACGACGGGCGTTCCTTGCGCAGCTGTGCTCGACGTTGTCACTGAAGCGGGAAGGGACTGGCTGCTATTGGGCGAAGTGCCGGGGCAGGATCTCCTGTCATCTCACCTTGCTCCTGCCGAGAAAGTATCCATCATGGCTGATGCAATGCGGCGGCTGCATACGCTTGATCCGGCTACCTGCCCATTCGACCACCAAGCGAAACATCGCATCGAGCGAGCACGTACTCGGATGGAAGCCGGTCTTGTCGATCAGGATGATCTGGACGAAGAGCATCAGGGGCTCGCGCCAGCCGAACTGTTCGCCAGGCTCAAGGCGCGCATGCCCGACGGCGATGATCTCGTCGTGACCCATGGCGATGCCTGCTTGCCGAATATCATGGTGGAAAATGGCCGCTTTTCTGGATTCATCGACTGTGGCCGGCTGGGTGTGGCGGACCGCTATCAGGACATAGCGTTGGCTACCCGTGATATTGCTGAAGAGCTTGGCGGCGAATGGGCTGACCGCTTCCTCGTGCTTTACGGTATCGCCGCTCCCGATTCGCAGCGCATCGCCTTCTATCGCCTTCTTGACGAGTTCTTC"}
+        "10": {"id":"mySeq", "seq":"CCGGGAGCTTGTATATCCATTTTCGGATCTGATCAAGAGACAGGATGAGGATCGTTTCGCATGATTGAACAAGATGGATTGCACGCAGGTTCTCCGGCCGCTTGGGTGGAGAGGCTATTCGGCTATGACTGGGCACAACAGACAATCGGCTGCTCTGATGCCGCCGTGTTCCGGCTGTCAGCGCAGGGGCGCCCGGTTCTTTTTGTCAAGACCGACCTGTCCGGTGCCCTGAATGAACTGCAGGACGAGGCAGCGCGGCTATCGTGGCTGGCCACGACGGGCGTTCCTTGCGCAGCTGTGCTCGACGTTGTCACTGAAGCGGGAAGGGACTGGCTGCTATTGGGCGAAGTGCCGGGGCAGGATCTCCTGTCATCTCACCTTGCTCCTGCCGAGAAAGTATCCATCATGGCTGATGCAATGCGGCGGCTGCATACGCTT"}
+
     };
 
 var b = document.getElementById('button');
 var results = $('#results');
-
+var resultsForReversedTarget = $('#resultsForReversedTarget')
 
 b.addEventListener('click', function(e) {
-    var featuresData = [];
-    var res = {};
+
     var target = document.getElementById('target').value.replace(/[\s\n]+/g, '');
 
-    for (var feature in features) {
-
-        res[feature] = do_align(features[feature].seq, target);
-        var end = res[feature][1] + res[feature][3];
-        console.log(end)
+    var reversedTarget = getOppositeStrand(target);
 
 
-        while (end <= res[feature][0]) {
-            //[fullLength, featureLength, cigar, start, score]
-            featuresData.push({
-                id: features[feature].id,
-                fullLength: res[feature][0],
-                featureLength: res[feature][1],
-                cigar: res[feature][2],
-                start: res[feature][3],
-                score: res[feature][4]
-            });
 
-            res[feature] = do_align(features[feature].seq, target.slice(0, end));
+    var featuresData = getData(features, target);
 
-            res[feature][3] += end;
-            end = res[feature][3] + res[feature][1];
 
-        }
+    var featuresDataReversedTarget = getData(features, reversedTarget, true);
 
+
+    for (var i = 0; i < featuresDataReversedTarget.length; i++) {
+        featuresData.push(featuresDataReversedTarget[i]);
     }
 
+    console.log(featuresData)
+
     visualize(featuresData);
+    //visualize(featuresDataReversedTarget, reversed);
+
     results.html(Handlebars.templates.mapRes({
         featuresDescription: featuresData
     }));
+
+    // resultsForReversedTarget.html(Handlebars.templates.mapResRes({
+    //     featuresDescription: featuresDataReversedTarget
+    // }));
 });
+
+function getData(features, target, reversed) {
+
+    var featuresData = [];
+    var f;
+    for (var feature in features) {
+
+        f = do_align(features[feature].seq, target);
+
+        var end = f[1] + f[3];
+
+        while (end <= target.length + f[1]) {
+
+
+            featuresData.push({
+                reversed: reversed,
+                id: features[feature].id,
+                fullLength: f[0],
+                featureLength: f[1],
+                cigar: f[2],
+                start: f[3],
+                score: f[4]
+            });
+
+            f = do_align(features[feature].seq, target.slice(end));
+
+            if (f == null) {
+                console.log('braek')
+
+                break;
+            }
+
+            f[3] += end;
+
+            end = f[3] + f[1];
+        }
+    }
+    return featuresData;
+}
 
 function do_align(query, target) {
 
@@ -75,6 +110,9 @@ function do_align(query, target) {
 	var is_local = true;
 
 	var rst = bsa_align(is_local, target, query, [ms, mms], [gapo, gape]);
+    if (!rst) {
+        return rst;
+    }
 
 	var str = 'score: ' + rst[0] + '\n';
 	str += 'start: ' + rst[1] + '\n';
@@ -90,4 +128,27 @@ function do_align(query, target) {
     var cigar = bsa_cigar2str(rst[2]) + '\n\n';
 
     return [length, featureLength, cigar, start, score];
+}
+
+function getOppositeStrand(sequence) {
+    var oppStrand = '';
+
+    for (var i = 0; i < sequence.length; i++) {
+        switch(sequence[i]) {
+            case 'C':
+            oppStrand += 'G';
+            break;
+            case 'T':
+            oppStrand += 'A';
+            break;
+            case 'A':
+            oppStrand += 'T';
+            break;
+            case 'G':
+            oppStrand += 'C';
+            default:
+            break;
+        }
+    }
+    return oppStrand;
 }
