@@ -4,13 +4,17 @@ function visualize(res) {
     var cigarArray = [];
     var name = 'pcDNA3.1';
     console.log(res);
-    var length = res[0].fullLength;
+    var plasmidLength = res[0].fullLength;
 
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
 
     CanvasRenderingContext2D.prototype.fillTextCircle = function(text, x, y, radius, startRotation, space){
+        if (text.length < 5) {
+            text = " "+ text + " ";
+        }
         var numRadsPerLetter = space / text.length;
+
         this.save();
         this.translate(x,y);
         this.rotate(startRotation-1.45*Math.PI);
@@ -39,7 +43,12 @@ function visualize(res) {
     ctx.fillText(name, center-(textWidth/2), center);
 
     for (var i = 1; i < res.length; i++) {
-        if (res[i].featureLength- res[i].score < 100) {
+        if (res[i].score/res[i].featureLength > 0.98 && res[i].reversed === undefined) {
+            parseCigar(res[i]);
+        }
+        if (res[i].score/res[i].featureLength > 0.9 && res[i].reversed === true) {
+            res[i].start = plasmidLength - res[i].start;
+            console.log(res[i]);
             parseCigar(res[i]);
         }
     }
@@ -61,7 +70,6 @@ function visualize(res) {
                 s += str[i];
             }
         }
-        console.log(cigarArray);
         calculateAngles(cigarArray, properties);
     }
 
@@ -76,8 +84,8 @@ function visualize(res) {
             var type = cigarArray[i].type;
             var subFeatureStart = (cigarArray[i-1] === undefined) ? featureStart : (subFeatureStart + cigarArray[i-1].nucleotides);
             var subFeatureEnd = subFeatureStart + cigarArray[i].nucleotides;
-            var percentageStart = subFeatureStart/length;
-            var percentageEnd = subFeatureEnd/length;
+            var percentageStart = subFeatureStart/plasmidLength;
+            var percentageEnd = subFeatureEnd/plasmidLength;
             var firstLength = U*percentageStart;
             var secondLength = U*percentageEnd;
             var startAngle = firstLength/r+1.5*Math.PI;
@@ -93,7 +101,6 @@ function visualize(res) {
     }
 
     function drawMap(startAngle, endAngle, type, properties) {
-        console.log(properties.featureLength);
         if (properties.featureLength>200) {
             if (type === 'M') {
                 console.log('M');
