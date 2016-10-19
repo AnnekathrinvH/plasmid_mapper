@@ -29,25 +29,34 @@ b.addEventListener('click', function(e) {
 
     var reversedTarget = getOppositeStrand(target);
 
-    var reversed = true;
+
 
     var featuresData = getData(features, target);
 
-    var featuresDataReversedTarget = getData(features, reversedTarget);
 
-    //visualize(featuresData);
-    visualize(featuresDataReversedTarget, reversed);
+    var featuresDataReversedTarget = getData(features, reversedTarget, true);
+
+
+    for (var i = 0; i < featuresDataReversedTarget.length; i++) {
+        featuresData.push(featuresDataReversedTarget[i]);
+    }
+
+    console.log(featuresData)
+
+    visualize(featuresData);
+    //visualize(featuresDataReversedTarget, reversed);
 
     results.html(Handlebars.templates.mapRes({
         featuresDescription: featuresData
     }));
 
-    resultsForReversedTarget.html(Handlebars.templates.mapResRes({
-        featuresDescription: featuresDataReversedTarget
-    }));
+    // resultsForReversedTarget.html(Handlebars.templates.mapResRes({
+    //     featuresDescription: featuresDataReversedTarget
+    // }));
 });
 
-function getData(features, target) {
+function getData(features, target, reversed) {
+
     var featuresData = [];
     var f;
     for (var feature in features) {
@@ -58,8 +67,9 @@ function getData(features, target) {
 
         while (end <= target.length + f[1]) {
 
-            //[0 fullLength, 1 featureLength, 2 cigar, 3 start, 4 score]
+
             featuresData.push({
+                reversed: reversed,
                 id: features[feature].id,
                 fullLength: f[0],
                 featureLength: f[1],
