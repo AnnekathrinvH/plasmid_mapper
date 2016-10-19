@@ -1,4 +1,7 @@
-
+var restriction_emzymes = require('./restriction_emzymes.json');
+var selection_markers = require('./selection_markers.json');
+var features = require('./features.json');
+var tags = require('./tags.json');
 //handlebars
 var templates = document.querySelectorAll('script[type="text/handlebars"]');
 
@@ -29,14 +32,26 @@ var results = $('#results');
 var resultsForReversedTarget = $('#resultsForReversedTarget');
 
 b.addEventListener('click', function(e) {
+    var time_start = new Date().getTime();
+
+    var generalFeaturesCbox = document.getElementById('cbox1').checked;
+    var restriction_emzymesCbox = document.getElementById('cbox2').checked;
+    var tagsCbox = document.getElementById('cbox3').checked;
+    var selection_markersCbox = document.getElementById('cbox4').checked;
 
     var target = document.getElementById('target').value.replace(/[\s\n]+/g, '');
-
     var reversedTarget = getOppositeStrand(target);
 
     var featuresData = getData(features, target);
 
     var featuresDataReversedTarget = getData(features, reversedTarget, true);
+    if (generalFeaturesCbox) {
+
+        var featuresData = getData(features, target);
+        var featuresDataReversedTarget = getData(features, reversedTarget, true);
+
+    }
+
 
 
     for (var i = 0; i < featuresDataReversedTarget.length; i++) {
@@ -46,15 +61,16 @@ b.addEventListener('click', function(e) {
     console.log(featuresData);
 
     visualize(featuresData);
-    //visualize(featuresDataReversedTarget, reversed);
 
     //results.html(Handlebars.templates.mapRes({
     //    featuresDescription: featuresData
     //}));
+    results.html(Handlebars.templates.mapRes({
+        featuresDescription: featuresData
+    }));
+    var elapse = (new Date().getTime() - time_start) / 1000.0;
+    document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
 
-    // resultsForReversedTarget.html(Handlebars.templates.mapResRes({
-    //     featuresDescription: featuresDataReversedTarget
-    // }));
 });
 
 function getData(features, target, reversed) {
@@ -69,7 +85,6 @@ function getData(features, target, reversed) {
 
         while (end <= target.length + f[1]) {
 
-
             featuresData.push({
                 reversed: reversed,
                 id: features[feature].id,
@@ -83,7 +98,7 @@ function getData(features, target, reversed) {
             f = do_align(features[feature].seq, target.slice(end));
 
             if (f == null) {
-                console.log('braek')
+                console.log('break')
 
                 break;
             }
@@ -98,7 +113,6 @@ function getData(features, target, reversed) {
 
 function do_align(query, target) {
 
-	var time_start = new Date().getTime();
 
 	var ms   = parseInt(document.getElementById('match').value);
 	var mms  = parseInt(document.getElementById('mismatch').value);
@@ -116,8 +130,6 @@ function do_align(query, target) {
 	str += 'start: ' + rst[1] + '\n';
 	str += 'cigar: ' + bsa_cigar2str(rst[2]) + '\n\n';
 
-	var elapse = (new Date().getTime() - time_start) / 1000.0;
-	document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
 
     var length = target.length;
     var featureLength = query.length;
@@ -148,5 +160,7 @@ function getOppositeStrand(sequence) {
             break;
         }
     }
+
+    oppStrand = oppStrand.split('').reverse().join('');
     return oppStrand;
 }

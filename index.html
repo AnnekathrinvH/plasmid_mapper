@@ -15,39 +15,47 @@ Query sequence:<br>
 <textarea id="query" rows="10" cols="110">ATAG</textarea>
 </p> -->
 <p>
-<input type="button" value="Align" id="button"/>
+
 <!--local alignment: <input type="checkbox" id="is_local" checked/> -->
 match score: <input size="3" value="1" id="match"/>
 mismatch: <input size="3" value="-1" id="mismatch"/>
 deletion: <input size="3" value="-1" id="gapo"/>
 insertion: <input size="3" value="-1" id="gape"/>
+<br>
+<br>
+general features <input type="checkbox" id="cbox1" checked>
+<br>
+restriction emzymes <input type="checkbox" id="cbox2" value="second_checkbox" checked>
+<br>
+tags <input type="checkbox" id="cbox3" value="third_checkbox" checked>
+<br>
+selection_markers <input type="checkbox" id="cbox4" value="fourth_checkbox" checked>
+
+<br>
+<input type="button" value="Align" id="button"/>
 <span id="runtime" style="color: gray;"></span>
 </p>
 
 <div id="results">
     <script id='mapRes' type="text/handlebars">
     {{#featuresDescription}}
-    <p> ID: {{id}} length: {{fullLength}} Length of Feature: {{featureLength}} cigar: {{cigar}} start: {{start}}
+    <p> ID: {{id}} length: {{fullLength}} Length of Feature: {{featureLength}} cigar: {{cigar}} start: {{start}} reversed: {{reversed}}
     {{/featuresDescription}}
     </script>
 </div>
 
 <canvas id="canvas" width="1000" height="1000"></canvas>
 
-<div id="resultsForReversedTarget">
-    <script id='mapResRes' type="text/handlebars">
-    {{#featuresDescription}}
-    <p> ID: {{id}} length: {{fullLength}} Length of Feature: {{featureLength}} cigar: {{cigar}} start: {{start}}
-    {{/featuresDescription}}
-    </script>
-</div>
 
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=" crossorigin="anonymous"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
+<script src="bundle.js"></script>
 <script type="text/javascript" src="alignment.js"></script>
 <script type="text/javascript" src="visualization.js"></script>
-<script type="text/javascript" src="main.js"></script>
+<!--<script type="text/javascript" src="main.js"></script>
+-->
+
 
 
 </body>
