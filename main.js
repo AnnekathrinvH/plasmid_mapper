@@ -89,11 +89,14 @@ b.addEventListener('click', function(e) {
 
 function getData(features, target, reversed) {
 
+
     var featuresData = [];
     var f;
     for (var feature in features) {
 
         if (features[feature].seq.length > 30) {
+
+
 
             f = do_align(features[feature].seq, target);
 
@@ -123,7 +126,8 @@ function getData(features, target, reversed) {
 
                 end = f[3] + f[1];
             }
-        }
+        } 
+
     }
     return featuresData;
 }
