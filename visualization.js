@@ -39,7 +39,6 @@ function visualize(res) {
     ctx.font = "40px sans-serif";
     var metrics = ctx.measureText(name);
     var textWidth = metrics.width;
-    console.log(textWidth);
     ctx.fillText(name, center-(textWidth/2), center);
 
     for (var i = 1; i < res.length; i++) {
