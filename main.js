@@ -41,18 +41,12 @@ b.addEventListener('click', function(e) {
         featuresData.push(featuresDataReversedTarget[i]);
     }
 
-    console.log(featuresData)
-
     visualize(featuresData);
-    //visualize(featuresDataReversedTarget, reversed);
+
 
     results.html(Handlebars.templates.mapRes({
         featuresDescription: featuresData
     }));
-
-    // resultsForReversedTarget.html(Handlebars.templates.mapResRes({
-    //     featuresDescription: featuresDataReversedTarget
-    // }));
 });
 
 function getData(features, target, reversed) {
