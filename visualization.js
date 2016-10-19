@@ -9,6 +9,23 @@ function visualize(res) {
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
 
+    CanvasRenderingContext2D.prototype.fillTextCircle = function(text, x, y, radius, startRotation, space){
+        var numRadsPerLetter = space / text.length;
+        this.save();
+        this.translate(x,y);
+        this.rotate(startRotation-1.45*Math.PI);
+
+        for(var i=0;i<text.length;i++){
+            this.save();
+            this.rotate(i*numRadsPerLetter);
+            this.font ="20px sans-serif";
+            this.fillStyle = "black";
+            this.fillText(text[i],0,-radius);
+            this.restore();
+        }
+        this.restore();
+    };
+
     clear();
 
     ctx.beginPath();
@@ -55,7 +72,6 @@ function visualize(res) {
         var featureLength = properties.featureLength;
         var featureEnd = featureStart + featureLength;
 
-
         for (var i = 0; i < cigarArray.length; i++) {
             var type = cigarArray[i].type;
             var subFeatureStart = (cigarArray[i-1] === undefined) ? featureStart : (subFeatureStart + cigarArray[i-1].nucleotides);
@@ -66,19 +82,19 @@ function visualize(res) {
             var secondLength = U*percentageEnd;
             var startAngle = firstLength/r+1.5*Math.PI;
             var endAngle = secondLength/r+1.5*Math.PI;
+
             if (i === cigarArray.length -1 && featureLength>200) {
                 drawArrow(endAngle);
-                drawMap(startAngle, endAngle-0.2, type, featureLength);
+                drawMap(startAngle, endAngle-0.2, type, properties);
             } else {
-                drawMap(startAngle, endAngle, type, featureLength);
-
+                drawMap(startAngle, endAngle, type, properties);
             }
         }
     }
 
-    function drawMap(startAngle, endAngle, type, featureLength) {
-        console.log(featureLength);
-        if (featureLength>200) {
+    function drawMap(startAngle, endAngle, type, properties) {
+        console.log(properties.featureLength);
+        if (properties.featureLength>200) {
             if (type === 'M') {
                 console.log('M');
                 ctx.strokeStyle = "rgb(117, 200, 252)";
@@ -86,6 +102,9 @@ function visualize(res) {
                 ctx.beginPath();
                 ctx.arc(center, center, r, startAngle, endAngle, false);
                 ctx.stroke();
+                var space = endAngle - startAngle;
+                ctx.fillTextCircle(properties.id, center, center, r, startAngle, space);
+
             }
             if (type === "D") {
                 console.log('D');
@@ -131,6 +150,7 @@ function visualize(res) {
     function drawArrow(endAngle) {
         var x = center + r * Math.cos(endAngle);
         var y = center + r * Math.sin(endAngle);
+        console.log(x, y);
 
         var xOut = center + (r + 25) * Math.cos(endAngle-0.25);
         var yOut = center + (r + 25) * Math.sin(endAngle-0.25);
@@ -139,7 +159,7 @@ function visualize(res) {
         var yIn = center + (r - 25) * Math.sin(endAngle-0.25);
 
         ctx.strokeStyle = "rgb(117, 200, 252)";
-        ctx.fillStyle = "rgb(117, 200, 252)"
+        ctx.fillStyle = "rgb(117, 200, 252)";
         ctx.beginPath();
         ctx.moveTo(x,y);
         ctx.lineTo(xOut,yOut);
@@ -150,4 +170,5 @@ function visualize(res) {
     function clear() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
+
 }
