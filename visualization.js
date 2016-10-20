@@ -12,16 +12,16 @@ function visualize(res) {
     var ctx = canvas.getContext("2d");
     //ctx.globalCompositeOperation = "lighter";
 
-    CanvasRenderingContext2D.prototype.fillTextCircle = function(text, x, y, radius, startRotation, space){
+    CanvasRenderingContext2D.prototype.fillTextCircle = function(text, x, y, radius, space, endAngle){
         var textMetrics = ctx.measureText(text);
         var textLength = textMetrics.width;
-        console.log((2*Math.PI/U)*textLength);
+        var textLengthInRad = (2*Math.PI/U)*textLength;
+        var textMiddle = textLengthInRad/2;
+        var featureMiddle = endAngle - space/2;
+        var startRotation =featureMiddle - textMiddle;
 
         console.log(space);
-        //if (text.length < 5) {
-        //    text = " "+ text + " ";
-        //}
-        var numRadsPerLetter = space / text.length;
+        var numRadsPerLetter = textLengthInRad / text.length;
 
         this.save();
         this.translate(x,y);
@@ -96,7 +96,7 @@ function visualize(res) {
             ctx.arc(center, center, r, startAngle, endAngle, false);
             ctx.stroke();
             var space = endAngle - startAngle;
-            ctx.fillTextCircle(properties.id, center, center, r-5, startAngle, space);
+            ctx.fillTextCircle(properties.id, center, center, r-5, space, endAngle-0.12);
 
         } else {
             ctx.strokeStyle = "green";
