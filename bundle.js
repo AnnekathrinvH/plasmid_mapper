@@ -98,13 +98,14 @@ Array.prototype.slice.call(templates).forEach(function(script) {
 //         //"11": {"id":"mySeq", "seq":"CCGGGAGCTTGTATATCCATTTTCGGATCTGATCAAGAGACAGGATGAGGATCGTTTCGCATGATTGAACAAGATGGATTGCACGCAGGTTCTCCGGCCGCTTGGGTGGAGAGGCTATTCGGCTATGACTGGGCACAACAGACAATCGGCTGCTCTGATGCCGCCGTGTTCCGGCTGTCAGCGCAGGGGCGCCCGGTTCTTTTTGTCAAGACCGACCTGTCCGGTGCCCTGAATGAACTGCAGGACGAGGCAGCGCGGCTATCGTGGCTGGCCACGACGGGCGTTCCTTGCGCAGCTGTGCTCGACGTTGTCACTGAAGCGGGAAGGGACTGGCTGCTATTGGGCGAAGTGCCGGGGCAGGATCTCCTGTCATCTCACCTTGCTCCTGCCGAGAAAGTATCCATCATGGCTGATGCAATGCGGCGGCTGCATACGCTT"}
 //
 //     };
-
+$('#load').hide()
 var b = document.getElementById('button');
 var results = $('#results');
 var resultsForReversedTarget = $('#resultsForReversedTarget');
 
 b.addEventListener('click', function(e) {
     var time_start = new Date().getTime();
+    $('#load').show();
 
     var generalFeaturesCbox = document.getElementById('cbox1').checked;
     var restriction_emzymesCbox = document.getElementById('cbox2').checked;
@@ -168,14 +169,16 @@ b.addEventListener('click', function(e) {
     }
 
 
+    var elapse = (new Date().getTime() - time_start) / 1000.0;
+    document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
+    setTimeout(function() {$('#load').hide()}, new Date().getTime() - time_start);
     visualize(featuresData);
 
     results.html(Handlebars.templates.mapRes({
         featuresDescription: featuresData
     }));
 
-    var elapse = (new Date().getTime() - time_start) / 1000.0;
-    document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
+
 
 });
 

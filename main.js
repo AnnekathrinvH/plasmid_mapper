@@ -187,7 +187,7 @@ function getIndices(sequence, feature) {
        index = sequence.indexOf(feature);
 
     }
-
+    console.log(indices)
     return indices;
 }
 
