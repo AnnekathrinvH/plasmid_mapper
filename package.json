@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "webpack ./main.js bundle.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -15,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/AnnekathrinvH/plasmid_mapper/issues"
   },
-  "homepage": "https://github.com/AnnekathrinvH/plasmid_mapper#readme"
+  "homepage": "https://github.com/AnnekathrinvH/plasmid_mapper#readme",
+  "devDependencies": {
+    "webpack": "^1.13.2"
+  }
 }

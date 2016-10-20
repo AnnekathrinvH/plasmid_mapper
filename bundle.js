@@ -74,6 +74,7 @@ var restriction_emzymes = require('./restriction_emzymes.json');
 var selection_markers = require('./selection_markers.json');
 var features = require('./features.json');
 var tags = require('./tags.json');
+
 //handlebars
 var templates = document.querySelectorAll('script[type="text/handlebars"]');
 
@@ -83,16 +84,19 @@ Array.prototype.slice.call(templates).forEach(function(script) {
     Handlebars.templates[script.id] = Handlebars.compile(script.innerHTML);
 });
 
-var b = document.getElementById('button');
+var $b = $('#button');
 var results = $('#results');
 var resultsForReversedTarget = $('#resultsForReversedTarget');
 
-// function wait() {
-//     return $("#justamoment").css("visibility", "visible");
-//
-// }
+$b.on('click', function(){
+    //$(".loaderContainer").append("<div class='loader'></div>");
+    $(".loader").css("visibility", "visible");
 
-b.addEventListener('click', function(e) {
+    setTimeout(getResults, 200);
+
+});
+
+function getResults() {
 
     var time_start = new Date().getTime();
 
@@ -156,9 +160,7 @@ b.addEventListener('click', function(e) {
         }
     }
 
-
     var visualized = visualize(featuresData);
-
     $("#visualizedText").css("visibility", "visible");
     results.html(Handlebars.templates.mapRes({
         featuresDescription: visualized
@@ -166,8 +168,10 @@ b.addEventListener('click', function(e) {
 
     var elapse = (new Date().getTime() - time_start) / 1000.0;
     document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
+    console.log('finish')
+    $(".loader").css("visibility", "hidden");
 
-});
+}
 
 function getData(features, target, reversed) {
 
