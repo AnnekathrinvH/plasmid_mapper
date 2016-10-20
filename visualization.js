@@ -46,7 +46,6 @@ function visualize(res) {
     ctx.font = "40px sans-serif";
     var metrics = ctx.measureText(name);
     var textWidth = metrics.width;
-    console.log(textWidth);
     ctx.fillText(name, center-(textWidth/2), center);
 
     for (var i = 1; i < res.length; i++) {
@@ -89,7 +88,7 @@ function visualize(res) {
     }
 
     function drawMap(startAngle, endAngle, properties) {
-        if (properties.featureLength>200) {
+        if (properties.featureLength > 200) {
             ctx.strokeStyle = "rgb(117, 200, 252)";
             ctx.lineWidth = 35;
             ctx.beginPath();
@@ -97,9 +96,23 @@ function visualize(res) {
             ctx.stroke();
             var space = endAngle - startAngle;
             ctx.fillTextCircle(properties.id, center, center, r-5, space, endAngle-0.12);
+        }
+        else if (properties.featureLength < 200 && properties.featureLength > 20) {
+            ctx.strokeStyle = "rgb(108, 240, 184)";
+            ctx.lineWidth = 35;
+            ctx.beginPath();
+            ctx.arc(center, center, r, startAngle, endAngle, false);
+            ctx.stroke();
 
+            var x = center + (r + 20) * Math.cos(startAngle);
+            var y = center + (r + 20) * Math.sin(startAngle);
+
+            ctx.font = "20px sans-serif";
+            var metrics = ctx.measureText(name);
+            var textWidth = metrics.width;
+            ctx.fillText(properties.id, x, y);
         } else {
-            ctx.strokeStyle = "green";
+            ctx.strokeStyle = "black";
             ctx.lineWidth = 10;
             ctx.beginPath();
             ctx.arc(center, center, r, startAngle, endAngle, false);
