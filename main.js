@@ -104,7 +104,7 @@ b.addEventListener('click', function(e) {
 
 
     var visualized = visualize(featuresData);
-    console.log(visualized)
+
     $("#visualizedText").css("visibility", "visible");
     results.html(Handlebars.templates.mapRes({
         featuresDescription: visualized
@@ -158,7 +158,7 @@ function getData(features, target, reversed) {
 
             indexOfFeature.push(getIndices(target, features[feature].seq));
 
-            if (indexOfFeature[0].length > 1) {
+            if (indexOfFeature[0].length >= 1 && indexOfFeature[0].length <= 2) {
 
                 for (var i = 0; indexOfFeature[0][i]; i++) {
 
