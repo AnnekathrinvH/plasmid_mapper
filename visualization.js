@@ -110,6 +110,7 @@ function visualize(res) {
             ctx.font = "20px sans-serif";
             var metrics = ctx.measureText(name);
             var textWidth = metrics.width;
+            ctx.fillStyle = 'black';
             ctx.fillText(properties.id, x, y);
         } else {
             ctx.strokeStyle = "black";
