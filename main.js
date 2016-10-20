@@ -31,7 +31,13 @@ var b = document.getElementById('button');
 var results = $('#results');
 var resultsForReversedTarget = $('#resultsForReversedTarget');
 
+// function wait() {
+//     return $("#justamoment").css("visibility", "visible");
+//
+// }
+
 b.addEventListener('click', function(e) {
+
     var time_start = new Date().getTime();
 
     var generalFeaturesCbox = document.getElementById('cbox1').checked;
@@ -42,6 +48,7 @@ b.addEventListener('click', function(e) {
     var target = document.getElementById('target').value.replace(/[\s\n]+/g, '');
     var reversedTarget = getOppositeStrand(target);
     var featuresData = [];
+
 
 
     if (generalFeaturesCbox) {
@@ -96,10 +103,11 @@ b.addEventListener('click', function(e) {
     }
 
 
-    visualize(featuresData);
-
+    var visualized = visualize(featuresData);
+    console.log(visualized)
+    $("#visualizedText").css("visibility", "visible");
     results.html(Handlebars.templates.mapRes({
-        featuresDescription: featuresData
+        featuresDescription: visualized
     }));
 
     var elapse = (new Date().getTime() - time_start) / 1000.0;
@@ -136,7 +144,6 @@ function getData(features, target, reversed) {
                 f = do_align(features[feature].seq, target.slice(end));
 
                 if (f == null) {
-                    console.log('break')
 
                     break;
                 }
@@ -162,7 +169,7 @@ function getData(features, target, reversed) {
                         featureLength: features[feature].seq.length,
                         start: indexOfFeature[0][i],
                         cigar: '',
-                        score: ''
+                        score: features[feature].seq.length
 
                     })
                 }
@@ -187,7 +194,7 @@ function getIndices(sequence, feature) {
        index = sequence.indexOf(feature);
 
     }
-    console.log(indices)
+
     return indices;
 }
 
