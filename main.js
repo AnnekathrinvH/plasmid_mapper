@@ -159,7 +159,6 @@ function getData(features, target, reversed) {
             indexOfFeature.push(getIndices(target, features[feature].seq));
 
             if (indexOfFeature[0].length >= 1 && indexOfFeature[0].length <= 2) {
-                console.log(indexOfFeature[0].length)
 
                 for (var i = 0; indexOfFeature[0][i]; i++) {
 
