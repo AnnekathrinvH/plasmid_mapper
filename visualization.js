@@ -4,36 +4,38 @@ function visualize(res) {
     var name = 'pcDNA3.1';
     console.log(res);
     var plasmidLength = res[0].fullLength;
+    var U = 2*r*Math.PI;
+    var visualizedData = [];
 
-    var hasLabel;
 
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
     //ctx.globalCompositeOperation = "lighter";
 
     CanvasRenderingContext2D.prototype.fillTextCircle = function(text, x, y, radius, startRotation, space){
-        console.log(hasLabel);
-        if (hasLabel === false) {
-            if (text.length < 5) {
-                text = " "+ text + " ";
-            }
-            var numRadsPerLetter = space / text.length;
+        var textMetrics = ctx.measureText(text);
+        var textLength = textMetrics.width;
+        console.log((2*Math.PI/U)*textLength);
 
+        console.log(space);
+        //if (text.length < 5) {
+        //    text = " "+ text + " ";
+        //}
+        var numRadsPerLetter = space / text.length;
+
+        this.save();
+        this.translate(x,y);
+        this.rotate(startRotation-1.45*Math.PI);
+
+        for(var i=0;i<text.length;i++){
             this.save();
-            this.translate(x,y);
-            this.rotate(startRotation-1.45*Math.PI);
-
-            for(var i=0;i<text.length;i++){
-                this.save();
-                this.rotate(i*numRadsPerLetter);
-                this.font ="20px sans-serif";
-                this.fillStyle = "black";
-                this.fillText(text[i],0,-radius);
-                this.restore();
-            }
+            this.rotate(i*numRadsPerLetter);
+            this.font ="20px sans-serif";
+            this.fillStyle = "black";
+            this.fillText(text[i],0,-radius);
             this.restore();
-            hasLabel = true;
         }
+        this.restore();
     };
 
 
@@ -44,26 +46,27 @@ function visualize(res) {
     ctx.font = "40px sans-serif";
     var metrics = ctx.measureText(name);
     var textWidth = metrics.width;
+    console.log(textWidth);
     ctx.fillText(name, center-(textWidth/2), center);
 
     for (var i = 1; i < res.length; i++) {
         if (res[i].score/res[i].featureLength > 0.98 && res[i].reversed === undefined) {
-            hasLabel = false;
+            visualizedData.push(res[i]);
             calculateAngles(res[i]);
 
         }
         if (res[i].score/res[i].featureLength > 0.98 && res[i].reversed === true) {
             res[i].start = plasmidLength - res[i].start - res[i].featureLength;
-            hasLabel = false;
+            visualizedData.push(res[i]);
             calculateAngles(res[i]);
         }
     }
 
 
     function calculateAngles(properties) {
-        var U = 2*r*Math.PI;
         var featureStart = properties.start;
         var featureLength = properties.featureLength;
+        console.log(featureLength);
         var featureEnd = featureStart + featureLength;
         var percentageStart = featureStart/plasmidLength;
         var percentageEnd = featureEnd/plasmidLength;
@@ -86,7 +89,6 @@ function visualize(res) {
     }
 
     function drawMap(startAngle, endAngle, properties) {
-        console.log(properties.id, properties.cigar);
         if (properties.featureLength>200) {
             ctx.strokeStyle = "rgb(117, 200, 252)";
             ctx.lineWidth = 35;
@@ -94,7 +96,7 @@ function visualize(res) {
             ctx.arc(center, center, r, startAngle, endAngle, false);
             ctx.stroke();
             var space = endAngle - startAngle;
-            ctx.fillTextCircle(properties.id, center, center, r, startAngle, space);
+            ctx.fillTextCircle(properties.id, center, center, r-5, startAngle, space);
 
         } else {
             ctx.strokeStyle = "green";
@@ -136,6 +138,5 @@ function visualize(res) {
         ctx.lineTo(xIn,yIn);
         ctx.fill();
     }
-
-
+    return visualizedData;
 }
