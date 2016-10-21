@@ -88,8 +88,9 @@ var $b = $('#button');
 var results = $('#results');
 var resultsForReversedTarget = $('#resultsForReversedTarget');
 
+
 $b.on('click', function(){
-    //$(".loaderContainer").append("<div class='loader'></div>");
+
     $(".loader").css("visibility", "visible");
 
     setTimeout(getResults, 200);
