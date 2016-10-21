@@ -74,8 +74,6 @@ var restriction_emzymes = require('./restriction_emzymes.json');
 var selection_markers = require('./selection_markers.json');
 var features = require('./features.json');
 var tags = require('./tags.json');
-
-//handlebars
 var templates = document.querySelectorAll('script[type="text/handlebars"]');
 
 Handlebars.templates = Handlebars.templates || {};
@@ -84,94 +82,89 @@ Array.prototype.slice.call(templates).forEach(function(script) {
     Handlebars.templates[script.id] = Handlebars.compile(script.innerHTML);
 });
 
-var $b = $('#button');
+
 var results = $('#results');
 var resultsForReversedTarget = $('#resultsForReversedTarget');
 
 
-$b.on('click', function(){
+module.exports = {
 
-    $(".loader").css("visibility", "visible");
+    getResults: function() {
 
-    setTimeout(getResults, 200);
+        var time_start = new Date().getTime();
 
-});
+        var generalFeaturesCbox = document.getElementById('cbox1').checked;
+        var restriction_emzymesCbox = document.getElementById('cbox2').checked;
+        var tagsCbox = document.getElementById('cbox3').checked;
+        var selection_markersCbox = document.getElementById('cbox4').checked;
 
-function getResults() {
+        var target = document.getElementById('target').value.replace(/[\s\n]+/g, '');
+        var reversedTarget = getOppositeStrand(target);
+        var featuresData = [];
 
-    var time_start = new Date().getTime();
+        if (generalFeaturesCbox) {
 
-    var generalFeaturesCbox = document.getElementById('cbox1').checked;
-    var restriction_emzymesCbox = document.getElementById('cbox2').checked;
-    var tagsCbox = document.getElementById('cbox3').checked;
-    var selection_markersCbox = document.getElementById('cbox4').checked;
+            var generalFeaturesData = getData(features, target);
+            var generalFeaturesDataReversedTarget = getData(features, reversedTarget, true);
 
-    var target = document.getElementById('target').value.replace(/[\s\n]+/g, '');
-    var reversedTarget = getOppositeStrand(target);
-    var featuresData = [];
+            for (var i = 0; i < generalFeaturesData.length; i++) {
+                featuresData.push(generalFeaturesData[i]);
+            }
 
-    if (generalFeaturesCbox) {
-
-        var generalFeaturesData = getData(features, target);
-        var generalFeaturesDataReversedTarget = getData(features, reversedTarget, true);
-
-        for (var i = 0; i < generalFeaturesData.length; i++) {
-            featuresData.push(generalFeaturesData[i]);
+            for (var i = 0; i < generalFeaturesDataReversedTarget.length; i++) {
+                featuresData.push(generalFeaturesDataReversedTarget[i]);
+            }
         }
 
-        for (var i = 0; i < generalFeaturesDataReversedTarget.length; i++) {
-            featuresData.push(generalFeaturesDataReversedTarget[i]);
+        if (restriction_emzymesCbox) {
+
+            var restriction_emzymesData = getData(restriction_emzymes, target);
+            var restriction_emzymesDataReversedTarget = getData(restriction_emzymes, reversedTarget, true);
+
+            for (var i = 0; i < restriction_emzymesData.length; i++) {
+                featuresData.push(restriction_emzymesData[i]);
+            }
+            for (var i = 0; i < restriction_emzymesDataReversedTarget.length; i++) {
+                featuresData.push(restriction_emzymesDataReversedTarget[i]);
+            }
         }
+
+        if (selection_markersCbox) {
+            var selection_markersData = getData(selection_markers, target);
+            var selection_markersDataReversedTarget = getData(selection_markers, reversedTarget, true);
+
+            for (var i = 0; i < selection_markersData.length; i++) {
+                featuresData.push(selection_markersData[i]);
+            }
+            for (var i = 0; i < selection_markersDataReversedTarget.length; i++) {
+                featuresData.push(selection_markersDataReversedTarget[i]);
+            }
+        }
+
+        if (tagsCbox) {
+            var tagsData = getData(tags, target);
+            var tagsDataReversedTarget = getData(tags, reversedTarget, true);
+
+            for (var i = 0; i < tagsData.length; i++) {
+                featuresData.push(tagsData[i]);
+            }
+            for (var i = 0; i < tagsDataReversedTarget.length; i++) {
+                featuresData.push(tagsDataReversedTarget[i]);
+            }
+        }
+
+        var visualized = visualize(featuresData);
+        $("#visualizedText").css("visibility", "visible");
+        results.html(Handlebars.templates.mapRes({
+            featuresDescription: visualized
+        }));
+
+        var elapse = (new Date().getTime() - time_start) / 1000.0;
+        document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
+        console.log('finish')
+        $(".loader").css("visibility", "hidden");
+
     }
-
-    if (restriction_emzymesCbox) {
-
-        var restriction_emzymesData = getData(restriction_emzymes, target);
-        var restriction_emzymesDataReversedTarget = getData(restriction_emzymes, reversedTarget, true);
-
-        for (var i = 0; i < restriction_emzymesData.length; i++) {
-            featuresData.push(restriction_emzymesData[i]);
-        }
-        for (var i = 0; i < restriction_emzymesDataReversedTarget.length; i++) {
-            featuresData.push(restriction_emzymesDataReversedTarget[i]);
-        }
-    }
-
-    if (selection_markersCbox) {
-        var selection_markersData = getData(selection_markers, target);
-        var selection_markersDataReversedTarget = getData(selection_markers, reversedTarget, true);
-
-        for (var i = 0; i < selection_markersData.length; i++) {
-            featuresData.push(selection_markersData[i]);
-        }
-        for (var i = 0; i < selection_markersDataReversedTarget.length; i++) {
-            featuresData.push(selection_markersDataReversedTarget[i]);
-        }
-    }
-
-    if (tagsCbox) {
-        var tagsData = getData(tags, target);
-        var tagsDataReversedTarget = getData(tags, reversedTarget, true);
-
-        for (var i = 0; i < tagsData.length; i++) {
-            featuresData.push(tagsData[i]);
-        }
-        for (var i = 0; i < tagsDataReversedTarget.length; i++) {
-            featuresData.push(tagsDataReversedTarget[i]);
-        }
-    }
-
-    var visualized = visualize(featuresData);
-    $("#visualizedText").css("visibility", "visible");
-    results.html(Handlebars.templates.mapRes({
-        featuresDescription: visualized
-    }));
-
-    var elapse = (new Date().getTime() - time_start) / 1000.0;
-    document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
-    console.log('finish')
-    $(".loader").css("visibility", "hidden");
-
 }
 
 function getData(features, target, reversed) {
@@ -309,7 +302,21 @@ function getOppositeStrand(sequence) {
     return oppStrand;
 }
 
-},{"./features.json":1,"./restriction_emzymes.json":3,"./selection_markers.json":4,"./tags.json":5}],3:[function(require,module,exports){
+},{"./features.json":1,"./restriction_emzymes.json":4,"./selection_markers.json":5,"./tags.json":6}],3:[function(require,module,exports){
+getRes = require('./getResultsFunction.js')
+
+//handlebars
+var $b = $('#button');
+
+$b.on('click', function(){
+
+    $(".loader").css("visibility", "visible");
+
+    setTimeout(getRes.getResults, 200);
+
+});
+
+},{"./getResultsFunction.js":2}],4:[function(require,module,exports){
 module.exports={
     "1": {"id":"AsiSI","seq":"GCGATCGC"},
     "2": {"id":"BspDI","seq":"ATCGAT"},
@@ -770,7 +777,7 @@ module.exports={
     "462": {"id":"EcoI","seq":"GATATC"}
 }
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 module.exports={
     "1": {"id":"Gal4_AD","seq":"AATTTTAATCAAAGTGGGAATATTGCTGATAGCTCATTGTCCTTCACTTTCACTAACAGTAGCAACGGTCCGAACCTCATAACAACTCAAACAAATTCTCAAGCGCTTTCACAACCAATTGCCTCCTCTAACGTTCATGATAACTTCATGAATAATGAAATCACGGCTAGTAAAATTGATGATGGTAATAATTCAAAACCACTGTCACCTGGTTGGACGGACCAAACTGCGTATAACGCGTTTGGAATCACTACAGGGATGTTTAATACCACTACAATGGATGATGTATATAACTATCTATTCGATGATGAAGATACCCCACCAAACCCAAAAAAAGAG"},
     "2": {"id":"Gal4_AD","seq":"ATGGATAAAGCGGAATTAATTCCCGAGCCTCCAAAAAAGAAGAGAAAGGTCGAATTGGGTACCGCCGCCAATTTTAATCAAAGTGGGAATATTGCTGATAGCTCATTGTCCTTCACTTTCACTAACAGTAGCAACGGTCCGAACCTCATAACAACTCAAACAAATTCTCAAGCGCTTTCACAACCAATTGCCTCCTCTAACGTTCATGATAACTTCATGAATAATGAAATCACGGCTAGTAAAATTGATGATGGTAATAATTCAAAACCACTGTCACCTGGTTGGACGGACCAAACTGCGTATAACGCGTTTGGAATCACTACAGGGATGTTTAATACCACTACAATGGATGATGTATATAACTATCTATTCGATGATGAAGATACCCCACCAAACCCAAAAAAAGAG"},
@@ -784,7 +791,7 @@ module.exports={
 
 }
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 module.exports={
     "1": {"id":"5xGal4_DBD","seq":"CGGAGTACTGTCCTCCGAGCGGAGTACTGTCCTCCGAGCGGAGTACTGTCCTCCGAGCGGAGTACTGTCCTCCGAGCGGAGTACTGTCCTCCGAG"},
     "2": {"id":"YFP","seq":"ATGGTGAGCAAGGGCGAGGAGCTGTTCACCGGGGTGGTGCCCATCCTGGTCGAGCTGGACGGCGACGTAAACGGCCACAAGTTCAGCGTGTCCGGCGAGGGCGAGGGCGATGCCACCTACGGCAAGCTGACCCTGAAGTTCATCTGCACCACCGGCAAGCTGCCCGTGCCCTGGCCCACCCTCGTGACCACCTTCGGCTACGGCCTGCAGTGCTTCGCCCGCTACCCCGACCACATGAAGCAGCACGACTTCTTCAAGTCCGCCATGCCCGAAGGCTACGTCCAGGAGCGCACCATCTTCTTCAAGGACGACGGCAACTACAAGACCCGCGCCGAGGTGAAGTTCGAGGGCGACACCCTGGTGAACCGCATCGAGCTGAAGGGCATCGACTTCAAGGAGGACGGCAACATCCTGGGGCACAAGCTGGAGTACAACTACAACAGCCACAACGTCTATATCATGGCCGACAAGCAGAAGAACGGCATCAAGGTGAACTTCAAGATCCGCCACAACATCGAGGACGGCAGCGTGCAGCTCGCCGACCACTACCAGCAGAACACCCCCATCGGCGACGGCCCCGTGCTGCTGCCCGACAACCACTACCTGAGCTACCAGTCCGCCCTGAGCAAAGACCCCAACGAGAAGCGCGATCACATGGTCCTGCTGGAGTTCGTGACCGCCGCCGGGATCACTCTCGGCATGGACGAGCTGTACAAGTAA"},
@@ -793,4 +800,4 @@ module.exports={
     "5": {"id":"6His","seq":"catcatcaccatcaccac"}
 }
 
-},{}]},{},[2,1,3,5,4]);
+},{}]},{},[3,1,4,6,5,2]);
