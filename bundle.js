@@ -1,4 +1,330 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+/**************************
+ *** Common data tables ***
+ **************************/
+
+var bst_nt5 = [
+	4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 0, 4, 1,  4, 4, 4, 2,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 4, 4, 4,  3, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 0, 4, 1,  4, 4, 4, 2,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 4, 4, 4,  3, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+
+	4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4
+];
+
+/************************
+ *** Generic routines ***
+ ************************/
+
+/**
+ * Encode a sequence string with table
+ *
+ * @param seq    sequence
+ * @param table  encoding table; must be of size 256
+ *
+ * @return an integer array
+ */
+
+function bsg_enc_seq(seq, table)
+//seq parameter are both sequences
+//but probably this function is called twice for both seqences
+{
+
+	if (table == null) return null;
+	var s = [];
+	s.length = seq.length;
+	for (var i = 0; i < seq.length; ++i)
+
+		s[i] = table[seq.charCodeAt(i)];
+
+
+	return s;
+}
+
+/**************************
+ *** Pairwise alignment ***
+ **************************/
+
+/*
+ * The following implements local and global pairwise alignment with affine gap
+ * penalties. There are two formulations: the Durbin formulation as is
+ * described in his book and the Green formulation as is implemented in phrap.
+ * The Durbin formulation is easier to understand, while the Green formulation
+ * is simpler to code and probably faster in practice.
+ *
+ * The Durbin formulation is:
+ *
+ *   M(i,j) = max{M(i-1,j-1)+S(i,j), E(i-1,j-1), F(i-1,j-1)}
+ *   E(i,j) = max{M(i-1,j)-q-r, F(i-1,j)-q-r, E(i-1,j)-r}
+ *   F(i,j) = max{M(i,j-1)-q-r, F(i,j-1)-r, E(i,j-1)-q-r}
+ *
+ * where q is the gap open penalty, r the gap extension penalty and S(i,j) is
+ * the score between the i-th residue in the row sequence and the j-th residue
+ * in the column sequence. Note that the original Durbin formulation disallows
+ * transitions between between E and F states, but we allow them here.
+ *
+ * In the Green formulation, we introduce:
+ *
+ *   H(i,j) = max{M(i,j), E(i,j), F(i,j)}
+ *
+ * The recursion becomes:
+ *
+ *   H(i,j) = max{H(i-1,j-1)+S(i,j), E(i,j), F(i,j)}
+ *   E(i,j) = max{H(i-1,j)-q, E(i-1,j)} - r
+ *   F(i,j) = max{H(i,j-1)-q, F(i,j-1)} - r
+ *
+ * It is in fact equivalent to the Durbin formulation. In implementation, we
+ * calculate the scores in a different order:
+ *
+ *   H(i,j)   = max{H(i-1,j-1)+S(i,j), E(i,j), F(i,j)}
+ *   E(i+1,j) = max{H(i,j)-q, E(i,j)} - r
+ *   F(i,j+1) = max{H(i,j)-q, F(i,j)} - r
+ *
+ * i.e. at cell (i,j), we compute E for the next row and F for the next column.
+ * Please see inline comments below for details.
+ *
+ *
+ * The following implementation is ported from klib/ksw.c. The original C
+ * implementation has a few bugs which have been fixed here. Like the C
+ * version, this implementation should be very efficient. It could be made more
+ * efficient if we use typed integer arrays such as Uint8Array. In addition,
+ * I mixed the local and global alignments together. For performance,
+ * it would be preferred to separate them out.
+ */
+
+/**
+ * Generate scoring matrix from match/mismatch score
+ *
+ * @param n     size of the alphabet
+ * @param a     match score, positive
+ * @param b     mismatch score, negative
+ *
+ * @return sqaure scoring matrix. The last row and column are zero, for
+ * matching an ambiguous residue.
+ */
+function bsa_gen_score_matrix(n, a, b)
+{
+
+	var m = [];
+	if (b > 0) b = -b; // mismatch score b should be non-positive
+	for (var i = 0; i < n - 1; ++i) {
+		m[i] = [];
+		for (var j = 0; j < n - 1; ++j)
+			m[i][j] = i == j? a : b;
+		m[i][j] = 0;
+	}
+	m[n-1] = [];
+	for (var j = 0; j < n; ++j) m[n-1][j] = 0;
+
+	return m;
+}
+
+/**
+ * Generate query profile (a preprocessing step)
+ *
+ * @param _s      sequence in string or post bsg_enc_seq()
+ * @param _m      score matrix or [match,mismatch] array
+ * @param table   encoding table; must be consistent with _s and _m
+ *
+ * @return query profile. It is a two-dimensional integer matrix.
+ */
+function bsa_gen_query_profile(_s, _m, table)
+{
+	var s = typeof _s == 'string'? bsg_enc_seq(_s, table) : _s;
+	var qp = [], matrix;
+	if (_m.length >= 2 && typeof _m[0] == 'number' && typeof _m[1] == 'number') { // match/mismatch score
+		if (table == null) return null;
+
+		var n = typeof table == 'number'? table : table[table.length-1] + 1;
+
+
+
+		matrix = bsa_gen_score_matrix(n, _m[0], _m[1]);
+	} else matrix = _m; // _m is already a matrix; FIXME: check if it is really a square matrix!
+	for (var j = 0; j < matrix.length; ++j) {
+		var qpj, mj = matrix[j];
+		qpj = qp[j] = [];
+		for (var i = 0; i < s.length; ++i)
+			qpj[i] = mj[s[i]];
+	}
+
+	return qp;
+}
+
+/**
+ * Local or global pairwise alignemnt
+ *
+ * @param is_local  perform local alignment
+ * @param target    target string
+ * @param query     query string or query profile
+ * @param matrix    square score matrix or [match,mismatch] array
+ * @param gapsc     [gap_open,gap_ext] array; k-length gap costs gap_open+gap_ext*k
+ * @param w         bandwidth, disabled by default
+ * @param table     encoding table. It defaults to bst_nt5.
+ *
+ * @return [score,target_start,cigar]. cigar is encoded in the BAM way, where
+ * higher 28 bits keeps the length and lower 4 bits the operation in order of
+ * "MIDNSH". See bsa_cigar2str() for converting cigar to string.
+ */
+function bsa_align(is_local, target, query, matrix, gapsc, w, table)
+{
+	// convert bases to integers
+	if (table == null) table = bst_nt5;
+	var t = bsg_enc_seq(target, table);
+
+	var qp = bsa_gen_query_profile(query, matrix, table);
+
+	var qlen = qp[0].length;
+
+
+	// adjust band width
+	var max_len = qlen > t.length? qlen : t.length;
+	w = w == null || w < 0? max_len : w;
+	var len_diff = t.target > qlen? t.target - qlen : qlen - t.target;
+	w = w > len_diff? w : len_diff;
+
+	// set gap score
+	var gapo, gape; // these are penalties which should be non-negative
+	if (typeof gapsc == 'number') gapo = 0, gape = gapsc > 0? gapsc : -gapsc;
+	else gapo = gapsc[0] > 0? gapsc[0] : -gapsc[0], gape = gapsc[1] > 0? gapsc[1] : -gapsc[1];
+	var gapoe = gapo + gape; // penalty for opening the first gap
+
+	// initial values
+	var NEG_INF = -0x40000000;
+	var H = [], E = [], z = [], score, max = 0, end_i = -1, end_j = -1;
+	if (is_local) {
+		for (var j = 0; j <= qlen; ++j) H[j] = E[j] = 0;
+	} else {
+		H[0] = 0; E[0] = -gapoe - gapoe;
+		for (var j = 1; j <= qlen; ++j) {
+			if (j >= w) H[j] = E[j] = NEG_INF; // everything is -inf outside the band
+			else H[j] = -(gapo + gape * j), E[j] = E[j-1] - gape;
+		}
+	}
+
+	// the DP loop
+	for (var i = 0; i < t.length; ++i) {
+		var h1 = 0, f = 0, m = 0, mj = -1;
+
+		var zi, qpi = qp[t[i]];
+
+		zi = z[i] = [];
+		var beg = i > w? i - w : 0;
+		var end = i + w + 1 < qlen? i + w + 1 : qlen; // only loop through [beg,end) of the query sequence
+		if (!is_local) {
+			h1 = beg > 0? NEG_INF : -gapoe - gape * i;
+			f = beg > 0? NEG_INF : -gapoe - gapoe - gape * i;
+		}
+		for (var j = beg; j < end; ++j) {
+			// At the beginning of the loop: h=H[j]=H(i-1,j-1), e=E[j]=E(i,j), f=F(i,j) and h1=H(i,j-1)
+			// If we only want to compute the max score, delete all lines involving direction "d".
+			var e = E[j], h = H[j], d;
+			H[j] = h1;           // set H(i,j-1) for the next row
+			h += qpi[j];         // h = H(i-1,j-1) + S(i,j)
+			d = h > e? 0 : 1;
+			h = h > e? h : e;
+			d = h > f? d : 2;
+			h = h > f? h : f;    // h = H(i,j) = max{H(i-1,j-1)+S(i,j), E(i,j), F(i,j)}
+			d = !is_local || h > 0? d : 1<<6;
+			h1 = h;              // save H(i,j) to h1 for the next column
+			mj = m > h? mj : j;
+			m = m > h? m : h;    // update the max score in this row
+			h -= gapoe;
+			h = !is_local || h > 0? h : 0;
+			e -= gape;
+			d |= e > h? 1<<2 : 0;
+			e = e > h? e : h;    // e = E(i+1,j)
+			E[j] = e;            // save E(i+1,j) for the next row
+			f -= gape;
+			d |= f > h? 2<<4 : 0;
+			f = f > h? f : h;    // f = F(i,j+1)
+			zi[j] = d;           // z[i,j] keeps h for the current cell and e/f for the next cell
+		}
+		H[end] = h1, E[end] = is_local? 0 : NEG_INF;
+		if (m > max) max = m, end_i = i, end_j = mj;
+	}
+	if (is_local && max == 0) return null;
+	score = is_local? max : H[qlen];
+
+	// backtrack to recover the alignment/cigar
+	function push_cigar(ci, op, len) {
+		if (ci.length == 0 || op != (ci[ci.length-1]&0xf))
+			ci.push(len<<4|op);
+		else ci[ci.length-1] += len<<4;
+	}
+	var cigar = [], tmp, which = 0, i, k, start_i = 0;
+	if (is_local) {
+		i = end_i, k = end_j;
+		if (end_j != qlen - 1) // then add soft cliping
+			push_cigar(cigar, 4, qlen - 1 - end_j);
+	} else i = t.length - 1, k = (i + w + 1 < qlen? i + w + 1 : qlen) - 1; // (i,k) points to the last cell
+	while (i >= 0 && k >= 0) {
+		tmp = z[i][k - (i > w? i - w : 0)];
+		which = tmp >> (which << 1) & 3;
+		if (which == 0 && tmp>>6) break;
+		if (which == 0) which = tmp & 3;
+		if (which == 0)      { push_cigar(cigar, 0, 1); --i, --k; } // match
+		else if (which == 1) { push_cigar(cigar, 2, 1); --i; } // deletion
+		else                 { push_cigar(cigar, 1, 1), --k; } // insertion
+	}
+	if (is_local) {
+		if (k >= 0) push_cigar(cigar, 4, k + 1); // add soft clipping
+		start_i = i + 1;
+	} else { // add the first insertion or deletion
+		if (i >= 0) push_cigar(cigar, 2, i + 1);
+		if (k >= 0) push_cigar(cigar, 1, k + 1);
+	}
+	for (var i = 0; i < cigar.length>>1; ++i) // reverse CIGAR
+		tmp = cigar[i], cigar[i] = cigar[cigar.length-1-i], cigar[cigar.length-1-i] = tmp;
+	return [score, start_i, cigar];
+}
+
+// function bsa_cigar2gaps(target, query, start, cigar)
+// {
+// 	var oq = '', ot = '', lq = 0, lt = start;
+// 	for (var k = 0; k < cigar.length; ++k) {
+// 		var op = cigar[k]&0xf, len = cigar[k]>>4;
+// 		if (op == 0) { // match
+// 			oq += query.substr(lq, len);
+// 			ot += target.substr(lt, len);
+// 			lq += len, lt += len;
+// 		} else if (op == 1) { // insertion
+// 			oq += query.substr(lq, len);
+// 			ot += Array(len+1).join("-");
+// 			lq += len;
+// 		} else if (op == 2) { // deletion
+// 			oq += Array(len+1).join("-");
+// 			ot += target.substr(lt, len);
+// 			lt += len;
+// 		} else if (op == 4) { // soft clip
+// 			lq += len;
+// 		}
+// 		console.log(op)
+// 	}
+//
+// 	return [ot, oq];
+// }
+
+function bsa_cigar2str(cigar)
+{
+	var s = [];
+	for (var k = 0; k < cigar.length; ++k)
+		s.push((cigar[k]>>4).toString() + "MIDNSHP=XB".charAt(cigar[k]&0xf));
+	return s.join("");
+}
+
+},{}],2:[function(require,module,exports){
 module.exports={
     "1": {"id":"T7","seq":"TAATACGACTCACTATAGG"},
     "2": {"id":"SP6","seq":"ATTTAGGTGACACTATAG"},
@@ -69,11 +395,12 @@ module.exports={
 
 }
 
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 var restriction_emzymes = require('./restriction_emzymes.json');
 var selection_markers = require('./selection_markers.json');
 var features = require('./features.json');
 var tags = require('./tags.json');
+
 var templates = document.querySelectorAll('script[type="text/handlebars"]');
 
 Handlebars.templates = Handlebars.templates || {};
@@ -85,6 +412,14 @@ Array.prototype.slice.call(templates).forEach(function(script) {
 
 var results = $('#results');
 var resultsForReversedTarget = $('#resultsForReversedTarget');
+
+
+onmessage = function(e) {
+  console.log('Message received from main script');
+  var workerResult = 'Result: ';
+  console.log('Posting message back to main script');
+  postMessage(workerResult);
+}
 
 
 module.exports = {
@@ -119,14 +454,14 @@ module.exports = {
         if (restriction_emzymesCbox) {
 
             var restriction_emzymesData = getData(restriction_emzymes, target);
-            var restriction_emzymesDataReversedTarget = getData(restriction_emzymes, reversedTarget, true);
+            //var restriction_emzymesDataReversedTarget = getData(restriction_emzymes, reversedTarget, true);
 
             for (var i = 0; i < restriction_emzymesData.length; i++) {
                 featuresData.push(restriction_emzymesData[i]);
             }
-            for (var i = 0; i < restriction_emzymesDataReversedTarget.length; i++) {
-                featuresData.push(restriction_emzymesDataReversedTarget[i]);
-            }
+            // for (var i = 0; i < restriction_emzymesDataReversedTarget.length; i++) {
+            //     featuresData.push(restriction_emzymesDataReversedTarget[i]);
+            // }
         }
 
         if (selection_markersCbox) {
@@ -302,21 +637,50 @@ function getOppositeStrand(sequence) {
     return oppStrand;
 }
 
-},{"./features.json":1,"./restriction_emzymes.json":4,"./selection_markers.json":5,"./tags.json":6}],3:[function(require,module,exports){
-getRes = require('./getResultsFunction.js')
+},{"./features.json":2,"./restriction_emzymes.json":5,"./selection_markers.json":6,"./tags.json":7}],4:[function(require,module,exports){
 
-//handlebars
+getRes = require('./getResultsFunction.js');
+
+//var work = require('webworkify');
+
+
+// w.addEventListener('message', function (ev) {
+//     console.log(ev.data);
+// });
+
 var $b = $('#button');
 
+
+// function worker_function() {
+//     console.log('hi');
+//     getRes.getResults();
+//
+//
+// }
+
+//var worker = new Worker(URL.createObjectURL(new Blob(["("+worker_function.toString()+")()"], {type: 'text/javascript'})));
+
+//var worker = new Worker('./getResultsFunction.js');
+
 $b.on('click', function(){
+    //
+    // var w = work(require('./worker.js'));
+    //
+    // w.postMessage('a'); // send the worker a message
+    // console.log('message posted');
+    //
+    // w.onmessage = function(e) {
+    //     //result.textContent = e.data;
+    //     console.log('Message received from worker');
+    // }
 
     $(".loader").css("visibility", "visible");
-
+    //
     setTimeout(getRes.getResults, 200);
 
 });
 
-},{"./getResultsFunction.js":2}],4:[function(require,module,exports){
+},{"./getResultsFunction.js":3}],5:[function(require,module,exports){
 module.exports={
     "1": {"id":"AsiSI","seq":"GCGATCGC"},
     "2": {"id":"BspDI","seq":"ATCGAT"},
@@ -777,7 +1141,7 @@ module.exports={
     "462": {"id":"EcoI","seq":"GATATC"}
 }
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 module.exports={
     "1": {"id":"Gal4_AD","seq":"AATTTTAATCAAAGTGGGAATATTGCTGATAGCTCATTGTCCTTCACTTTCACTAACAGTAGCAACGGTCCGAACCTCATAACAACTCAAACAAATTCTCAAGCGCTTTCACAACCAATTGCCTCCTCTAACGTTCATGATAACTTCATGAATAATGAAATCACGGCTAGTAAAATTGATGATGGTAATAATTCAAAACCACTGTCACCTGGTTGGACGGACCAAACTGCGTATAACGCGTTTGGAATCACTACAGGGATGTTTAATACCACTACAATGGATGATGTATATAACTATCTATTCGATGATGAAGATACCCCACCAAACCCAAAAAAAGAG"},
     "2": {"id":"Gal4_AD","seq":"ATGGATAAAGCGGAATTAATTCCCGAGCCTCCAAAAAAGAAGAGAAAGGTCGAATTGGGTACCGCCGCCAATTTTAATCAAAGTGGGAATATTGCTGATAGCTCATTGTCCTTCACTTTCACTAACAGTAGCAACGGTCCGAACCTCATAACAACTCAAACAAATTCTCAAGCGCTTTCACAACCAATTGCCTCCTCTAACGTTCATGATAACTTCATGAATAATGAAATCACGGCTAGTAAAATTGATGATGGTAATAATTCAAAACCACTGTCACCTGGTTGGACGGACCAAACTGCGTATAACGCGTTTGGAATCACTACAGGGATGTTTAATACCACTACAATGGATGATGTATATAACTATCTATTCGATGATGAAGATACCCCACCAAACCCAAAAAAAGAG"},
@@ -791,7 +1155,7 @@ module.exports={
 
 }
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 module.exports={
     "1": {"id":"5xGal4_DBD","seq":"CGGAGTACTGTCCTCCGAGCGGAGTACTGTCCTCCGAGCGGAGTACTGTCCTCCGAGCGGAGTACTGTCCTCCGAGCGGAGTACTGTCCTCCGAG"},
     "2": {"id":"YFP","seq":"ATGGTGAGCAAGGGCGAGGAGCTGTTCACCGGGGTGGTGCCCATCCTGGTCGAGCTGGACGGCGACGTAAACGGCCACAAGTTCAGCGTGTCCGGCGAGGGCGAGGGCGATGCCACCTACGGCAAGCTGACCCTGAAGTTCATCTGCACCACCGGCAAGCTGCCCGTGCCCTGGCCCACCCTCGTGACCACCTTCGGCTACGGCCTGCAGTGCTTCGCCCGCTACCCCGACCACATGAAGCAGCACGACTTCTTCAAGTCCGCCATGCCCGAAGGCTACGTCCAGGAGCGCACCATCTTCTTCAAGGACGACGGCAACTACAAGACCCGCGCCGAGGTGAAGTTCGAGGGCGACACCCTGGTGAACCGCATCGAGCTGAAGGGCATCGACTTCAAGGAGGACGGCAACATCCTGGGGCACAAGCTGGAGTACAACTACAACAGCCACAACGTCTATATCATGGCCGACAAGCAGAAGAACGGCATCAAGGTGAACTTCAAGATCCGCCACAACATCGAGGACGGCAGCGTGCAGCTCGCCGACCACTACCAGCAGAACACCCCCATCGGCGACGGCCCCGTGCTGCTGCCCGACAACCACTACCTGAGCTACCAGTCCGCCCTGAGCAAAGACCCCAACGAGAAGCGCGATCACATGGTCCTGCTGGAGTTCGTGACCGCCGCCGGGATCACTCTCGGCATGGACGAGCTGTACAAGTAA"},
@@ -800,4 +1164,183 @@ module.exports={
     "5": {"id":"6His","seq":"catcatcaccatcaccac"}
 }
 
-},{}]},{},[3,1,4,6,5,2]);
+},{}],8:[function(require,module,exports){
+function visualize(res) {
+    var r = 250;
+    var center = 300;
+    var name = 'pcDNA3.1';
+    console.log(res);
+    var plasmidLength = res[0].fullLength;
+    var U = 2*r*Math.PI;
+    var visualizedData = [];
+
+
+    var canvas = document.getElementById("canvas");
+    var ctx = canvas.getContext("2d");
+    //ctx.globalCompositeOperation = "lighter";
+
+    CanvasRenderingContext2D.prototype.fillTextCircle = function(text, x, y, radius, space, endAngle){
+        var textMetrics = ctx.measureText(text);
+        var textLength = textMetrics.width;
+        var textLengthInRad = (2*Math.PI/U)*textLength;
+        var textMiddle = textLengthInRad/2;
+        var featureMiddle = endAngle - space/2;
+        var startRotation =featureMiddle - textMiddle;
+
+        console.log(space);
+        var numRadsPerLetter = textLengthInRad / text.length;
+
+        this.save();
+        this.translate(x,y);
+        this.rotate(startRotation-1.45*Math.PI);
+
+        for(var i=0;i<text.length;i++){
+            this.save();
+            this.rotate(i*numRadsPerLetter);
+            this.font ="20px sans-serif";
+            this.fillStyle = "black";
+            this.fillText(text[i],0,-radius);
+            this.restore();
+        }
+        this.restore();
+    };
+
+
+    ctx.beginPath();
+    ctx.arc(center, center, r, 0, 2*Math.PI, false);
+    ctx.stroke();
+
+    ctx.font = "40px sans-serif";
+    var metrics = ctx.measureText(name);
+    var textWidth = metrics.width;
+    ctx.fillText(name, center-(textWidth/2), center);
+
+    for (var i = 1; i < res.length; i++) {
+        if (res[i].score/res[i].featureLength > 0.98 && res[i].reversed === undefined) {
+            visualizedData.push(res[i]);
+            calculateAngles(res[i]);
+
+        }
+        if (res[i].score/res[i].featureLength > 0.98 && res[i].reversed === true) {
+            res[i].start = plasmidLength - res[i].start - res[i].featureLength;
+            visualizedData.push(res[i]);
+            calculateAngles(res[i]);
+        }
+    }
+
+
+    function calculateAngles(properties) {
+        var featureStart = properties.start;
+        var featureLength = properties.featureLength;
+        console.log(featureLength);
+        var featureEnd = featureStart + featureLength;
+        var percentageStart = featureStart/plasmidLength;
+        var percentageEnd = featureEnd/plasmidLength;
+        var firstLength = U*percentageStart;
+        var secondLength = U*percentageEnd;
+        var startAngle = firstLength/r+1.5*Math.PI;
+        var endAngle = secondLength/r+1.5*Math.PI;
+
+        if (featureLength>200 && properties.reversed === true) {
+            drawArrow(startAngle, true);
+            drawMap(startAngle+0.2, endAngle, properties);
+        }
+        else if (featureLength>200 && properties.reversed === undefined) {
+            drawArrow(endAngle);
+            drawMap(startAngle, endAngle-0.2, properties);
+        } else {
+            drawMap(startAngle, endAngle, properties);
+        }
+
+    }
+
+    function drawMap(startAngle, endAngle, properties) {
+        if (properties.featureLength > 200) {
+            ctx.strokeStyle = "rgb(117, 200, 252)";
+            ctx.lineWidth = 35;
+            ctx.beginPath();
+            ctx.arc(center, center, r, startAngle, endAngle, false);
+            ctx.stroke();
+            var space = endAngle - startAngle;
+            ctx.fillTextCircle(properties.id, center, center, r-5, space, endAngle-0.12);
+        }
+        else if (properties.featureLength < 200 && properties.featureLength > 20) {
+            ctx.strokeStyle = "rgb(108, 240, 184)";
+            ctx.lineWidth = 35;
+            ctx.beginPath();
+            ctx.arc(center, center, r, startAngle, endAngle, false);
+            ctx.stroke();
+
+            var x = center + (r + 20) * Math.cos(startAngle);
+            var y = center + (r + 20) * Math.sin(startAngle);
+
+            ctx.font = "20px sans-serif";
+            var metrics = ctx.measureText(name);
+            var textWidth = metrics.width;
+            ctx.fillStyle = 'black';
+            ctx.fillText(properties.id, x, y);
+        } else {
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 10;
+            ctx.beginPath();
+            ctx.arc(center, center, r, startAngle, endAngle, false);
+            ctx.stroke();
+        }
+    }
+
+    function drawArrow(angle, reversed) {
+        var x = center + r * Math.cos(angle);
+        var y = center + r * Math.sin(angle);
+        var xOut;
+        var yOut;
+        var xIn;
+        var yIn;
+
+        if (reversed === undefined) {
+            xOut = center + (r + 25) * Math.cos(angle-0.25);
+            yOut = center + (r + 25) * Math.sin(angle-0.25);
+
+            xIn = center + (r - 25) * Math.cos(angle-0.25);
+            yIn = center + (r - 25) * Math.sin(angle-0.25);
+        }
+        if (reversed === true) {
+            xOut = center + (r + 25) * Math.cos(angle+0.25);
+            yOut = center + (r + 25) * Math.sin(angle+0.25);
+
+            xIn = center + (r - 25) * Math.cos(angle+0.25);
+            yIn = center + (r - 25) * Math.sin(angle+0.25);
+        }
+
+        ctx.strokeStyle = "rgb(117, 200, 252)";
+        ctx.fillStyle = "rgb(117, 200, 252)";
+        ctx.beginPath();
+        ctx.moveTo(x,y);
+        ctx.lineTo(xOut,yOut);
+        ctx.lineTo(xIn,yIn);
+        ctx.fill();
+    }
+    return visualizedData;
+}
+
+},{}],9:[function(require,module,exports){
+//var getRes = require('./getResultsFunction.js')
+
+// module.exports = function () {
+//     self.addEventListener('message',function (ev){
+//         var startNum = parseInt(ev.data); // ev.data=4 from main.js
+//
+//         setInterval(function () {
+//             var r = startNum / Math.random() - 1;
+//             self.postMessage([ startNum, r, gamma(r) ]);
+//         }, 500);
+//     });
+// };
+
+onmessage = function(e) {
+  console.log('Message received from main script');
+  var workerResult = 'Result: ';
+  console.log('Posting message back to main script');
+  postMessage(workerResult);
+}
+
+},{}]},{},[4,2,5,7,6,3,8,1,9]);

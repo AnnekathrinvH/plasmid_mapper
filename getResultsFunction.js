@@ -2,6 +2,7 @@ var restriction_emzymes = require('./restriction_emzymes.json');
 var selection_markers = require('./selection_markers.json');
 var features = require('./features.json');
 var tags = require('./tags.json');
+
 var templates = document.querySelectorAll('script[type="text/handlebars"]');
 
 Handlebars.templates = Handlebars.templates || {};
@@ -13,6 +14,14 @@ Array.prototype.slice.call(templates).forEach(function(script) {
 
 var results = $('#results');
 var resultsForReversedTarget = $('#resultsForReversedTarget');
+
+
+onmessage = function(e) {
+  console.log('Message received from main script');
+  var workerResult = 'Result: ';
+  console.log('Posting message back to main script');
+  postMessage(workerResult);
+}
 
 
 module.exports = {
@@ -47,14 +56,14 @@ module.exports = {
         if (restriction_emzymesCbox) {
 
             var restriction_emzymesData = getData(restriction_emzymes, target);
-            var restriction_emzymesDataReversedTarget = getData(restriction_emzymes, reversedTarget, true);
+            //var restriction_emzymesDataReversedTarget = getData(restriction_emzymes, reversedTarget, true);
 
             for (var i = 0; i < restriction_emzymesData.length; i++) {
                 featuresData.push(restriction_emzymesData[i]);
             }
-            for (var i = 0; i < restriction_emzymesDataReversedTarget.length; i++) {
-                featuresData.push(restriction_emzymesDataReversedTarget[i]);
-            }
+            // for (var i = 0; i < restriction_emzymesDataReversedTarget.length; i++) {
+            //     featuresData.push(restriction_emzymesDataReversedTarget[i]);
+            // }
         }
 
         if (selection_markersCbox) {
