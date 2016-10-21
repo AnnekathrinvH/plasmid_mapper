@@ -1,5 +1,4 @@
-
-getRes = require('./getResultsFunction.js');
+var getRes = require('./getResultsFunction.js');
 
 //var work = require('webworkify');
 
