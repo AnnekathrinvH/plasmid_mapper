@@ -146,7 +146,7 @@ function bsa_gen_query_profile(_s, _m, table)
 		if (table == null) return null;
 
 		var n = typeof table == 'number'? table : table[table.length-1] + 1;
-		
+
 
 
 		matrix = bsa_gen_score_matrix(n, _m[0], _m[1]);

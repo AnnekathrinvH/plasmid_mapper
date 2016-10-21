@@ -25,6 +25,8 @@ body {
 }
 
 h1 {
+    text-align: center;
+    font-family: "arial";
     font-size: 60px;
     border: 0px;
     margin: 0px;
@@ -34,15 +36,36 @@ h1 {
     top: 0px;
     overflow: hidden;
     height: 60px;
-    background: red; /* For browsers that do not support gradients */
-    background: -webkit-linear-gradient(left, red , yellow); /* For Safari 5.1 to 6.0 */
-    background: -o-linear-gradient(right, red, yellow); /* For Opera 11.1 to 12.0 */
-    background: -moz-linear-gradient(right, red, yellow); /* For Firefox 3.6 to 15 */
-    background: linear-gradient(to right, red , yellow); /* Standard syntax */
+
 }
 
+#options2 {
+    float: left;
+    width: 200px;
+}
 
 h3 {
     border: 0px;
     margin: 0px;
+}
+
+.loader {
+    visibility: hidden;
+    border: 16px solid #f3f3f3; /* Light grey */
+    border-top: 16px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+    margin-left: 200px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+.cb {
+    float: left;
 }
