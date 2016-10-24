@@ -407,21 +407,12 @@ var tags = require('./tags.json');
 var alignFun = require('./alignment.js');
 
 onmessage = function(e) {
-    console.log('Message received from main script');
-    console.log(e.data)
-    var res = getResults(e.data.generalFeaturesCbox, e.data.restriction_emzymesCbox, e.data.selection_markersCbox, e.data.tagsCbox, e.data.target, [e.data.ms, e.data.mms], [e.data.gapo, e.data.gape])
 
-
-    var workerResult = 'I got here';
-    console.log('Posting message back to main script');
+    var res = getResults(e.data.generalFeaturesCbox, e.data.restriction_emzymesCbox, e.data.selection_markersCbox, e.data.tagsCbox, e.data.target, [e.data.ms, e.data.mms], [e.data.gapo, e.data.gape]);
     postMessage(res);
 }
 
-
-
-
 function getResults(generalFeaturesCbox, restriction_emzymesCbox, selection_markersCbox, tagsCbox, target, [ms, mms], [gapo, gape]) {
-    console.log('Everything is good')
 
     var reversedTarget = getOppositeStrand(target);
     var featuresData = [];
@@ -473,15 +464,6 @@ function getResults(generalFeaturesCbox, restriction_emzymesCbox, selection_mark
         }
     }
     return featuresData;
-    //var visualized = visualize(featuresData);
-    // $("#visualizedText").css("visibility", "visible");
-    // results.html(Handlebars.templates.mapRes({
-    //     featuresDescription: visualized
-    // }));
-
-    // document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
-    // console.log('finish')
-    // $(".loader").css("visibility", "hidden");
 
 }
 
@@ -569,12 +551,6 @@ function getIndices(sequence, feature) {
 
 function do_align(query, target, [ms, mms], [gapo, gape]) {
 
-
-	// var ms   = parseInt(document.getElementById('match').value);
-	// var mms  = parseInt(document.getElementById('mismatch').value);
-	// var gapo = parseInt(document.getElementById('gapo').value);
-	// var gape = parseInt(document.getElementById('gape').value);
-
 	var is_local = true;
 
 	var rst = alignFun.bsa_align(is_local, target, query, [ms, mms], [gapo, gape]);
@@ -622,54 +598,39 @@ function getOppositeStrand(sequence) {
 }
 
 },{"./alignment.js":1,"./features.json":2,"./restriction_emzymes.json":6,"./selection_markers.json":7,"./tags.json":8}],4:[function(require,module,exports){
-//getRes = require('./getResultsFunction.js');
 var work = require('webworkify');
 var viz = require('./visualization.js');
 
-// w.addEventListener('message', function (ev) {
-//     console.log(ev.data);
-// });
-
 var templates = document.querySelectorAll('script[type="text/handlebars"]');
-
 Handlebars.templates = Handlebars.templates || {};
-
 Array.prototype.slice.call(templates).forEach(function(script) {
     Handlebars.templates[script.id] = Handlebars.compile(script.innerHTML);
 });
 
-
-
 var $b = $('#button');
-var results = $('#results')
-
-
-
-// function worker_function() {
-//     console.log('hi');
-//     getRes.getResults();
-// }
-
-//var worker = new Worker('./getResultsFunction.js');
+var results = $('#results');
+var noSelection = $('#noSelection');
 
 $b.on('click', function(){
+
     var time_start = new Date().getTime();
-
-
-
     var generalFeaturesCbox = document.getElementById('cbox1').checked;
     var restriction_emzymesCbox = document.getElementById('cbox2').checked;
     var tagsCbox = document.getElementById('cbox3').checked;
     var selection_markersCbox = document.getElementById('cbox4').checked;
-
     var ms   = parseInt(document.getElementById('match').value);
     var mms  = parseInt(document.getElementById('mismatch').value);
     var gapo = parseInt(document.getElementById('gapo').value);
     var gape = parseInt(document.getElementById('gape').value);
-
-
     var target = document.getElementById('target').value.replace(/[\s\n]+/g, '');
 
+    if (generalFeaturesCbox == false && restriction_emzymesCbox == false && tagsCbox == false && selection_markersCbox == false) {
+        noSelection.html(Handlebars.templates.noSel({
+            selectionError: 'choose some features'
+        }));
+
+        return;
+    }
 
     var message = {
         generalFeaturesCbox: generalFeaturesCbox,
@@ -683,18 +644,14 @@ $b.on('click', function(){
         target: target
     }
 
-    var w = work(require('./getResultsFunction.js'));
+    var worker = work(require('./getResultsFunction.js'));
     $(".loader").css("visibility", "visible");
-    w.postMessage(message); // send the worker a message
-    console.log('message posted')
+    worker.postMessage(message); // send the worker a message
 
-    w.onmessage = function(e) {
-        console.log('new data:')
-        console.log(e.data)
-        //result.textContent = e.data;
-        console.log('Message received from worker');
+    worker.onmessage = function(e) {
 
         var visualized = viz.visualize(e.data);
+
         $("#visualizedText").css("visibility", "visible");
         results.html(Handlebars.templates.mapRes({
             featuresDescription: visualized
@@ -702,15 +659,8 @@ $b.on('click', function(){
         $(".loader").css("visibility", "hidden");
         var elapse = (new Date().getTime() - time_start) / 1000.0;
         document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
-        console.log('finish')
-
 
     }
-
-
-    //setTimeout(getRes.getResults, 200);
-
-
 
 });
 

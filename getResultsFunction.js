@@ -10,7 +10,6 @@ onmessage = function(e) {
     postMessage(res);
 }
 
-
 function getResults(generalFeaturesCbox, restriction_emzymesCbox, selection_markersCbox, tagsCbox, target, [ms, mms], [gapo, gape]) {
 
     var reversedTarget = getOppositeStrand(target);

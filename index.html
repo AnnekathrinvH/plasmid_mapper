@@ -33,6 +33,14 @@
 
         <br>
         <input type="button" value="Align" id="button"/>
+
+        <div id="noSelection">
+            <script id="noSel" type="text/handlebars">
+            {{#selectionError}}
+                {{.}}
+            {{/selectionError}}
+            </script>
+        </div>
         <span id="runtime" style="color: gray;"></span>
     </p>
         <div class="loader"></div>
@@ -43,6 +51,7 @@
     </div>
     <div id="matches">
         <h3 id="visualizedText" style="visibility:hidden">Visualized matches:</h3>
+
         <div id="results">
             <script id='mapRes' type="text/handlebars">
             {{#featuresDescription}}
