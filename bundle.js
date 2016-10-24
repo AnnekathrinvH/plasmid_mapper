@@ -1285,7 +1285,7 @@ module.exports={
 var exports = module.exports = {};
 exports.visualize = function(res) {
     var r = 250;
-    var center = 300;
+    var center = 500;
     var name = 'pcDNA3.1';
     console.log(res);
     var plasmidLength = res[0].fullLength;
@@ -1295,7 +1295,10 @@ exports.visualize = function(res) {
 
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
-    //ctx.globalCompositeOperation = "lighter";
+    var canvas2 = document.getElementById("canvas2");
+    var ctx2 = canvas2.getContext("2d");
+
+
 
     CanvasRenderingContext2D.prototype.fillTextCircle = function(text, x, y, radius, space, endAngle){
         var textMetrics = ctx.measureText(text);
@@ -1323,8 +1326,12 @@ exports.visualize = function(res) {
         this.restore();
     };
 
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx2.clearRect(0, 0, canvas.width, canvas.height);
+
 
     ctx.beginPath();
+
     ctx.arc(center, center, r, 0, 2*Math.PI, false);
     ctx.stroke();
 
@@ -1359,11 +1366,13 @@ exports.visualize = function(res) {
         var startAngle = firstLength/r+1.5*Math.PI;
         var endAngle = secondLength/r+1.5*Math.PI;
 
-        if (featureLength>200 && properties.reversed === true) {
+        if (featureLength>300 && properties.reversed === true) {
             drawArrow(startAngle, true);
             drawMap(startAngle+0.2, endAngle, properties);
         }
+
         else if (featureLength>200 && properties.reversed === false) {
+
             drawArrow(endAngle);
             drawMap(startAngle, endAngle-0.2, properties);
         } else {
@@ -1373,36 +1382,52 @@ exports.visualize = function(res) {
     }
 
     function drawMap(startAngle, endAngle, properties) {
-        if (properties.featureLength > 200) {
-            ctx.strokeStyle = "rgb(117, 200, 252)";
-            ctx.lineWidth = 35;
-            ctx.beginPath();
-            ctx.arc(center, center, r, startAngle, endAngle, false);
-            ctx.stroke();
-            var space = endAngle - startAngle;
-            ctx.fillTextCircle(properties.id, center, center, r-5, space, endAngle-0.12);
+
+        var space = endAngle - startAngle;
+        if (properties.featureLength > 300) {
+            ctx2.strokeStyle = "rgb(117, 200, 252)";
+            ctx2.lineWidth = 35;
+            ctx2.beginPath();
+            ctx2.arc(center, center, r, startAngle, endAngle, false);
+            ctx2.stroke();
+            ctx2.fillTextCircle(properties.id, center, center, r-5, space, endAngle-0.12);
         }
-        else if (properties.featureLength < 200 && properties.featureLength > 20) {
-            ctx.strokeStyle = "rgb(108, 240, 184)";
-            ctx.lineWidth = 35;
+        else if (properties.featureLength <= 300 && properties.featureLength >= 18) {
+            ctx2.strokeStyle = "rgb(108, 240, 184)";
+            ctx2.lineWidth = 35;
+            ctx2.beginPath();
+            ctx2.arc(center, center, r, startAngle, endAngle, false);
+            ctx2.stroke();
+
+            var x = center + (r + 30) * Math.cos(startAngle);
+            var y = center + (r + 30) * Math.sin(startAngle + (space/2));
+
+            ctx2.font = "20px sans-serif";
+            ctx2.fillStyle = 'black';
+            ctx2.fillText(properties.id, x, y);
+        } else {
+            var xOut = center + (r + 25) * Math.cos(startAngle);
+            var yOut = center + (r + 25) * Math.sin(startAngle);
+
+            var xIn = center + r * Math.cos(startAngle);
+            var yIn = center + r * Math.sin(startAngle);
+
+            var xText = center + (r + 35) * Math.cos(startAngle);
+            var yText = center + (r + 35) * Math.sin(startAngle);
+
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 1;
             ctx.beginPath();
-            ctx.arc(center, center, r, startAngle, endAngle, false);
+            ctx.moveTo(xIn, yIn);
+            ctx.lineTo(xOut, yOut);
             ctx.stroke();
 
-            var x = center + (r + 20) * Math.cos(startAngle);
-            var y = center + (r + 20) * Math.sin(startAngle);
-
-            ctx.font = "20px sans-serif";
+            ctx2.font = "10px sans-serif";
             var metrics = ctx.measureText(name);
             var textWidth = metrics.width;
-            ctx.fillStyle = 'black';
-            ctx.fillText(properties.id, x, y);
-        } else {
-            ctx.strokeStyle = "black";
-            ctx.lineWidth = 10;
-            ctx.beginPath();
-            ctx.arc(center, center, r, startAngle, endAngle, false);
-            ctx.stroke();
+            ctx2.fillStyle = 'black';
+            ctx2.fillText(properties.id, xText, yText);
+
         }
     }
 
@@ -1429,13 +1454,13 @@ exports.visualize = function(res) {
             yIn = center + (r - 25) * Math.sin(angle+0.25);
         }
 
-        ctx.strokeStyle = "rgb(117, 200, 252)";
-        ctx.fillStyle = "rgb(117, 200, 252)";
-        ctx.beginPath();
-        ctx.moveTo(x,y);
-        ctx.lineTo(xOut,yOut);
-        ctx.lineTo(xIn,yIn);
-        ctx.fill();
+        ctx2.strokeStyle = "rgb(117, 200, 252)";
+        ctx2.fillStyle = "rgb(117, 200, 252)";
+        ctx2.beginPath();
+        ctx2.moveTo(x,y);
+        ctx2.lineTo(xOut,yOut);
+        ctx2.lineTo(xIn,yIn);
+        ctx2.fill();
     }
     return visualizedData;
 }
