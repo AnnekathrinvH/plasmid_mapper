@@ -1,4 +1,8 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+
+var exports = module.exports = {};
+
+
 /**************************
  *** Common data tables ***
  **************************/
@@ -177,7 +181,7 @@ function bsa_gen_query_profile(_s, _m, table)
  * higher 28 bits keeps the length and lower 4 bits the operation in order of
  * "MIDNSH". See bsa_cigar2str() for converting cigar to string.
  */
-function bsa_align(is_local, target, query, matrix, gapsc, w, table)
+exports.bsa_align = function(is_local, target, query, matrix, gapsc, w, table)
 {
 	// convert bases to integers
 	if (table == null) table = bst_nt5;
@@ -316,7 +320,7 @@ function bsa_align(is_local, target, query, matrix, gapsc, w, table)
 // 	return [ot, oq];
 // }
 
-function bsa_cigar2str(cigar)
+exports.bsa_cigar2str = function(cigar)
 {
 	var s = [];
 	for (var k = 0; k < cigar.length; ++k)
@@ -400,109 +404,89 @@ var restriction_emzymes = require('./restriction_emzymes.json');
 var selection_markers = require('./selection_markers.json');
 var features = require('./features.json');
 var tags = require('./tags.json');
-
-var templates = document.querySelectorAll('script[type="text/handlebars"]');
-
-Handlebars.templates = Handlebars.templates || {};
-
-Array.prototype.slice.call(templates).forEach(function(script) {
-    Handlebars.templates[script.id] = Handlebars.compile(script.innerHTML);
-});
-
-
-var results = $('#results');
-var resultsForReversedTarget = $('#resultsForReversedTarget');
-
+var alignFun = require('./alignment.js');
 
 onmessage = function(e) {
-  console.log('Message received from main script');
-  var workerResult = 'Result: ';
-  console.log('Posting message back to main script');
-  postMessage(workerResult);
+    console.log('Message received from main script');
+    console.log(e.data)
+    var res = getResults(e.data.generalFeaturesCbox, e.data.restriction_emzymesCbox, e.data.selection_markersCbox, e.data.tagsCbox, e.data.target, [e.data.ms, e.data.mms], [e.data.gapo, e.data.gape])
+
+
+    var workerResult = 'I got here';
+    console.log('Posting message back to main script');
+    postMessage(res);
 }
 
 
-module.exports = {
 
-    getResults: function() {
 
-        var time_start = new Date().getTime();
+function getResults(generalFeaturesCbox, restriction_emzymesCbox, selection_markersCbox, tagsCbox, target, [ms, mms], [gapo, gape]) {
+    console.log('Everything is good')
 
-        var generalFeaturesCbox = document.getElementById('cbox1').checked;
-        var restriction_emzymesCbox = document.getElementById('cbox2').checked;
-        var tagsCbox = document.getElementById('cbox3').checked;
-        var selection_markersCbox = document.getElementById('cbox4').checked;
+    var reversedTarget = getOppositeStrand(target);
+    var featuresData = [];
 
-        var target = document.getElementById('target').value.replace(/[\s\n]+/g, '');
-        var reversedTarget = getOppositeStrand(target);
-        var featuresData = [];
+    if (generalFeaturesCbox) {
 
-        if (generalFeaturesCbox) {
+        var generalFeaturesData = getData(features, target, false, [ms, mms], [gapo, gape]);
+        var generalFeaturesDataReversedTarget = getData(features, reversedTarget, true, [ms, mms], [gapo, gape]);
 
-            var generalFeaturesData = getData(features, target);
-            var generalFeaturesDataReversedTarget = getData(features, reversedTarget, true);
-
-            for (var i = 0; i < generalFeaturesData.length; i++) {
-                featuresData.push(generalFeaturesData[i]);
-            }
-
-            for (var i = 0; i < generalFeaturesDataReversedTarget.length; i++) {
-                featuresData.push(generalFeaturesDataReversedTarget[i]);
-            }
+        for (var i = 0; i < generalFeaturesData.length; i++) {
+            featuresData.push(generalFeaturesData[i]);
         }
 
-        if (restriction_emzymesCbox) {
-
-            var restriction_emzymesData = getData(restriction_emzymes, target);
-            //var restriction_emzymesDataReversedTarget = getData(restriction_emzymes, reversedTarget, true);
-
-            for (var i = 0; i < restriction_emzymesData.length; i++) {
-                featuresData.push(restriction_emzymesData[i]);
-            }
-            // for (var i = 0; i < restriction_emzymesDataReversedTarget.length; i++) {
-            //     featuresData.push(restriction_emzymesDataReversedTarget[i]);
-            // }
+        for (var i = 0; i < generalFeaturesDataReversedTarget.length; i++) {
+            featuresData.push(generalFeaturesDataReversedTarget[i]);
         }
-
-        if (selection_markersCbox) {
-            var selection_markersData = getData(selection_markers, target);
-            var selection_markersDataReversedTarget = getData(selection_markers, reversedTarget, true);
-
-            for (var i = 0; i < selection_markersData.length; i++) {
-                featuresData.push(selection_markersData[i]);
-            }
-            for (var i = 0; i < selection_markersDataReversedTarget.length; i++) {
-                featuresData.push(selection_markersDataReversedTarget[i]);
-            }
-        }
-
-        if (tagsCbox) {
-            var tagsData = getData(tags, target);
-            var tagsDataReversedTarget = getData(tags, reversedTarget, true);
-
-            for (var i = 0; i < tagsData.length; i++) {
-                featuresData.push(tagsData[i]);
-            }
-            for (var i = 0; i < tagsDataReversedTarget.length; i++) {
-                featuresData.push(tagsDataReversedTarget[i]);
-            }
-        }
-
-        var visualized = visualize(featuresData);
-        $("#visualizedText").css("visibility", "visible");
-        results.html(Handlebars.templates.mapRes({
-            featuresDescription: visualized
-        }));
-
-        var elapse = (new Date().getTime() - time_start) / 1000.0;
-        document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
-        console.log('finish')
-        $(".loader").css("visibility", "hidden");
-
     }
+
+    if (restriction_emzymesCbox) {
+
+        var restriction_emzymesData = getData(restriction_emzymes, target, false, [ms, mms], [gapo, gape]);
+
+        for (var i = 0; i < restriction_emzymesData.length; i++) {
+            featuresData.push(restriction_emzymesData[i]);
+        }
+    }
+
+    if (selection_markersCbox) {
+        var selection_markersData = getData(selection_markers, target, false, [ms, mms], [gapo, gape]);
+        var selection_markersDataReversedTarget = getData(selection_markers, reversedTarget, true, [ms, mms], [gapo, gape]);
+
+        for (var i = 0; i < selection_markersData.length; i++) {
+            featuresData.push(selection_markersData[i]);
+        }
+        for (var i = 0; i < selection_markersDataReversedTarget.length; i++) {
+            featuresData.push(selection_markersDataReversedTarget[i]);
+        }
+    }
+
+    if (tagsCbox) {
+        var tagsData = getData(tags, target, false, [ms, mms], [gapo, gape]);
+        var tagsDataReversedTarget = getData(tags, reversedTarget, true, [ms, mms], [gapo, gape]);
+
+        for (var i = 0; i < tagsData.length; i++) {
+            featuresData.push(tagsData[i]);
+        }
+        for (var i = 0; i < tagsDataReversedTarget.length; i++) {
+            featuresData.push(tagsDataReversedTarget[i]);
+        }
+    }
+    return featuresData;
+    //var visualized = visualize(featuresData);
+    // $("#visualizedText").css("visibility", "visible");
+    // results.html(Handlebars.templates.mapRes({
+    //     featuresDescription: visualized
+    // }));
+
+    // document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
+    // console.log('finish')
+    // $(".loader").css("visibility", "hidden");
+
 }
 
-function getData(features, target, reversed) {
+
+function getData(features, target, reversed, [ms, mms], [gapo, gape]) {
 
     var f;
     var tempData = []
@@ -510,7 +494,7 @@ function getData(features, target, reversed) {
 
         if (features[feature].seq.length > 30) {
 
-            f = do_align(features[feature].seq, target);
+            f = do_align(features[feature].seq, target, [ms, mms], [gapo, gape]);
 
             var end = f[1] + f[3];
 
@@ -526,7 +510,7 @@ function getData(features, target, reversed) {
                     score: f[4]
                 });
 
-                f = do_align(features[feature].seq, target.slice(end));
+                f = do_align(features[feature].seq, target.slice(end), [ms, mms], [gapo, gape]);
 
                 if (f == null) {
 
@@ -583,31 +567,31 @@ function getIndices(sequence, feature) {
     return indices;
 }
 
-function do_align(query, target) {
+function do_align(query, target, [ms, mms], [gapo, gape]) {
 
 
-	var ms   = parseInt(document.getElementById('match').value);
-	var mms  = parseInt(document.getElementById('mismatch').value);
-	var gapo = parseInt(document.getElementById('gapo').value);
-	var gape = parseInt(document.getElementById('gape').value);
+	// var ms   = parseInt(document.getElementById('match').value);
+	// var mms  = parseInt(document.getElementById('mismatch').value);
+	// var gapo = parseInt(document.getElementById('gapo').value);
+	// var gape = parseInt(document.getElementById('gape').value);
 
 	var is_local = true;
 
-	var rst = bsa_align(is_local, target, query, [ms, mms], [gapo, gape]);
+	var rst = alignFun.bsa_align(is_local, target, query, [ms, mms], [gapo, gape]);
     if (!rst) {
         return rst;
     }
 
 	var str = 'score: ' + rst[0] + '\n';
 	str += 'start: ' + rst[1] + '\n';
-	str += 'cigar: ' + bsa_cigar2str(rst[2]) + '\n\n';
+	str += 'cigar: ' + alignFun.bsa_cigar2str(rst[2]) + '\n\n';
 
 
     var length = target.length;
     var featureLength = query.length;
     var score = parseInt(rst[0] + '\n', 10);
     var start = parseInt(rst[1] + '\n', 10);
-    var cigar = bsa_cigar2str(rst[2]) + '\n\n';
+    var cigar = alignFun.bsa_cigar2str(rst[2]) + '\n\n';
 
     return [length, featureLength, cigar, start, score];
 }
@@ -637,50 +621,183 @@ function getOppositeStrand(sequence) {
     return oppStrand;
 }
 
-},{"./features.json":2,"./restriction_emzymes.json":5,"./selection_markers.json":6,"./tags.json":7}],4:[function(require,module,exports){
-
-getRes = require('./getResultsFunction.js');
-
-//var work = require('webworkify');
-
+},{"./alignment.js":1,"./features.json":2,"./restriction_emzymes.json":6,"./selection_markers.json":7,"./tags.json":8}],4:[function(require,module,exports){
+//getRes = require('./getResultsFunction.js');
+var work = require('webworkify');
+var viz = require('./visualization.js');
 
 // w.addEventListener('message', function (ev) {
 //     console.log(ev.data);
 // });
 
+var templates = document.querySelectorAll('script[type="text/handlebars"]');
+
+Handlebars.templates = Handlebars.templates || {};
+
+Array.prototype.slice.call(templates).forEach(function(script) {
+    Handlebars.templates[script.id] = Handlebars.compile(script.innerHTML);
+});
+
+
+
 var $b = $('#button');
+var results = $('#results')
+
 
 
 // function worker_function() {
 //     console.log('hi');
 //     getRes.getResults();
-//
-//
 // }
-
-//var worker = new Worker(URL.createObjectURL(new Blob(["("+worker_function.toString()+")()"], {type: 'text/javascript'})));
 
 //var worker = new Worker('./getResultsFunction.js');
 
 $b.on('click', function(){
-    //
-    // var w = work(require('./worker.js'));
-    //
-    // w.postMessage('a'); // send the worker a message
-    // console.log('message posted');
-    //
-    // w.onmessage = function(e) {
-    //     //result.textContent = e.data;
-    //     console.log('Message received from worker');
-    // }
+    var time_start = new Date().getTime();
 
+
+
+    var generalFeaturesCbox = document.getElementById('cbox1').checked;
+    var restriction_emzymesCbox = document.getElementById('cbox2').checked;
+    var tagsCbox = document.getElementById('cbox3').checked;
+    var selection_markersCbox = document.getElementById('cbox4').checked;
+
+    var ms   = parseInt(document.getElementById('match').value);
+    var mms  = parseInt(document.getElementById('mismatch').value);
+    var gapo = parseInt(document.getElementById('gapo').value);
+    var gape = parseInt(document.getElementById('gape').value);
+
+
+    var target = document.getElementById('target').value.replace(/[\s\n]+/g, '');
+
+
+    var message = {
+        generalFeaturesCbox: generalFeaturesCbox,
+        restriction_emzymesCbox: restriction_emzymesCbox,
+        tagsCbox: tagsCbox,
+        selection_markersCbox: selection_markersCbox,
+        ms: ms,
+        mms: mms,
+        gapo: gapo,
+        gape: gape,
+        target: target
+    }
+
+    var w = work(require('./getResultsFunction.js'));
     $(".loader").css("visibility", "visible");
-    //
-    setTimeout(getRes.getResults, 200);
+    w.postMessage(message); // send the worker a message
+    console.log('message posted')
+
+    w.onmessage = function(e) {
+        console.log('new data:')
+        console.log(e.data)
+        //result.textContent = e.data;
+        console.log('Message received from worker');
+
+        var visualized = viz.visualize(e.data);
+        $("#visualizedText").css("visibility", "visible");
+        results.html(Handlebars.templates.mapRes({
+            featuresDescription: visualized
+        }));
+        $(".loader").css("visibility", "hidden");
+        var elapse = (new Date().getTime() - time_start) / 1000.0;
+        document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
+        console.log('finish')
+
+
+    }
+
+
+    //setTimeout(getRes.getResults, 200);
+
+
 
 });
 
-},{"./getResultsFunction.js":3}],5:[function(require,module,exports){
+},{"./getResultsFunction.js":3,"./visualization.js":9,"webworkify":5}],5:[function(require,module,exports){
+var bundleFn = arguments[3];
+var sources = arguments[4];
+var cache = arguments[5];
+
+var stringify = JSON.stringify;
+
+module.exports = function (fn, options) {
+    var wkey;
+    var cacheKeys = Object.keys(cache);
+
+    for (var i = 0, l = cacheKeys.length; i < l; i++) {
+        var key = cacheKeys[i];
+        var exp = cache[key].exports;
+        // Using babel as a transpiler to use esmodule, the export will always
+        // be an object with the default export as a property of it. To ensure
+        // the existing api and babel esmodule exports are both supported we
+        // check for both
+        if (exp === fn || exp && exp.default === fn) {
+            wkey = key;
+            break;
+        }
+    }
+
+    if (!wkey) {
+        wkey = Math.floor(Math.pow(16, 8) * Math.random()).toString(16);
+        var wcache = {};
+        for (var i = 0, l = cacheKeys.length; i < l; i++) {
+            var key = cacheKeys[i];
+            wcache[key] = key;
+        }
+        sources[wkey] = [
+            Function(['require','module','exports'], '(' + fn + ')(self)'),
+            wcache
+        ];
+    }
+    var skey = Math.floor(Math.pow(16, 8) * Math.random()).toString(16);
+
+    var scache = {}; scache[wkey] = wkey;
+    sources[skey] = [
+        Function(['require'], (
+            // try to call default if defined to also support babel esmodule
+            // exports
+            'var f = require(' + stringify(wkey) + ');' +
+            '(f.default ? f.default : f)(self);'
+        )),
+        scache
+    ];
+
+    var workerSources = {};
+    resolveSources(skey);
+
+    function resolveSources(key) {
+        workerSources[key] = true;
+
+        for (var depPath in sources[key][1]) {
+            var depKey = sources[key][1][depPath];
+            if (!workerSources[depKey]) {
+                resolveSources(depKey);
+            }
+        }
+    }
+
+    var src = '(' + bundleFn + ')({'
+        + Object.keys(workerSources).map(function (key) {
+            return stringify(key) + ':['
+                + sources[key][0]
+                + ',' + stringify(sources[key][1]) + ']'
+            ;
+        }).join(',')
+        + '},{},[' + stringify(skey) + '])'
+    ;
+
+    var URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+
+    var blob = new Blob([src], { type: 'text/javascript' });
+    if (options && options.bare) { return blob; }
+    var workerUrl = URL.createObjectURL(blob);
+    var worker = new Worker(workerUrl);
+    worker.objectURL = workerUrl;
+    return worker;
+};
+
+},{}],6:[function(require,module,exports){
 module.exports={
     "1": {"id":"AsiSI","seq":"GCGATCGC"},
     "2": {"id":"BspDI","seq":"ATCGAT"},
@@ -1141,7 +1258,7 @@ module.exports={
     "462": {"id":"EcoI","seq":"GATATC"}
 }
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 module.exports={
     "1": {"id":"Gal4_AD","seq":"AATTTTAATCAAAGTGGGAATATTGCTGATAGCTCATTGTCCTTCACTTTCACTAACAGTAGCAACGGTCCGAACCTCATAACAACTCAAACAAATTCTCAAGCGCTTTCACAACCAATTGCCTCCTCTAACGTTCATGATAACTTCATGAATAATGAAATCACGGCTAGTAAAATTGATGATGGTAATAATTCAAAACCACTGTCACCTGGTTGGACGGACCAAACTGCGTATAACGCGTTTGGAATCACTACAGGGATGTTTAATACCACTACAATGGATGATGTATATAACTATCTATTCGATGATGAAGATACCCCACCAAACCCAAAAAAAGAG"},
     "2": {"id":"Gal4_AD","seq":"ATGGATAAAGCGGAATTAATTCCCGAGCCTCCAAAAAAGAAGAGAAAGGTCGAATTGGGTACCGCCGCCAATTTTAATCAAAGTGGGAATATTGCTGATAGCTCATTGTCCTTCACTTTCACTAACAGTAGCAACGGTCCGAACCTCATAACAACTCAAACAAATTCTCAAGCGCTTTCACAACCAATTGCCTCCTCTAACGTTCATGATAACTTCATGAATAATGAAATCACGGCTAGTAAAATTGATGATGGTAATAATTCAAAACCACTGTCACCTGGTTGGACGGACCAAACTGCGTATAACGCGTTTGGAATCACTACAGGGATGTTTAATACCACTACAATGGATGATGTATATAACTATCTATTCGATGATGAAGATACCCCACCAAACCCAAAAAAAGAG"},
@@ -1155,7 +1272,7 @@ module.exports={
 
 }
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 module.exports={
     "1": {"id":"5xGal4_DBD","seq":"CGGAGTACTGTCCTCCGAGCGGAGTACTGTCCTCCGAGCGGAGTACTGTCCTCCGAGCGGAGTACTGTCCTCCGAGCGGAGTACTGTCCTCCGAG"},
     "2": {"id":"YFP","seq":"ATGGTGAGCAAGGGCGAGGAGCTGTTCACCGGGGTGGTGCCCATCCTGGTCGAGCTGGACGGCGACGTAAACGGCCACAAGTTCAGCGTGTCCGGCGAGGGCGAGGGCGATGCCACCTACGGCAAGCTGACCCTGAAGTTCATCTGCACCACCGGCAAGCTGCCCGTGCCCTGGCCCACCCTCGTGACCACCTTCGGCTACGGCCTGCAGTGCTTCGCCCGCTACCCCGACCACATGAAGCAGCACGACTTCTTCAAGTCCGCCATGCCCGAAGGCTACGTCCAGGAGCGCACCATCTTCTTCAAGGACGACGGCAACTACAAGACCCGCGCCGAGGTGAAGTTCGAGGGCGACACCCTGGTGAACCGCATCGAGCTGAAGGGCATCGACTTCAAGGAGGACGGCAACATCCTGGGGCACAAGCTGGAGTACAACTACAACAGCCACAACGTCTATATCATGGCCGACAAGCAGAAGAACGGCATCAAGGTGAACTTCAAGATCCGCCACAACATCGAGGACGGCAGCGTGCAGCTCGCCGACCACTACCAGCAGAACACCCCCATCGGCGACGGCCCCGTGCTGCTGCCCGACAACCACTACCTGAGCTACCAGTCCGCCCTGAGCAAAGACCCCAACGAGAAGCGCGATCACATGGTCCTGCTGGAGTTCGTGACCGCCGCCGGGATCACTCTCGGCATGGACGAGCTGTACAAGTAA"},
@@ -1164,8 +1281,9 @@ module.exports={
     "5": {"id":"6His","seq":"catcatcaccatcaccac"}
 }
 
-},{}],8:[function(require,module,exports){
-function visualize(res) {
+},{}],9:[function(require,module,exports){
+var exports = module.exports = {};
+exports.visualize = function(res) {
     var r = 250;
     var center = 300;
     var name = 'pcDNA3.1';
@@ -1216,7 +1334,7 @@ function visualize(res) {
     ctx.fillText(name, center-(textWidth/2), center);
 
     for (var i = 1; i < res.length; i++) {
-        if (res[i].score/res[i].featureLength > 0.98 && res[i].reversed === undefined) {
+        if (res[i].score/res[i].featureLength > 0.98 && res[i].reversed === false) {
             visualizedData.push(res[i]);
             calculateAngles(res[i]);
 
@@ -1245,7 +1363,7 @@ function visualize(res) {
             drawArrow(startAngle, true);
             drawMap(startAngle+0.2, endAngle, properties);
         }
-        else if (featureLength>200 && properties.reversed === undefined) {
+        else if (featureLength>200 && properties.reversed === false) {
             drawArrow(endAngle);
             drawMap(startAngle, endAngle-0.2, properties);
         } else {
@@ -1296,7 +1414,7 @@ function visualize(res) {
         var xIn;
         var yIn;
 
-        if (reversed === undefined) {
+        if (reversed === false) {
             xOut = center + (r + 25) * Math.cos(angle-0.25);
             yOut = center + (r + 25) * Math.sin(angle-0.25);
 
@@ -1322,25 +1440,4 @@ function visualize(res) {
     return visualizedData;
 }
 
-},{}],9:[function(require,module,exports){
-//var getRes = require('./getResultsFunction.js')
-
-// module.exports = function () {
-//     self.addEventListener('message',function (ev){
-//         var startNum = parseInt(ev.data); // ev.data=4 from main.js
-//
-//         setInterval(function () {
-//             var r = startNum / Math.random() - 1;
-//             self.postMessage([ startNum, r, gamma(r) ]);
-//         }, 500);
-//     });
-// };
-
-onmessage = function(e) {
-  console.log('Message received from main script');
-  var workerResult = 'Result: ';
-  console.log('Posting message back to main script');
-  postMessage(workerResult);
-}
-
-},{}]},{},[4,2,5,7,6,3,8,1,9]);
+},{}]},{},[4]);

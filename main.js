@@ -1,40 +1,91 @@
-var getRes = require('./getResultsFunction.js');
-
-//var work = require('webworkify');
-
+//getRes = require('./getResultsFunction.js');
+var work = require('webworkify');
+var viz = require('./visualization.js');
 
 // w.addEventListener('message', function (ev) {
 //     console.log(ev.data);
 // });
 
+var templates = document.querySelectorAll('script[type="text/handlebars"]');
+
+Handlebars.templates = Handlebars.templates || {};
+
+Array.prototype.slice.call(templates).forEach(function(script) {
+    Handlebars.templates[script.id] = Handlebars.compile(script.innerHTML);
+});
+
+
+
 var $b = $('#button');
+var results = $('#results')
+
 
 
 // function worker_function() {
 //     console.log('hi');
 //     getRes.getResults();
-//
-//
 // }
-
-//var worker = new Worker(URL.createObjectURL(new Blob(["("+worker_function.toString()+")()"], {type: 'text/javascript'})));
 
 //var worker = new Worker('./getResultsFunction.js');
 
 $b.on('click', function(){
-    //
-    // var w = work(require('./worker.js'));
-    //
-    // w.postMessage('a'); // send the worker a message
-    // console.log('message posted');
-    //
-    // w.onmessage = function(e) {
-    //     //result.textContent = e.data;
-    //     console.log('Message received from worker');
-    // }
+    var time_start = new Date().getTime();
 
+
+
+    var generalFeaturesCbox = document.getElementById('cbox1').checked;
+    var restriction_emzymesCbox = document.getElementById('cbox2').checked;
+    var tagsCbox = document.getElementById('cbox3').checked;
+    var selection_markersCbox = document.getElementById('cbox4').checked;
+
+    var ms   = parseInt(document.getElementById('match').value);
+    var mms  = parseInt(document.getElementById('mismatch').value);
+    var gapo = parseInt(document.getElementById('gapo').value);
+    var gape = parseInt(document.getElementById('gape').value);
+
+
+    var target = document.getElementById('target').value.replace(/[\s\n]+/g, '');
+
+
+    var message = {
+        generalFeaturesCbox: generalFeaturesCbox,
+        restriction_emzymesCbox: restriction_emzymesCbox,
+        tagsCbox: tagsCbox,
+        selection_markersCbox: selection_markersCbox,
+        ms: ms,
+        mms: mms,
+        gapo: gapo,
+        gape: gape,
+        target: target
+    }
+
+    var w = work(require('./getResultsFunction.js'));
     $(".loader").css("visibility", "visible");
-    //
-    setTimeout(getRes.getResults, 200);
+    w.postMessage(message); // send the worker a message
+    console.log('message posted')
+
+    w.onmessage = function(e) {
+        console.log('new data:')
+        console.log(e.data)
+        //result.textContent = e.data;
+        console.log('Message received from worker');
+
+        var visualized = viz.visualize(e.data);
+        $("#visualizedText").css("visibility", "visible");
+        results.html(Handlebars.templates.mapRes({
+            featuresDescription: visualized
+        }));
+        $(".loader").css("visibility", "hidden");
+        var elapse = (new Date().getTime() - time_start) / 1000.0;
+        document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
+        console.log('finish')
+
+
+    }
+
+
+    //setTimeout(getRes.getResults, 200);
+
+
 
 });
