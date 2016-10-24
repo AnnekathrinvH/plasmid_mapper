@@ -1,10 +1,5 @@
-//getRes = require('./getResultsFunction.js');
 var work = require('webworkify');
 var viz = require('./visualization.js');
-
-// w.addEventListener('message', function (ev) {
-//     console.log(ev.data);
-// });
 
 var templates = document.querySelectorAll('script[type="text/handlebars"]');
 
@@ -14,19 +9,8 @@ Array.prototype.slice.call(templates).forEach(function(script) {
     Handlebars.templates[script.id] = Handlebars.compile(script.innerHTML);
 });
 
-
-
 var $b = $('#button');
 var results = $('#results')
-
-
-
-// function worker_function() {
-//     console.log('hi');
-//     getRes.getResults();
-// }
-
-//var worker = new Worker('./getResultsFunction.js');
 
 $b.on('click', function(){
     var time_start = new Date().getTime();
@@ -62,13 +46,8 @@ $b.on('click', function(){
     var w = work(require('./getResultsFunction.js'));
     $(".loader").css("visibility", "visible");
     w.postMessage(message); // send the worker a message
-    console.log('message posted')
 
     w.onmessage = function(e) {
-        console.log('new data:')
-        console.log(e.data)
-        //result.textContent = e.data;
-        console.log('Message received from worker');
 
         var visualized = viz.visualize(e.data);
         $("#visualizedText").css("visibility", "visible");
@@ -78,14 +57,6 @@ $b.on('click', function(){
         $(".loader").css("visibility", "hidden");
         var elapse = (new Date().getTime() - time_start) / 1000.0;
         document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
-        console.log('finish')
-
 
     }
-
-
-    //setTimeout(getRes.getResults, 200);
-
-
-
 });

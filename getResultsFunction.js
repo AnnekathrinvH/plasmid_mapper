@@ -5,21 +5,13 @@ var tags = require('./tags.json');
 var alignFun = require('./alignment.js');
 
 onmessage = function(e) {
-    console.log('Message received from main script');
-    console.log(e.data)
-    var res = getResults(e.data.generalFeaturesCbox, e.data.restriction_emzymesCbox, e.data.selection_markersCbox, e.data.tagsCbox, e.data.target, [e.data.ms, e.data.mms], [e.data.gapo, e.data.gape])
 
-
-    var workerResult = 'I got here';
-    console.log('Posting message back to main script');
+    var res = getResults(e.data.generalFeaturesCbox, e.data.restriction_emzymesCbox, e.data.selection_markersCbox, e.data.tagsCbox, e.data.target, [e.data.ms, e.data.mms], [e.data.gapo, e.data.gape]);
     postMessage(res);
 }
 
 
-
-
 function getResults(generalFeaturesCbox, restriction_emzymesCbox, selection_markersCbox, tagsCbox, target, [ms, mms], [gapo, gape]) {
-    console.log('Everything is good')
 
     var reversedTarget = getOppositeStrand(target);
     var featuresData = [];
@@ -71,15 +63,6 @@ function getResults(generalFeaturesCbox, restriction_emzymesCbox, selection_mark
         }
     }
     return featuresData;
-    //var visualized = visualize(featuresData);
-    // $("#visualizedText").css("visibility", "visible");
-    // results.html(Handlebars.templates.mapRes({
-    //     featuresDescription: visualized
-    // }));
-
-    // document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
-    // console.log('finish')
-    // $(".loader").css("visibility", "hidden");
 
 }
 
@@ -166,12 +149,6 @@ function getIndices(sequence, feature) {
 }
 
 function do_align(query, target, [ms, mms], [gapo, gape]) {
-
-
-	// var ms   = parseInt(document.getElementById('match').value);
-	// var mms  = parseInt(document.getElementById('mismatch').value);
-	// var gapo = parseInt(document.getElementById('gapo').value);
-	// var gape = parseInt(document.getElementById('gape').value);
 
 	var is_local = true;
 
