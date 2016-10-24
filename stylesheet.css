@@ -1,11 +1,27 @@
-
+*{
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
 body {
     margin: 0px;
 
 }
+#outer{
+    position: relative;
+    height: 1000px;
+    width: : 1000px;
+}
 
 #canvas {
     border: solid grey 1px;
+    position: absolute;
+}
+#canvas2{
+    border: solid grey 1px;
+    position: absolute;
+}
+#matches{
+    position: relative;
 }
 
 h1 {
