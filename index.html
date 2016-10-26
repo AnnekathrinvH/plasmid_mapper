@@ -37,19 +37,20 @@
         </div>
         <div class="button">
             <input type="button" value="ALIGN" id="button"/>
+
+
+        <div id="noSelection">
+            <script id="noSel" type="text/handlebars">
+            {{#selectionError}}
+                {{.}}
+            {{/selectionError}}
+            </script>
         </div>
         <span id="runtime" style="color: gray;"></span>
     </div>
         <div class="loader">
 
         </div>
-
-    <div id="justamoment" style="text-align: left;font-family:  Signika;color: white;font-size:14px;font-weight: bold;text-decoration: none;visibility:hidden">
-        <p>
-           <img src="http://www.ajaxload.info/cache/FF/FF/FF/00/00/00/1-0.gif" height="12" width="12" Just a moment..
-         </p>
-
-    </div>
 
     <div id="outer">
         <canvas class="canvas" id="canvas" width="1000" height="1000"></canvas>
@@ -58,6 +59,7 @@
 
     <div id="matches">
         <h3 id="visualizedText" style="visibility:hidden">Visualized matches:</h3>
+
         <div id="results">
             <script id='mapRes' type="text/handlebars">
             {{#featuresDescription}}
@@ -67,11 +69,8 @@
         </div>
     </div>
 
-
     <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=" crossorigin="anonymous"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
     <script src="bundle.js"></script>
-    <script type="text/javascript" src="alignment.js"></script>
-    <script type="text/javascript" src="visualization.js"></script>
+
 </body>

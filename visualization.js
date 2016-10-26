@@ -1,4 +1,5 @@
-function visualize(res) {
+var exports = module.exports = {};
+exports.visualize = function(res) {
     var r = 250;
     var center = 500;
     var name = 'pcDNA3.1';
@@ -41,8 +42,8 @@ function visualize(res) {
         this.restore();
     };
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx2.clearRect(0, 0, canvas.width, canvas.height);
+    //ctx.clearRect(0, 0, canvas.width, canvas.height);
+    //ctx2.clearRect(0, 0, canvas.width, canvas.height);
 
 
     ctx.beginPath();
@@ -58,7 +59,7 @@ function visualize(res) {
 
 
     for (var i = 1; i < res.length; i++) {
-        if (res[i].score/res[i].featureLength > 0.98 && res[i].reversed === undefined) {
+        if (res[i].score/res[i].featureLength > 0.98 && res[i].reversed === false) {
             visualizedData.push(res[i]);
             calculateAngles(res[i]);
 
@@ -86,7 +87,9 @@ function visualize(res) {
             drawArrow(startAngle, true);
             drawMap(startAngle+0.2, endAngle, properties);
         }
-        else if (featureLength>300 && properties.reversed === undefined) {
+
+        else if (featureLength>200 && properties.reversed === false) {
+
             drawArrow(endAngle);
             drawMap(startAngle, endAngle-0.2, properties);
         } else {
@@ -152,7 +155,7 @@ function visualize(res) {
         var xIn;
         var yIn;
 
-        if (reversed === undefined) {
+        if (reversed === false) {
             xOut = center + (r + 25) * Math.cos(angle-0.25);
             yOut = center + (r + 25) * Math.sin(angle-0.25);
 

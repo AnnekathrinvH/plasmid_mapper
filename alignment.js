@@ -1,3 +1,7 @@
+
+var exports = module.exports = {};
+
+
 /**************************
  *** Common data tables ***
  **************************/
@@ -176,7 +180,7 @@ function bsa_gen_query_profile(_s, _m, table)
  * higher 28 bits keeps the length and lower 4 bits the operation in order of
  * "MIDNSH". See bsa_cigar2str() for converting cigar to string.
  */
-function bsa_align(is_local, target, query, matrix, gapsc, w, table)
+exports.bsa_align = function(is_local, target, query, matrix, gapsc, w, table)
 {
 	// convert bases to integers
 	if (table == null) table = bst_nt5;
@@ -315,7 +319,7 @@ function bsa_align(is_local, target, query, matrix, gapsc, w, table)
 // 	return [ot, oq];
 // }
 
-function bsa_cigar2str(cigar)
+exports.bsa_cigar2str = function(cigar)
 {
 	var s = [];
 	for (var k = 0; k < cigar.length; ++k)
