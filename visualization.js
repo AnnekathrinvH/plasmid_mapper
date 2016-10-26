@@ -6,6 +6,7 @@ function visualize(res) {
     var plasmidLength = res[0].fullLength;
     var U = 2*r*Math.PI;
     var visualizedData = [];
+    var restrictionEnzymePositionsArray = [];
 
 
     var canvas = document.getElementById("canvas");
@@ -23,7 +24,6 @@ function visualize(res) {
         var featureMiddle = endAngle - space/2;
         var startRotation =featureMiddle - textMiddle;
 
-        console.log(space);
         var numRadsPerLetter = textLengthInRad / text.length;
 
         this.save();
@@ -55,6 +55,8 @@ function visualize(res) {
     var textWidth = metrics.width;
     ctx.fillText(name, center-(textWidth/2), center);
 
+
+
     for (var i = 1; i < res.length; i++) {
         if (res[i].score/res[i].featureLength > 0.98 && res[i].reversed === undefined) {
             visualizedData.push(res[i]);
@@ -72,7 +74,6 @@ function visualize(res) {
     function calculateAngles(properties) {
         var featureStart = properties.start;
         var featureLength = properties.featureLength;
-        console.log(featureLength);
         var featureEnd = featureStart + featureLength;
         var percentageStart = featureStart/plasmidLength;
         var percentageEnd = featureEnd/plasmidLength;
@@ -95,7 +96,6 @@ function visualize(res) {
     }
 
     function drawMap(startAngle, endAngle, properties) {
-
         var space = endAngle - startAngle;
         if (properties.featureLength > 300) {
             ctx2.strokeStyle = "rgb(117, 200, 252)";
@@ -119,14 +119,15 @@ function visualize(res) {
             ctx2.fillStyle = 'black';
             ctx2.fillText(properties.id, x, y);
         } else {
-            var xOut = center + (r + 25) * Math.cos(startAngle);
-            var yOut = center + (r + 25) * Math.sin(startAngle);
-
             var xIn = center + r * Math.cos(startAngle);
             var yIn = center + r * Math.sin(startAngle);
 
-            var xText = center + (r + 35) * Math.cos(startAngle);
-            var yText = center + (r + 35) * Math.sin(startAngle);
+            var xOut = center + (r + 25) * Math.cos(startAngle);
+            var yOut = center + (r + 25) * Math.sin(startAngle);
+
+            var xAngle = center + (r + 45) * Math.cos(startAngle + 0.05);
+            var yAngle = center + (r + 45) * Math.sin(startAngle + 0.05);
+
 
             ctx.strokeStyle = "black";
             ctx.lineWidth = 1;
@@ -135,12 +136,11 @@ function visualize(res) {
             ctx.lineTo(xOut, yOut);
             ctx.stroke();
 
-            ctx2.font = "10px sans-serif";
-            var metrics = ctx.measureText(name);
-            var textWidth = metrics.width;
-            ctx2.fillStyle = 'black';
-            ctx2.fillText(properties.id, xText, yText);
-
+            var entry = {};
+            entry.id = properties.id;
+            entry.position = properties.start;
+            entry.angle = startAngle;
+            restrictionEnzymePositionsArray.push(entry);
         }
     }
 
@@ -175,5 +175,61 @@ function visualize(res) {
         ctx2.lineTo(xIn,yIn);
         ctx2.fill();
     }
+    sortPositions();
+    function sortPositions() {
+        restrictionEnzymePositionsArray.sort(function (a, b) {
+            if (a.position > b.position) {
+            return 1;
+            }
+            if (a.position < b.position) {
+            return -1;
+            }
+            // a must be equal to b
+            return 0;
+        });
+        checkDensity(restrictionEnzymePositionsArray);
+    }
+    function checkDensity(array) {
+        console.log(array);
+        var denseSites = [];
+        var denseSitesArray = [];
+        var limit = 20;
+
+        for (var i = 0; i < array.length; i++) {
+            console.log(array[i].position);
+            if (array[i-1] && array[i+1]) {
+                if ((array[i].position < (array[i-1].position + limit)) && (array[i].position > (array[i+1].position - limit))) {
+                    denseSites.push(array[i]);
+
+                }
+                else if (array[i].position > (array[i+1].position - limit)) {
+                    denseSites.push(array[i]);
+                    denseSites.push(array[i+1]);
+                    console.log('dense');
+                }
+                else if (array[i].position < (array[i-1].position + limit)) {
+                    denseSites.push(array[i]);
+                    denseSitesArray.push(denseSites);
+                    denseSites = [];
+
+                } else {
+                    denseSitesArray.push(denseSites);
+                    denseSites = [];
+
+                    var xText = center + (r + 50) * Math.cos(array[i].angle);
+                    var yText = center + (r + 50) * Math.sin(array[i].angle);
+
+                    ctx2.font = "10px sans-serif";
+                    var metrics = ctx.measureText(name);
+                    var textWidth = metrics.width;
+                    ctx2.fillStyle = 'black';
+                    ctx2.fillText(array[i].id, xText, yText);
+                }
+            }
+        }
+        console.log(denseSitesArray);
+    }
+
+
     return visualizedData;
 }

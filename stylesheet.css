@@ -1,52 +1,55 @@
 *{
     box-sizing: border-box;
-    font-family: sans-serif;
+    font-family: 'Roboto', sans-serif;
+    font-weight: normal;
 }
-body {
-    margin: 0px;
-
-}
-#outer{
-    position: relative;
-    height: 1000px;
-    width: : 1000px;
-}
-
-#canvas {
-    border: solid grey 1px;
-    position: absolute;
-}
-#canvas2{
-    border: solid grey 1px;
-    position: absolute;
-}
-#matches{
-    position: relative;
-}
-
-h1 {
-    text-align: center;
-    font-family: "arial";
-    font-size: 60px;
-    border: 0px;
+body{
     margin: 0px;
 }
 
 #header {
     top: 0px;
-    overflow: hidden;
-    height: 60px;
-
+    height: auto;;
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 60px;
+    border: 0px;
+    margin: 0px;
+    padding: 10px;
+    text-align: center;
+}
+#seqInput{
+    text-align: center;
+}
+#textAreaTitle{
+    padding: 10px;
+}
+#target{
+    margin: 10px;
+    border-radius: 20px;
+    padding: 16px;
 }
 
 #options2 {
-    float: left;
-    width: 200px;
+    margin: 0 auto;
+    width: 40%;
 }
-
-h3 {
-    border: 0px;
-    margin: 0px;
+.element{
+    width: 200px;
+    display: inline-block;
+    text-align: left;
+}
+.button{
+    text-align: center;
+}
+#button{
+    border-radius: 60px;
+    width: 60px;
+    height: 40px;
+    border: 0.5px black solid;
+    margin: 10px;
+    background-color: white;
+    cursor: pointer;
 }
 
 .loader {
@@ -63,6 +66,24 @@ h3 {
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+#outer{
+    position: relative;
+    height: 1000px;
+    width: 1000px;
+    margin: 0 auto;
+}
+
+.canvas {
+    border: solid grey 1px;
+    position: absolute;
+    padding: 10px;
+    margin: 0 auto;
+}
+
+#matches{
+    position: relative;
 }
 
 
