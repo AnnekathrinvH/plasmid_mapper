@@ -8,11 +8,13 @@ onmessage = function(e) {
 
     var eD = e.data;
 
-    var res = getResults(eD.generalFeaturesCbox, eD.single_cuttersCbox, eD.double_cuttersCbox, eD.selection_markersCbox, eD.tagsCbox, eD.target, [eD.ms, eD.mms], [eD.gapo, eD.gape]);
+
+    var res = getResults(eD.generalFeaturesCbox, eD.single_cuttersCbox, eD.double_cuttersCbox, eD.selection_markersCbox, eD.tagsCbox, eD.target, [eD.ms, eD.mms], [eD.gapo, eD.gape], eD.customFeatFlag, eD.customFeature);
+    console.log(res)
     postMessage(res);
 }
 
-function getResults(generalFeaturesCbox, single_cuttersCbox, double_cuttersCbox, selection_markersCbox, tagsCbox, target, [ms, mms], [gapo, gape]) {
+function getResults(generalFeaturesCbox, single_cuttersCbox, double_cuttersCbox, selection_markersCbox, tagsCbox, target, [ms, mms], [gapo, gape], customFeatFlag, customFeature) {
 
     var reversedTarget = getOppositeStrand(target);
     var featuresData = [];
@@ -24,11 +26,14 @@ function getResults(generalFeaturesCbox, single_cuttersCbox, double_cuttersCbox,
 
         for (var i = 0; i < generalFeaturesData.length; i++) {
             featuresData.push(generalFeaturesData[i]);
+
         }
 
         for (var i = 0; i < generalFeaturesDataReversedTarget.length; i++) {
             featuresData.push(generalFeaturesDataReversedTarget[i]);
+
         }
+
     }
 
     if (single_cuttersCbox) {
@@ -74,11 +79,29 @@ function getResults(generalFeaturesCbox, single_cuttersCbox, double_cuttersCbox,
             featuresData.push(tagsDataReversedTarget[i]);
         }
     }
+    if (customFeatFlag) {
+        console.log(customFeature)
+        var customFeatureObj = {
+            "1": {
+                "id":"custom",
+                "seq":customFeature
+                }
+        }
+
+        var customFeatureData = getData(customFeatureObj, target, false, [ms, mms], [gapo, gape]);
+        var customFeatureDataReversedTarget = getData(customFeatureObj, reversedTarget, true, [ms, mms], [gapo, gape]);
+
+        for (var i = 0; i < customFeatureData.length; i++) {
+            featuresData.push(customFeatureData[i]);
+        }
+        for (var i = 0; i < customFeatureDataReversedTarget.length; i++) {
+            featuresData.push(customFeatureDataReversedTarget[i]);
+        }
+    }
     return featuresData;
 
 }
 
-//addition argument for getData is needed to scan for single or double orrucance
 function getData(features, target, reversed, [ms, mms], [gapo, gape], tuple) {
 
     var f;

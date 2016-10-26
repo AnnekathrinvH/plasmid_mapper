@@ -1,9 +1,10 @@
 var exports = module.exports = {};
 exports.visualize = function(res) {
+
     var r = 250;
     var center = 500;
     var name = 'pcDNA3.1';
-    console.log(res);
+
     var plasmidLength = res[0].fullLength;
     var U = 2*r*Math.PI;
     var visualizedData = [];

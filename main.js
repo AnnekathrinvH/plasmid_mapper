@@ -8,9 +8,19 @@ Array.prototype.slice.call(templates).forEach(function(script) {
 });
 
 var $b = $('#button');
+var customButton = $('#customButton');
+var customFeatureArea = $('#customFeatureArea');
+var customFeatureText = $('#customFeatureText');
 var results = $('#results');
 var noSelection = $('#noSelection');
 
+
+customButton.on('click', function () {
+    customButton.css('visibility', 'hidden');
+    customFeatureArea.css('visibility', 'visible');
+    customFeatureText.css('visibility', 'visible');
+
+});
 
 $b.on('click', function(){
 
@@ -26,9 +36,19 @@ $b.on('click', function(){
     var gape = parseInt(document.getElementById('gape').value);
     var target = document.getElementById('target').value.replace(/[\s\n]+/g, '');
 
-    //var featuresList = [generalFeaturesCbox, restriction_emzymesCbox, tagsCbox, selection_markersCbox];
+    var customFeature = customFeatureArea.val();
 
-    if (generalFeaturesCbox == false && single_cuttersCbox == false && double_cuttersCbox == false && tagsCbox == false && selection_markersCbox == false) {
+    if (customFeature.length > 0) {
+        customFeatFlag = true;
+    } else {
+        customFeatFlag = false;
+    }
+
+
+
+    var featuresList = [generalFeaturesCbox, single_cuttersCbox, double_cuttersCbox, tagsCbox, selection_markersCbox, customFeatFlag];
+
+    if (generalFeaturesCbox == false && single_cuttersCbox == false && double_cuttersCbox == false && tagsCbox == false && selection_markersCbox == false && customFeature.length == 0) {
         noSelection.html(Handlebars.templates.noSel({
             selectionError: 'choose features'
         }));
@@ -45,18 +65,17 @@ $b.on('click', function(){
 
     var fullData = [];
 
-    function pushAndCall(data, callback) {
+    function saveDataFromWorkerAndCallVizFunction(data, callback) {
         fullData.push(data);
         callback(fullData);
-        console.log(fullData);
 
     }
 
     function loopAndViz(data) {
         for (var i = 0; fullData[i]; i++) {
+            console.log(fullData[i]);
             viz.visualize(fullData[i]);
-            console.log('length');
-            console.log(fullData.length);
+
             if (fullData.length == numberOfFeatures) {
                 $(".loader").css("visibility", "hidden");
             }
@@ -84,7 +103,7 @@ $b.on('click', function(){
         worker1.postMessage(message); // send the worker a message
         worker1.onmessage = function(e) {
 
-            pushAndCall(e.data, loopAndViz);
+            saveDataFromWorkerAndCallVizFunction(e.data, loopAndViz);
 
             $("#visualizedText").css("visibility", "visible");
             var elapse = (new Date().getTime() - time_start) / 1000.0;
@@ -110,7 +129,7 @@ $b.on('click', function(){
         worker2.postMessage(message); // send the worker a message
         worker2.onmessage = function(e) {
 
-            pushAndCall(e.data, loopAndViz);
+            saveDataFromWorkerAndCallVizFunction(e.data, loopAndViz);
 
             $("#visualizedText").css("visibility", "visible");
             var elapse = (new Date().getTime() - time_start) / 1000.0;
@@ -131,12 +150,12 @@ $b.on('click', function(){
             gape: gape,
             target: target
         };
-        var worker2 = work(require('./getResultsFunction.js'));
+        var worker3 = work(require('./getResultsFunction.js'));
 
-        worker2.postMessage(message); // send the worker a message
-        worker2.onmessage = function(e) {
+        worker3.postMessage(message); // send the worker a message
+        worker3.onmessage = function(e) {
 
-            pushAndCall(e.data, loopAndViz);
+            saveDataFromWorkerAndCallVizFunction(e.data, loopAndViz);
 
             $("#visualizedText").css("visibility", "visible");
             var elapse = (new Date().getTime() - time_start) / 1000.0;
@@ -156,12 +175,12 @@ $b.on('click', function(){
             target: target
         };
 
-        var worker3 = work(require('./getResultsFunction.js'));
+        var worker4 = work(require('./getResultsFunction.js'));
 
-        worker3.postMessage(message); // send the worker a message
-        worker3.onmessage = function(e) {
+        worker4.postMessage(message); // send the worker a message
+        worker4.onmessage = function(e) {
 
-            pushAndCall(e.data, loopAndViz);
+            saveDataFromWorkerAndCallVizFunction(e.data, loopAndViz);
 
             $("#visualizedText").css("visibility", "visible");
 
@@ -182,12 +201,12 @@ $b.on('click', function(){
             gape: gape,
             target: target
         };
-        var worker4 = work(require('./getResultsFunction.js'));
+        var worker5 = work(require('./getResultsFunction.js'));
 
-        worker4.postMessage(message); // send the worker a message
-        worker4.onmessage = function(e) {
+        worker5.postMessage(message); // send the worker a message
+        worker5.onmessage = function(e) {
 
-            pushAndCall(e.data, loopAndViz);
+            saveDataFromWorkerAndCallVizFunction(e.data, loopAndViz);
 
             $("#visualizedText").css("visibility", "visible");
 
@@ -197,28 +216,57 @@ $b.on('click', function(){
         }
     }
 
+    if (customFeature.length > 0) {
+
+        var message = {
+
+            customFeatFlag: customFeatFlag,
+            ms: ms,
+            mms: mms,
+            gapo: gapo,
+            gape: gape,
+            target: target,
+            customFeature: customFeature
+
+        };
+        var worker6 = work(require('./getResultsFunction.js'));
+
+        worker6.postMessage(message); // send the worker a message
+        worker6.onmessage = function(e) {
+
+            saveDataFromWorkerAndCallVizFunction(e.data, loopAndViz);
+
+            $("#visualizedText").css("visibility", "visible");
+
+            var elapse = (new Date().getTime() - time_start) / 1000.0;
+            document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
+
+        }
+
+    }
+
     function checkNumberofFeatures() {
 
-        // for (var i = 0; i < featuresList.length; i ++) {
-        //     if (featuresList == true) {
-        //         numberOfFeatures++
-        //     }
-        // }
+        for (var i = 0; i < featuresList.length; i ++) {
+            if (featuresList[i] == true) {
+                numberOfFeatures++
+            }
+        }
 
-        if (generalFeaturesCbox == true) {
-            numberOfFeatures++
-        }
-        if (single_cuttersCbox == true) {
-            numberOfFeatures++
-        }
-        if (double_cuttersCbox == true) {
-            numberOfFeatures++
-        }
-        if (tagsCbox == true) {
-            numberOfFeatures++
-        }
-        if (selection_markersCbox == true) {
-            numberOfFeatures++
-        }
+    //     if (generalFeaturesCbox == true) {
+    //         numberOfFeatures++
+    //     }
+    //     if (single_cuttersCbox == true) {
+    //         numberOfFeatures++
+    //     }
+    //     if (double_cuttersCbox == true) {
+    //         numberOfFeatures++
+    //     }
+    //     if (tagsCbox == true) {
+    //         numberOfFeatures++
+    //     }
+    //     if (selection_markersCbox == true) {
+    //         numberOfFeatures++
+    //     }
     }
 });

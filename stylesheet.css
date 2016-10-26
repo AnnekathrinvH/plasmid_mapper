@@ -25,6 +25,7 @@ body{
     padding: 10px;
 }
 #target{
+    outline:none;
     margin: 10px;
     border-radius: 20px;
     padding: 16px;
@@ -42,7 +43,34 @@ body{
 .button{
     text-align: center;
 }
+
+#customButton {
+    outline:none;
+    border-radius: 60px;
+    width: 60px;
+    height: 40px;
+    border: 0.5px black solid;
+    margin: 10px;
+    background-color: white;
+    cursor: pointer;
+    white-space: normal;
+}
+
+#customFeatureArea {
+    outline:none;
+    margin: 10px;
+    border-radius: 20px;
+    padding: 16px;
+
+}
+
+#customFeatureText {
+    visibility: hidden;
+}
+
+
 #button{
+    outline:none;
     border-radius: 60px;
     width: 60px;
     height: 40px;
@@ -51,22 +79,75 @@ body{
     background-color: white;
     cursor: pointer;
 }
-
+.loader,
+.loader:before,
+.loader:after {
+  border-radius: 50%;
+}
 .loader {
-    visibility: hidden;
-    border: 16px solid #f3f3f3; /* Light grey */
-    border-top: 16px solid #3498db; /* Blue */
-    border-radius: 50%;
-    width: 120px;
-    height: 120px;
-    animation: spin 2s linear infinite;
-    margin-left: 200px;
+  color: black;
+  font-size: 11px;
+  text-indent: -99999em;
+  margin: 55px auto;
+  position: relative;
+  width: 10em;
+  height: 10em;
+  box-shadow: inset 0 0 0 1em;
+  -webkit-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  visibility: hidden;
+}
+.loader:before,
+.loader:after {
+  position: absolute;
+  content: '';
+}
+.loader:before {
+  width: 5.2em;
+  height: 10.2em;
+  background: white;
+  border-radius: 10.2em 0 0 10.2em;
+  top: -0.1em;
+  left: -0.1em;
+  -webkit-transform-origin: 5.1em 5.1em;
+  transform-origin: 5.1em 5.1em;
+  -webkit-animation: load2 2s infinite ease 1.5s;
+  animation: load2 2s infinite ease 1.5s;
+}
+.loader:after {
+  width: 5.2em;
+  height: 10.2em;
+  background: white;
+  border-radius: 0 10.2em 10.2em 0;
+  top: -0.1em;
+  left: 4.9em;
+  -webkit-transform-origin: 0.1em 5.1em;
+  transform-origin: 0.1em 5.1em;
+  -webkit-animation: load2 2s infinite ease;
+  animation: load2 2s infinite ease;
+}
+@-webkit-keyframes load2 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes load2 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
 
 #outer{
     position: relative;

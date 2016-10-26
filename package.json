@@ -21,6 +21,7 @@
     "webpack": "^1.13.2"
   },
   "dependencies": {
+    "express": "^4.14.0",
     "gamma": "^1.0.0",
     "json-loader": "^0.5.4",
     "webworkify": "^1.4.0"
