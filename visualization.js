@@ -42,8 +42,8 @@ exports.visualize = function(res) {
         this.restore();
     };
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx2.clearRect(0, 0, canvas.width, canvas.height);
+    //ctx.clearRect(0, 0, canvas.width, canvas.height);
+    //ctx2.clearRect(0, 0, canvas.width, canvas.height);
 
 
     ctx.beginPath();

@@ -6,7 +6,9 @@ var alignFun = require('./alignment.js');
 
 onmessage = function(e) {
 
-    var res = getResults(e.data.generalFeaturesCbox, e.data.restriction_emzymesCbox, e.data.selection_markersCbox, e.data.tagsCbox, e.data.target, [e.data.ms, e.data.mms], [e.data.gapo, e.data.gape]);
+    var eD = e.data;
+
+    var res = getResults(eD.generalFeaturesCbox, eD.restriction_emzymesCbox, eD.selection_markersCbox, eD.tagsCbox, eD.target, [eD.ms, eD.mms], [eD.gapo, eD.gape]);
     postMessage(res);
 }
 
@@ -39,6 +41,7 @@ function getResults(generalFeaturesCbox, restriction_emzymesCbox, selection_mark
     }
 
     if (selection_markersCbox) {
+
         var selection_markersData = getData(selection_markers, target, false, [ms, mms], [gapo, gape]);
         var selection_markersDataReversedTarget = getData(selection_markers, reversedTarget, true, [ms, mms], [gapo, gape]);
 
@@ -51,6 +54,7 @@ function getResults(generalFeaturesCbox, restriction_emzymesCbox, selection_mark
     }
 
     if (tagsCbox) {
+
         var tagsData = getData(tags, target, false, [ms, mms], [gapo, gape]);
         var tagsDataReversedTarget = getData(tags, reversedTarget, true, [ms, mms], [gapo, gape]);
 
