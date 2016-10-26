@@ -43,9 +43,6 @@ exports.visualize = function(res) {
         this.restore();
     };
 
-    //ctx.clearRect(0, 0, canvas.width, canvas.height);
-    //ctx2.clearRect(0, 0, canvas.width, canvas.height);
-
 
     ctx.beginPath();
 
@@ -188,19 +185,16 @@ exports.visualize = function(res) {
             if (a.position < b.position) {
             return -1;
             }
-            // a must be equal to b
             return 0;
         });
         checkDensity(restrictionEnzymePositionsArray);
     }
     function checkDensity(array) {
-        console.log(array);
         var denseSites = [];
         var denseSitesArray = [];
         var limit = 20;
 
         for (var i = 0; i < array.length; i++) {
-            console.log(array[i].position);
             if (array[i-1] && array[i+1]) {
                 if ((array[i].position < (array[i-1].position + limit)) && (array[i].position > (array[i+1].position - limit))) {
                     denseSites.push(array[i]);
@@ -209,7 +203,6 @@ exports.visualize = function(res) {
                 else if (array[i].position > (array[i+1].position - limit)) {
                     denseSites.push(array[i]);
                     denseSites.push(array[i+1]);
-                    console.log('dense');
                 }
                 else if (array[i].position < (array[i-1].position + limit)) {
                     denseSites.push(array[i]);
@@ -217,7 +210,7 @@ exports.visualize = function(res) {
                     denseSites = [];
 
                 } else {
-                    denseSitesArray.push(denseSites);
+                    //denseSitesArray.push(denseSites);
                     denseSites = [];
 
                     var xText = center + (r + 50) * Math.cos(array[i].angle);
@@ -226,14 +219,33 @@ exports.visualize = function(res) {
                     ctx2.font = "10px sans-serif";
                     var metrics = ctx.measureText(name);
                     var textWidth = metrics.width;
+                    console.log(textWidth);
                     ctx2.fillStyle = 'black';
                     ctx2.fillText(array[i].id, xText, yText);
                 }
             }
         }
-        console.log(denseSitesArray);
+        labelDenseSites(denseSitesArray);
+    }
+    function checkTooCloseX() {
+
+    }
+
+    function labelDenseSites(array) {
+        console.log(array);
+        for (var i = 0; i < array.length; i++) {
+            var xText = center + (r + 60) * Math.cos(array[i][0].angle);
+            var yText = center + (r + 60) * Math.sin(array[i][0].angle);
+
+            for (var j = 0; j < array[i].length; j++) {
+                ctx2.font = "10px sans-serif";
+                ctx2.fillStyle = 'black';
+                ctx2.fillText(array[i][j].id, xText, yText);
+                yText += 10;
+            }
+        }
     }
 
 
     return visualizedData;
-}
+};
