@@ -8,11 +8,11 @@ onmessage = function(e) {
 
     var eD = e.data;
 
-    var res = getResults(eD.generalFeaturesCbox, eD.restriction_emzymesCbox, eD.selection_markersCbox, eD.tagsCbox, eD.target, [eD.ms, eD.mms], [eD.gapo, eD.gape]);
+    var res = getResults(eD.generalFeaturesCbox, eD.single_cuttersCbox, eD.double_cuttersCbox, eD.selection_markersCbox, eD.tagsCbox, eD.target, [eD.ms, eD.mms], [eD.gapo, eD.gape]);
     postMessage(res);
 }
 
-function getResults(generalFeaturesCbox, restriction_emzymesCbox, selection_markersCbox, tagsCbox, target, [ms, mms], [gapo, gape]) {
+function getResults(generalFeaturesCbox, single_cuttersCbox, double_cuttersCbox, selection_markersCbox, tagsCbox, target, [ms, mms], [gapo, gape]) {
 
     var reversedTarget = getOppositeStrand(target);
     var featuresData = [];
@@ -31,12 +31,21 @@ function getResults(generalFeaturesCbox, restriction_emzymesCbox, selection_mark
         }
     }
 
-    if (restriction_emzymesCbox) {
+    if (single_cuttersCbox) {
 
-        var restriction_emzymesData = getData(restriction_emzymes, target, false, [ms, mms], [gapo, gape]);
+        var single_cuttersData = getData(restriction_emzymes, target, false, [ms, mms], [gapo, gape], true);
 
-        for (var i = 0; i < restriction_emzymesData.length; i++) {
-            featuresData.push(restriction_emzymesData[i]);
+        for (var i = 0; i < single_cuttersData.length; i++) {
+            featuresData.push(single_cuttersData[i]);
+        }
+    }
+
+    if (double_cuttersCbox) {
+
+        var double_cuttersData = getData(restriction_emzymes, target, false, [ms, mms], [gapo, gape]);
+
+        for (var i = 0; i < double_cuttersData.length; i++) {
+            featuresData.push(double_cuttersData[i]);
         }
     }
 
@@ -69,8 +78,8 @@ function getResults(generalFeaturesCbox, restriction_emzymesCbox, selection_mark
 
 }
 
-
-function getData(features, target, reversed, [ms, mms], [gapo, gape]) {
+//addition argument for getData is needed to scan for single or double orrucance
+function getData(features, target, reversed, [ms, mms], [gapo, gape], tuple) {
 
     var f;
     var tempData = []
@@ -107,24 +116,47 @@ function getData(features, target, reversed, [ms, mms], [gapo, gape]) {
             }
         } else {
 
-            var indexOfFeature = [];
+            if (tuple) {
+                var indexOfFeature = [];
 
-            indexOfFeature.push(getIndices(target, features[feature].seq));
+                indexOfFeature.push(getIndices(target, features[feature].seq));
 
-            if (indexOfFeature[0].length >= 1 && indexOfFeature[0].length <= 2) {
+                if (indexOfFeature[0].length == 1) {
 
-                for (var i = 0; indexOfFeature[0][i]; i++) {
+                    for (var i = 0; indexOfFeature[0][i]; i++) {
 
-                    tempData.push({
-                        reversed: reversed,
-                        fullLength: target.length,
-                        id: features[feature].id,
-                        featureLength: features[feature].seq.length,
-                        start: indexOfFeature[0][i],
-                        cigar: '',
-                        score: features[feature].seq.length
+                        tempData.push({
+                            reversed: reversed,
+                            fullLength: target.length,
+                            id: features[feature].id,
+                            featureLength: features[feature].seq.length,
+                            start: indexOfFeature[0][i],
+                            cigar: '',
+                            score: features[feature].seq.length
 
-                    })
+                        })
+                    }
+                }
+            } else {
+                var indexOfFeature = [];
+
+                indexOfFeature.push(getIndices(target, features[feature].seq));
+
+                if (indexOfFeature[0].length == 2) {
+
+                    for (var i = 0; indexOfFeature[0][i]; i++) {
+
+                        tempData.push({
+                            reversed: reversed,
+                            fullLength: target.length,
+                            id: features[feature].id,
+                            featureLength: features[feature].seq.length,
+                            start: indexOfFeature[0][i],
+                            cigar: '',
+                            score: features[feature].seq.length
+
+                        })
+                    }
                 }
             }
         }

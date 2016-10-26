@@ -16,9 +16,10 @@ $b.on('click', function(){
 
     var time_start = new Date().getTime();
     var generalFeaturesCbox = document.getElementById('cbox1').checked;
-    var restriction_emzymesCbox = document.getElementById('cbox2').checked;
-    var tagsCbox = document.getElementById('cbox3').checked;
-    var selection_markersCbox = document.getElementById('cbox4').checked;
+    var single_cuttersCbox = document.getElementById('cbox2').checked;
+    var double_cuttersCbox = document.getElementById('cbox3').checked;
+    var tagsCbox = document.getElementById('cbox4').checked;
+    var selection_markersCbox = document.getElementById('cbox5').checked;
     var ms   = parseInt(document.getElementById('match').value);
     var mms  = parseInt(document.getElementById('mismatch').value);
     var gapo = parseInt(document.getElementById('gapo').value);
@@ -27,7 +28,7 @@ $b.on('click', function(){
 
     //var featuresList = [generalFeaturesCbox, restriction_emzymesCbox, tagsCbox, selection_markersCbox];
 
-    if (generalFeaturesCbox == false && restriction_emzymesCbox == false && tagsCbox == false && selection_markersCbox == false) {
+    if (generalFeaturesCbox == false && single_cuttersCbox == false && double_cuttersCbox == false && tagsCbox == false && selection_markersCbox == false) {
         noSelection.html(Handlebars.templates.noSel({
             selectionError: 'choose features'
         }));
@@ -92,11 +93,37 @@ $b.on('click', function(){
         }
     }
 
-    if (restriction_emzymesCbox) {
+    if (single_cuttersCbox) {
 
         var message = {
 
-            restriction_emzymesCbox: restriction_emzymesCbox,
+            single_cuttersCbox: single_cuttersCbox,
+
+            ms: ms,
+            mms: mms,
+            gapo: gapo,
+            gape: gape,
+            target: target
+        };
+        var worker2 = work(require('./getResultsFunction.js'));
+
+        worker2.postMessage(message); // send the worker a message
+        worker2.onmessage = function(e) {
+
+            pushAndCall(e.data, loopAndViz);
+
+            $("#visualizedText").css("visibility", "visible");
+            var elapse = (new Date().getTime() - time_start) / 1000.0;
+            document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
+
+        }
+    }
+
+    if (double_cuttersCbox) {
+
+        var message = {
+
+            double_cuttersCbox: double_cuttersCbox,
 
             ms: ms,
             mms: mms,
@@ -181,7 +208,10 @@ $b.on('click', function(){
         if (generalFeaturesCbox == true) {
             numberOfFeatures++
         }
-        if (restriction_emzymesCbox == true) {
+        if (single_cuttersCbox == true) {
+            numberOfFeatures++
+        }
+        if (double_cuttersCbox == true) {
             numberOfFeatures++
         }
         if (tagsCbox == true) {
