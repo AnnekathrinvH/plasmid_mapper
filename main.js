@@ -15,6 +15,7 @@ var customFeatureArea = $('#customFeatureArea');
 var customFeatureText = $('#customFeatureText');
 var results = $('#results');
 var noSelection = $('#noSelection');
+var targetTextAreaAndOptions = $('#textAreaAndOptions');
 
 
 customButton.on('click', function () {
@@ -39,6 +40,8 @@ $b.on('click', function(){
     var gape = parseInt(document.getElementById('gape').value);
     var target = document.getElementById('target').value.replace(/[\s\n]+/g, '');
 
+    targetTextAreaAndOptions.css('visibility', 'hidden');
+    $('#outer').css('visibility','visible');
 
     var customFeature = customFeatureArea.val();
 
@@ -73,6 +76,153 @@ $b.on('click', function(){
 
     var fullData = [];
 
+    // function Message(key, value) {
+    //     this[key] = value;
+    // }
+    //
+    // Message.prototype.ms = ms;
+    // Message.prototype.mms = mms;
+    // Message.prototype.gapo = gapo;
+    // Message.prototype.gape = gape;
+    // Message.prototype.target = target;
+
+    if (generalFeaturesCbox) {
+
+        // var message = new Message('generalFeaturesCbox', generalFeaturesCbox);
+        // console.log(message.target)
+        //
+
+        var message = {
+            generalFeaturesCbox: generalFeaturesCbox,
+            ms: ms,
+            mms: mms,
+            gapo: gapo,
+            gape: gape,
+            target: target
+        };
+
+        createWorkerAndMenageData(message);
+
+        // var message1 = new Message('featuresTwo', featuresTwo);
+        var message1 = {
+            featuresTwo: featuresTwo,
+            ms: ms,
+            mms: mms,
+            gapo: gapo,
+            gape: gape,
+            target: target
+        };
+
+        createWorkerAndMenageData(message1);
+
+    }
+
+    if (single_cuttersCbox) {
+
+        var message = {
+
+            single_cuttersCbox: single_cuttersCbox,
+
+            ms: ms,
+            mms: mms,
+            gapo: gapo,
+            gape: gape,
+            target: target
+        };
+
+        createWorkerAndMenageData(message);
+
+
+    }
+
+    if (double_cuttersCbox) {
+
+        var message = {
+
+            double_cuttersCbox: double_cuttersCbox,
+
+            ms: ms,
+            mms: mms,
+            gapo: gapo,
+            gape: gape,
+            target: target
+        };
+
+        createWorkerAndMenageData(message);
+
+    }
+
+    if (tagsCbox) {
+
+        var message = {
+            tagsCbox: tagsCbox,
+            ms: ms,
+            mms: mms,
+            gapo: gapo,
+            gape: gape,
+            target: target
+        };
+
+        createWorkerAndMenageData(message);
+
+    }
+
+    if (selection_markersCbox) {
+
+        var message = {
+
+            selection_markersCbox: selection_markersCbox,
+            ms: ms,
+            mms: mms,
+            gapo: gapo,
+            gape: gape,
+            target: target
+        };
+
+        createWorkerAndMenageData(message);
+
+    }
+
+    if (customFeature.length > 0) {
+
+        var message = {
+
+            customFeatFlag: customFeatFlag,
+            ms: ms,
+            mms: mms,
+            gapo: gapo,
+            gape: gape,
+            target: target,
+            customFeature: customFeature
+
+        };
+
+        createWorkerAndMenageData(message);
+
+    }
+
+    function checkNumberofFeatures() {
+
+        for (var i = 0; i < featuresList.length; i ++) {
+            if (featuresList[i] == true) {
+                numberOfFeatures++
+            }
+        }
+    }
+
+    function createWorkerAndMenageData(message) {
+        console.log('message send to worker');
+        console.log(message);
+        var worker = work(require('./getResultsFunction.js'));
+
+        worker.postMessage(message); // send the worker a message
+        worker.onmessage = function(e) {
+
+            saveDataFromWorkerAndCallVizFunction(e.data, loopThroughReceivedDataAndViz);
+
+            showTimeTextForMatches();
+        }
+    }
 
     function saveDataFromWorkerAndCallVizFunction(data, callback) {
         fullData.push(data);
@@ -97,184 +247,11 @@ $b.on('click', function(){
         counter = fullData.length;
     }
 
-    if (generalFeaturesCbox) {
+    function showTimeTextForMatches() {
 
-        var message = {
-            generalFeaturesCbox: generalFeaturesCbox,
-            ms: ms,
-            mms: mms,
-            gapo: gapo,
-            gape: gape,
-            target: target
-        };
-        var worker1 = work(require('./getResultsFunction.js'));
+        $("#visualizedText").css("visibility", "visible");
+        var elapse = (new Date().getTime() - time_start) / 1000.0;
+        document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
 
-        worker1.postMessage(message); // send the worker a message
-        worker1.onmessage = function(e) {
-
-            saveDataFromWorkerAndCallVizFunction(e.data, loopThroughReceivedDataAndViz);
-
-            $("#visualizedText").css("visibility", "visible");
-            var elapse = (new Date().getTime() - time_start) / 1000.0;
-            document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
-        }
-
-        var message1 = {
-            featuresTwo: featuresTwo,
-            ms: ms,
-            mms: mms,
-            gapo: gapo,
-            gape: gape,
-            target: target
-        };
-        var worker7 = work(require('./getResultsFunction.js'));
-
-        worker7.postMessage(message1); // send the worker a message
-        worker7.onmessage = function(e) {
-            console.log('i see changes')
-
-            saveDataFromWorkerAndCallVizFunction(e.data, loopThroughReceivedDataAndViz);
-
-            $("#visualizedText").css("visibility", "visible");
-            var elapse = (new Date().getTime() - time_start) / 1000.0;
-            document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
-        }
-    }
-
-    if (single_cuttersCbox) {
-
-        var message = {
-
-            single_cuttersCbox: single_cuttersCbox,
-
-            ms: ms,
-            mms: mms,
-            gapo: gapo,
-            gape: gape,
-            target: target
-        };
-        var worker2 = work(require('./getResultsFunction.js'));
-
-        worker2.postMessage(message); // send the worker a message
-        worker2.onmessage = function(e) {
-
-            saveDataFromWorkerAndCallVizFunction(e.data, loopThroughReceivedDataAndViz);
-
-            $("#visualizedText").css("visibility", "visible");
-            var elapse = (new Date().getTime() - time_start) / 1000.0;
-            document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
-        }
-    }
-
-    if (double_cuttersCbox) {
-
-        var message = {
-
-            double_cuttersCbox: double_cuttersCbox,
-
-            ms: ms,
-            mms: mms,
-            gapo: gapo,
-            gape: gape,
-            target: target
-        };
-        var worker3 = work(require('./getResultsFunction.js'));
-
-        worker3.postMessage(message); // send the worker a message
-        worker3.onmessage = function(e) {
-
-            saveDataFromWorkerAndCallVizFunction(e.data, loopThroughReceivedDataAndViz);
-
-            $("#visualizedText").css("visibility", "visible");
-            var elapse = (new Date().getTime() - time_start) / 1000.0;
-            document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
-        }
-    }
-
-    if (tagsCbox) {
-
-        var message = {
-            tagsCbox: tagsCbox,
-            ms: ms,
-            mms: mms,
-            gapo: gapo,
-            gape: gape,
-            target: target
-        };
-
-        var worker4 = work(require('./getResultsFunction.js'));
-
-        worker4.postMessage(message); // send the worker a message
-        worker4.onmessage = function(e) {
-
-            saveDataFromWorkerAndCallVizFunction(e.data, loopThroughReceivedDataAndViz);
-
-            $("#visualizedText").css("visibility", "visible");
-
-            var elapse = (new Date().getTime() - time_start) / 1000.0;
-            document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
-        }
-    }
-
-    if (selection_markersCbox) {
-
-        var message = {
-
-            selection_markersCbox: selection_markersCbox,
-            ms: ms,
-            mms: mms,
-            gapo: gapo,
-            gape: gape,
-            target: target
-        };
-        var worker5 = work(require('./getResultsFunction.js'));
-
-        worker5.postMessage(message); // send the worker a message
-        worker5.onmessage = function(e) {
-
-            saveDataFromWorkerAndCallVizFunction(e.data, loopThroughReceivedDataAndViz);
-
-            $("#visualizedText").css("visibility", "visible");
-
-            var elapse = (new Date().getTime() - time_start) / 1000.0;
-            document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
-        }
-    }
-
-    if (customFeature.length > 0) {
-
-        var message = {
-
-            customFeatFlag: customFeatFlag,
-            ms: ms,
-            mms: mms,
-            gapo: gapo,
-            gape: gape,
-            target: target,
-            customFeature: customFeature
-
-        };
-        var worker6 = work(require('./getResultsFunction.js'));
-
-        worker6.postMessage(message); // send the worker a message
-        worker6.onmessage = function(e) {
-
-            saveDataFromWorkerAndCallVizFunction(e.data, loopThroughReceivedDataAndViz);
-
-            $("#visualizedText").css("visibility", "visible");
-
-            var elapse = (new Date().getTime() - time_start) / 1000.0;
-            document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
-
-        }
-    }
-
-    function checkNumberofFeatures() {
-
-        for (var i = 0; i < featuresList.length; i ++) {
-            if (featuresList[i] == true) {
-                numberOfFeatures++
-            }
-        }
     }
 });

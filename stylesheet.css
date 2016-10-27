@@ -5,6 +5,7 @@
 }
 body{
     margin: 0px;
+
 }
 
 #header {
@@ -81,14 +82,22 @@ body{
 }
 
 #demo {
+    bottom: 235px;
+    left: 720px;
+    position: absolute;
     visibility: hidden;
 }
 
 #outer{
-    position: relative;
+    position: absolute;
     height: 1000px;
     width: 1000px;
     margin: 0 auto;
+    bottom: -100px;
+    right: 420px;
+
+    visibility: hidden;
+
 }
 
 .canvas {
