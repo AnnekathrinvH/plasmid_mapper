@@ -211,7 +211,7 @@ $b.on('click', function(){
 
             });
 
-            saveDataFromWorkerAndCallVizFunction(e.data, loopThroughReceivedDataAndViz);
+            saveDataFromWorkerAndCallVizFunction(filteredDataBasedOnScore, loopThroughReceivedDataAndViz);
             showTimeTextForMatches();
         }
     }

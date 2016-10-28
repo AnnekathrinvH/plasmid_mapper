@@ -29,9 +29,7 @@ exports.visualize = function(res) {
         var space = endAngle - startAngle;
         var numRadsPerLetter = 0.06;
         var textLengthInRad = text.length * numRadsPerLetter;
-        console.log(text);
-        console.log(textLengthInRad);
-        console.log(space);
+
         var textMiddle = textLengthInRad/2;
         var featureMiddle = endAngle - space/2;
         var startRotation = featureMiddle - textMiddle;
