@@ -71,6 +71,7 @@ $b.on('click', function(){
     $("#demo").css("display", "table");
 
     var numberOfFeatures = 0;
+    var numberOfmessagesFromWorkers = 0;
 
     checkNumberofFeatures();
 
@@ -201,6 +202,7 @@ $b.on('click', function(){
 
         worker.postMessage(message); // send the worker a message
         worker.onmessage = function(e) {
+            numberOfmessagesFromWorkers++;
 
             var filteredDataBasedOnScore = e.data.filter(function (obj) {
 
@@ -208,25 +210,25 @@ $b.on('click', function(){
 
                     return obj;
                 }
-
             });
 
             saveDataFromWorkerAndCallVizFunction(filteredDataBasedOnScore, loopThroughReceivedDataAndViz);
-            showTimeTextForMatches();
+            if (numberOfmessagesFromWorkers == numberOfFeatures) {
+                $("#demo").css("display", "none");
+
+            }
+            //showTimeTextForMatches();
         }
     }
+
 
     function saveDataFromWorkerAndCallVizFunction(data, callback) {
 
         for (var i = 0; data[i]; i++) {
             fullData.push(data[i]);
         }
-        //fullData.push(data);
-        console.log('fullData');
-        console.log(fullData);
 
         callback(fullData);
-
     }
 
     function loopThroughReceivedDataAndViz(data) {
@@ -235,11 +237,6 @@ $b.on('click', function(){
         // for (var i = 0; fullData[i]; i++) {
 
             viz.visualize(fullData);
-
-            if (fullData.length == numberOfFeatures) {
-                $("#demo").css("display", "none");
-
-            }
         //     results.html(Handlebars.templates.mapRes({
         //         featuresDescription: vizData[i]
         //     }))
@@ -248,11 +245,11 @@ $b.on('click', function(){
         counter = fullData.length;
     }
 
-    function showTimeTextForMatches() {
-
-        $("#visualizedText").css("visibility", "visible");
-        var elapse = (new Date().getTime() - time_start) / 1000.0;
-        document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
-
-    }
+    // function showTimeTextForMatches() {
+    //
+    //     $("#visualizedText").css("visibility", "visible");
+    //     var elapse = (new Date().getTime() - time_start) / 1000.0;
+    //     document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
+    //
+    // }
 });
