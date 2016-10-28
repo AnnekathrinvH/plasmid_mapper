@@ -3,8 +3,6 @@ exports.visualize = function(res) {
     var r = 250;
     var center = 500;
     var name = 'pcDNA3.1';
-    console.log('res');
-    console.log(res);
     var plasmidLength = res[0].fullLength;
 
 
@@ -31,12 +29,12 @@ exports.visualize = function(res) {
         var textLengthInRad = text.length * numRadsPerLetter;
 
         var textMiddle = textLengthInRad/2;
-        var featureMiddle = endAngle - space/2;
+        var featureMiddle = (endAngle + startAngle)/2;
         var startRotation = featureMiddle - textMiddle;
 
         this.save();
         this.translate(center, center);
-        this.rotate(startAngle+0.5*Math.PI);
+        this.rotate(startRotation+0.5*Math.PI);
 
         for(var i=0;i<text.length;i++){
             this.save();
@@ -101,6 +99,7 @@ exports.visualize = function(res) {
     function drawMap(startAngle, endAngle, properties) {
         var space = endAngle - startAngle;
         if (properties.featureLength > 300) {
+            console.log(properties);
             ctx2.strokeStyle = "rgb(117, 200, 252)";
             ctx2.lineWidth = 35;
             ctx2.beginPath();
@@ -109,6 +108,7 @@ exports.visualize = function(res) {
             ctx2.fillTextCircle(properties.id, endAngle, startAngle);
         }
         else if (properties.featureLength <= 300 && properties.featureLength >= 18) {
+            console.log(properties);
             ctx2.strokeStyle = "rgb(108, 240, 184)";
             ctx2.lineWidth = 35;
             ctx2.beginPath();
