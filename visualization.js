@@ -8,7 +8,6 @@ exports.visualize = function(res) {
     var visualizedData = [];
     var restrictionEnzymePositionsArray = [];
 
-
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
     var canvas2 = document.getElementById("canvas2");
@@ -59,15 +58,15 @@ exports.visualize = function(res) {
 
 
 
-    for (var i = 1; i < res.length; i++) {
-        if (res[i].score/res[i].featureLength > 0.98 && res[i].reversed === false) {
-            visualizedData.push(res[i]);
+    for (var i = 0; i < res.length; i++) {
+        if (res[i].reversed === false) {
+            console.log(res[i]);
             calculateAngles(res[i]);
 
         }
-        if (res[i].score/res[i].featureLength > 0.98 && res[i].reversed === true) {
+        if (res[i].reversed === true) {
             res[i].start = plasmidLength - res[i].start - res[i].featureLength;
-            visualizedData.push(res[i]);
+            console.log(res[i]);
             calculateAngles(res[i]);
         }
     }
