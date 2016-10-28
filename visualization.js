@@ -3,7 +3,12 @@ exports.visualize = function(res) {
     var r = 250;
     var center = 500;
     var name = 'pcDNA3.1';
+    console.log('res');
+    console.log(res);
     var plasmidLength = res[0].fullLength;
+
+
+    console.log(plasmidLength);
     var U = 2*r*Math.PI;
     var visualizedData = [];
     var restrictionEnzymePositionsArray = [];
@@ -60,7 +65,7 @@ exports.visualize = function(res) {
 
     for (var i = 0; i < res.length; i++) {
         if (res[i].reversed === false) {
-            console.log(res[i]);
+
             calculateAngles(res[i]);
 
         }

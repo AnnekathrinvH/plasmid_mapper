@@ -209,16 +209,22 @@ $b.on('click', function(){
                     return obj;
                 }
 
-            })
+            });
 
-            saveDataFromWorkerAndCallVizFunction(filteredDataBasedOnScore, loopThroughReceivedDataAndViz);
+            saveDataFromWorkerAndCallVizFunction(e.data, loopThroughReceivedDataAndViz);
             showTimeTextForMatches();
         }
     }
 
     function saveDataFromWorkerAndCallVizFunction(data, callback) {
 
-        fullData.push(data);
+        for (var i = 0; data[i]; i++) {
+            fullData.push(data[i]);
+        }
+        //fullData.push(data);
+        console.log('fullData');
+        console.log(fullData);
+
         callback(fullData);
 
     }
@@ -226,20 +232,19 @@ $b.on('click', function(){
     function loopThroughReceivedDataAndViz(data) {
         var numPrinted = 0;
         var vizData = [];
-        for (var i = 0; fullData[i]; i++) {
-            console.log(fullData[i]);
-            vizData.push(viz.visualize(fullData[i]));
+        // for (var i = 0; fullData[i]; i++) {
+
+            viz.visualize(fullData);
 
             if (fullData.length == numberOfFeatures) {
                 $("#demo").css("display", "none");
 
-
             }
-            results.html(Handlebars.templates.mapRes({
-                featuresDescription: vizData[i]
-            }));
-        }
-        console.log(vizData);
+        //     results.html(Handlebars.templates.mapRes({
+        //         featuresDescription: vizData[i]
+        //     }))
+        //
+        // }
         counter = fullData.length;
     }
 
