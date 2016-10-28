@@ -40,7 +40,7 @@ $b.on('click', function(){
     var gape = parseInt(document.getElementById('gape').value);
     var target = document.getElementById('target').value.replace(/[\s\n]+/g, '');
 
-    targetTextAreaAndOptions.css('visibility', 'hidden');
+    targetTextAreaAndOptions.css('display', 'none');
     $('#outer').css('visibility','visible');
 
     var customFeature = customFeatureArea.val();
@@ -76,21 +76,7 @@ $b.on('click', function(){
 
     var fullData = [];
 
-    // function Message(key, value) {
-    //     this[key] = value;
-    // }
-    //
-    // Message.prototype.ms = ms;
-    // Message.prototype.mms = mms;
-    // Message.prototype.gapo = gapo;
-    // Message.prototype.gape = gape;
-    // Message.prototype.target = target;
-
     if (generalFeaturesCbox) {
-
-        // var message = new Message('generalFeaturesCbox', generalFeaturesCbox);
-        // console.log(message.target)
-        //
 
         var message = {
             generalFeaturesCbox: generalFeaturesCbox,
@@ -211,39 +197,50 @@ $b.on('click', function(){
     }
 
     function createWorkerAndMenageData(message) {
-        console.log('message send to worker');
-        console.log(message);
+
         var worker = work(require('./getResultsFunction.js'));
 
         worker.postMessage(message); // send the worker a message
         worker.onmessage = function(e) {
 
-            saveDataFromWorkerAndCallVizFunction(e.data, loopThroughReceivedDataAndViz);
+            var filteredDataBasedOnScore = e.data.filter(function (obj) {
 
+                if (obj.score/obj.featureLength > 0.98) {
+
+                    return obj;
+                }
+
+            })
+
+            saveDataFromWorkerAndCallVizFunction(filteredDataBasedOnScore, loopThroughReceivedDataAndViz);
             showTimeTextForMatches();
         }
     }
 
     function saveDataFromWorkerAndCallVizFunction(data, callback) {
+
         fullData.push(data);
         callback(fullData);
-        console.log(fullData)
 
     }
 
     function loopThroughReceivedDataAndViz(data) {
+        var numPrinted = 0;
+        var vizData = [];
         for (var i = 0; fullData[i]; i++) {
-            console.log(fullData[i].length)
-            viz.visualize(fullData[i]);
+            console.log(fullData[i]);
+            vizData.push(viz.visualize(fullData[i]));
 
             if (fullData.length == numberOfFeatures) {
                 $("#demo").css("visibility", "hidden");
-            }
 
+
+            }
             results.html(Handlebars.templates.mapRes({
                 featuresDescription: fullData[i]
             }));
         }
+        console.log(vizData);
         counter = fullData.length;
     }
 

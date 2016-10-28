@@ -3,18 +3,33 @@ var selection_markers = require('./selection_markers.json');
 var features = require('./features.json');
 var tags = require('./tags.json');
 var alignFun = require('./alignment.js');
+var more_features = require('./featuresTwo.json');
 
 onmessage = function(e) {
 
     var eD = e.data;
 
 
-    var res = getResults(eD.generalFeaturesCbox, eD.single_cuttersCbox, eD.double_cuttersCbox, eD.selection_markersCbox, eD.tagsCbox, eD.target, [eD.ms, eD.mms], [eD.gapo, eD.gape], eD.customFeatFlag, eD.customFeature);
-    console.log(res)
+
+    var res = getResults(eD.generalFeaturesCbox, eD.single_cuttersCbox, eD.double_cuttersCbox, eD.selection_markersCbox, eD.tagsCbox, eD.target, [eD.ms, eD.mms], [eD.gapo, eD.gape], eD.customFeatFlag, eD.customFeature, eD.featuresTwo);
+
     postMessage(res);
 }
 
-function getResults(generalFeaturesCbox, single_cuttersCbox, double_cuttersCbox, selection_markersCbox, tagsCbox, target, [ms, mms], [gapo, gape], customFeatFlag, customFeature) {
+function getResults(generalFeaturesCbox, single_cuttersCbox, double_cuttersCbox, selection_markersCbox, tagsCbox, target, [ms, mms], [gapo, gape], customFeatFlag, customFeature, featuresTwo) {
+
+    var receivedFeatures = [generalFeaturesCbox, single_cuttersCbox, double_cuttersCbox, selection_markersCbox, tagsCbox, customFeatFlag, featuresTwo];
+
+    if (customFeatFlag) {
+
+        var customFeatureObj = {
+            "1": {
+                "id":"custom",
+                "seq":customFeature
+                }
+        }
+    }
+
 
     var reversedTarget = getOppositeStrand(target);
     var featuresData = [];
@@ -24,15 +39,15 @@ function getResults(generalFeaturesCbox, single_cuttersCbox, double_cuttersCbox,
         var generalFeaturesData = getData(features, target, false, [ms, mms], [gapo, gape]);
         var generalFeaturesDataReversedTarget = getData(features, reversedTarget, true, [ms, mms], [gapo, gape]);
 
-        for (var i = 0; i < generalFeaturesData.length; i++) {
-            featuresData.push(generalFeaturesData[i]);
+        pushDataToObjectThatIsUsedToViz(generalFeaturesData, generalFeaturesDataReversedTarget, featuresData);
 
-        }
+    }
+    if (featuresTwo) {
 
-        for (var i = 0; i < generalFeaturesDataReversedTarget.length; i++) {
-            featuresData.push(generalFeaturesDataReversedTarget[i]);
+        var featuresTwoData = getData(more_features, target, false, [ms, mms], [gapo, gape]);
+        var featuresTwoDataReversedTarget = getData(more_features, reversedTarget, true, [ms, mms], [gapo, gape]);
 
-        }
+        pushDataToObjectThatIsUsedToViz(featuresTwoData, featuresTwoDataReversedTarget, featuresData);
 
     }
 
@@ -59,12 +74,8 @@ function getResults(generalFeaturesCbox, single_cuttersCbox, double_cuttersCbox,
         var selection_markersData = getData(selection_markers, target, false, [ms, mms], [gapo, gape]);
         var selection_markersDataReversedTarget = getData(selection_markers, reversedTarget, true, [ms, mms], [gapo, gape]);
 
-        for (var i = 0; i < selection_markersData.length; i++) {
-            featuresData.push(selection_markersData[i]);
-        }
-        for (var i = 0; i < selection_markersDataReversedTarget.length; i++) {
-            featuresData.push(selection_markersDataReversedTarget[i]);
-        }
+        pushDataToObjectThatIsUsedToViz(selection_markersData, selection_markersDataReversedTarget, featuresData);
+
     }
 
     if (tagsCbox) {
@@ -72,32 +83,19 @@ function getResults(generalFeaturesCbox, single_cuttersCbox, double_cuttersCbox,
         var tagsData = getData(tags, target, false, [ms, mms], [gapo, gape]);
         var tagsDataReversedTarget = getData(tags, reversedTarget, true, [ms, mms], [gapo, gape]);
 
-        for (var i = 0; i < tagsData.length; i++) {
-            featuresData.push(tagsData[i]);
-        }
-        for (var i = 0; i < tagsDataReversedTarget.length; i++) {
-            featuresData.push(tagsDataReversedTarget[i]);
-        }
+        pushDataToObjectThatIsUsedToViz(tagsData, tagsDataReversedTarget, featuresData);
+
     }
+
     if (customFeatFlag) {
-        console.log(customFeature)
-        var customFeatureObj = {
-            "1": {
-                "id":"custom",
-                "seq":customFeature
-                }
-        }
 
         var customFeatureData = getData(customFeatureObj, target, false, [ms, mms], [gapo, gape]);
         var customFeatureDataReversedTarget = getData(customFeatureObj, reversedTarget, true, [ms, mms], [gapo, gape]);
 
-        for (var i = 0; i < customFeatureData.length; i++) {
-            featuresData.push(customFeatureData[i]);
-        }
-        for (var i = 0; i < customFeatureDataReversedTarget.length; i++) {
-            featuresData.push(customFeatureDataReversedTarget[i]);
-        }
+        pushDataToObjectThatIsUsedToViz(customFeatureData, customFeatureDataReversedTarget, featuresData);
+
     }
+
     return featuresData;
 
 }
@@ -252,4 +250,16 @@ function getOppositeStrand(sequence) {
 
     oppStrand = oppStrand.split('').reverse().join('');
     return oppStrand;
+}
+
+function pushDataToObjectThatIsUsedToViz(data, dataReversedTarget, featuresData) {
+
+    for (var i = 0; i < data.length; i++) {
+        featuresData.push(data[i]);
+    }
+
+    for (var i = 0; i < dataReversedTarget.length; i++) {
+        featuresData.push(dataReversedTarget[i]);
+    }
+
 }
