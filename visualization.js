@@ -13,18 +13,22 @@ exports.visualize = function(res) {
     var visualizedData = [];
     var restrictionEnzymePositionsArray = [];
 
+    console.log('visualize');
+    console.log(res);
+
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
     var canvas2 = document.getElementById("canvas2");
     var ctx2 = canvas2.getContext("2d");
 
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx2.clearRect(0, 0, canvas.width, canvas.height);
+
 
     CanvasRenderingContext2D.prototype.fillTextCircle = function(text, endAngle, startAngle){
         var space = endAngle - startAngle;
-
-        var textMetrics = ctx.measureText(text);
-        var textLength = textMetrics.width;
-        var textLengthInRad = (2*Math.PI/U)*textLength;
+        var numRadsPerLetter = 0.06;
+        var textLengthInRad = text.length * numRadsPerLetter;
         console.log(text);
         console.log(textLengthInRad);
         console.log(space);
@@ -32,18 +36,14 @@ exports.visualize = function(res) {
         var featureMiddle = endAngle - space/2;
         var startRotation = featureMiddle - textMiddle;
 
-        var numRadsPerLetter = textLengthInRad / text.length;
-        console.log(numRadsPerLetter);
-
         this.save();
         this.translate(center, center);
         this.rotate(startAngle+0.5*Math.PI);
 
-
         for(var i=0;i<text.length;i++){
             this.save();
-            this.rotate(i*0.07);
-            this.font ="15px sans-serif";
+            this.rotate(i*numRadsPerLetter);
+            this.font ="18px Courier";
             this.fillStyle = "black";
             this.fillText(text[i],0,-(r-5));
             this.restore();
@@ -69,9 +69,8 @@ exports.visualize = function(res) {
             calculateAngles(res[i]);
 
         }
-        if (res[i].reversed === true) {
+        else if (res[i].reversed === true) {
             res[i].start = plasmidLength - res[i].start - res[i].featureLength;
-            console.log(res[i]);
             calculateAngles(res[i]);
         }
     }
