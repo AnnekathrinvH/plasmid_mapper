@@ -1,10 +1,8 @@
 var exports = module.exports = {};
 exports.visualize = function(res) {
-
     var r = 250;
     var center = 500;
     var name = 'pcDNA3.1';
-
     var plasmidLength = res[0].fullLength;
     var U = 2*r*Math.PI;
     var visualizedData = [];
@@ -17,32 +15,37 @@ exports.visualize = function(res) {
     var ctx2 = canvas2.getContext("2d");
 
 
+    CanvasRenderingContext2D.prototype.fillTextCircle = function(text, endAngle, startAngle){
+        var space = endAngle - startAngle;
 
-    CanvasRenderingContext2D.prototype.fillTextCircle = function(text, x, y, radius, space, endAngle){
         var textMetrics = ctx.measureText(text);
         var textLength = textMetrics.width;
         var textLengthInRad = (2*Math.PI/U)*textLength;
+        console.log(text);
+        console.log(textLengthInRad);
+        console.log(space);
         var textMiddle = textLengthInRad/2;
         var featureMiddle = endAngle - space/2;
-        var startRotation =featureMiddle - textMiddle;
+        var startRotation = featureMiddle - textMiddle;
 
         var numRadsPerLetter = textLengthInRad / text.length;
+        console.log(numRadsPerLetter);
 
         this.save();
-        this.translate(x,y);
-        this.rotate(startRotation-1.45*Math.PI);
+        this.translate(center, center);
+        this.rotate(startAngle+0.5*Math.PI);
+
 
         for(var i=0;i<text.length;i++){
             this.save();
-            this.rotate(i*numRadsPerLetter);
-            this.font ="20px sans-serif";
+            this.rotate(i*0.07);
+            this.font ="15px sans-serif";
             this.fillStyle = "black";
-            this.fillText(text[i],0,-radius);
+            this.fillText(text[i],0,-(r-5));
             this.restore();
         }
         this.restore();
     };
-
 
     ctx.beginPath();
 
@@ -69,7 +72,6 @@ exports.visualize = function(res) {
         }
     }
 
-
     function calculateAngles(properties) {
         var featureStart = properties.start;
         var featureLength = properties.featureLength;
@@ -86,9 +88,8 @@ exports.visualize = function(res) {
             drawMap(startAngle+0.2, endAngle, properties);
         }
 
-        else if (featureLength>200 && properties.reversed === false) {
-
-            drawArrow(endAngle);
+        else if (featureLength>300 && properties.reversed === false) {
+            drawArrow(endAngle, false);
             drawMap(startAngle, endAngle-0.2, properties);
         } else {
             drawMap(startAngle, endAngle, properties);
@@ -104,7 +105,7 @@ exports.visualize = function(res) {
             ctx2.beginPath();
             ctx2.arc(center, center, r, startAngle, endAngle, false);
             ctx2.stroke();
-            ctx2.fillTextCircle(properties.id, center, center, r-5, space, endAngle-0.12);
+            ctx2.fillTextCircle(properties.id, endAngle, startAngle);
         }
         else if (properties.featureLength <= 300 && properties.featureLength >= 18) {
             ctx2.strokeStyle = "rgb(108, 240, 184)";
@@ -176,6 +177,8 @@ exports.visualize = function(res) {
         ctx2.lineTo(xIn,yIn);
         ctx2.fill();
     }
+
+
     sortPositions();
     function sortPositions() {
         restrictionEnzymePositionsArray.sort(function (a, b) {
@@ -189,59 +192,105 @@ exports.visualize = function(res) {
         });
         checkDensity(restrictionEnzymePositionsArray);
     }
+
     function checkDensity(array) {
         var denseSites = [];
         var denseSitesArray = [];
-        var limit = 20;
+        var limit = 40;
 
         for (var i = 0; i < array.length; i++) {
-            if (array[i-1] && array[i+1]) {
-                if ((array[i].position < (array[i-1].position + limit)) && (array[i].position > (array[i+1].position - limit))) {
-                    denseSites.push(array[i]);
+            var lastArrayPosition = (array[i-1]) ? array[i-1].position : array[array.length-1].position - plasmidLength;
+            var nextArrayPosition = (array[i+1]) ? array[i+1].position : plasmidLength + array[0].position;
 
-                }
-                else if (array[i].position > (array[i+1].position - limit)) {
-                    denseSites.push(array[i]);
-                    denseSites.push(array[i+1]);
-                }
-                else if (array[i].position < (array[i-1].position + limit)) {
-                    denseSites.push(array[i]);
-                    denseSitesArray.push(denseSites);
-                    denseSites = [];
-
-                } else {
-                    //denseSitesArray.push(denseSites);
-                    denseSites = [];
-
-                    var xText = center + (r + 50) * Math.cos(array[i].angle);
-                    var yText = center + (r + 50) * Math.sin(array[i].angle);
-
-                    ctx2.font = "10px sans-serif";
-                    var metrics = ctx.measureText(name);
-                    var textWidth = metrics.width;
-                    console.log(textWidth);
-                    ctx2.fillStyle = 'black';
-                    ctx2.fillText(array[i].id, xText, yText);
-                }
+            if ((array[i].position < (lastArrayPosition + limit)) && (array[i].position > (nextArrayPosition - limit))) {
+                denseSites.push(array[i]);
+            }
+            else if (array[i].position > (nextArrayPosition - limit)) {
+                denseSites.push(array[i]);
+            }
+            else if (array[i].position < (lastArrayPosition + limit)) {
+                denseSites.push(array[i]);
+                denseSitesArray.push(denseSites);
+                denseSites = [];
+            } else {
+                denseSites.push(array[i]);
+                denseSitesArray.push(denseSites);
+                denseSites = [];
             }
         }
-        labelDenseSites(denseSitesArray);
+        modifyTooCloseX(denseSitesArray);
     }
-    function checkTooCloseX() {
 
+    function modifyTooCloseX(array) {
+        for (var i = 0; i < array.length; i++) {
+            var lastArray = (array[i-1]) ? array[i-1] : array[array.length-1];
+            var nextArray = (array[i+1]) ? array[i+1] : array[0];
+            var index = array[i].length-1;
+            var xCenter = (array[i][0].angle + array[i][index].angle)/2;
+            var xText = center + (r + 60) * Math.cos(xCenter);
+            var xTextLast = center + (r + 60) * Math.cos(lastArray[0].angle);
+            var TextSpace = 40;
+            var adjustment = 25;
+            var featureAngle = array[i][0].angle;
+
+            if ((1.5*Math.PI < featureAngle && featureAngle < 2*Math.PI) || (3*Math.PI < featureAngle && featureAngle < 3.5*Math.PI)) {
+                if (xText - TextSpace < xTextLast) {
+                    console.log('dense');
+                    for (var j = 0; j < array[i].length; j++) {
+                        array[i][j].xText = xText + adjustment;
+                        array[i][j].xAdjusted = true;
+                    }
+                } else {
+                    for (var j = 0; j < array[i].length; j++) {
+                        array[i][j].xText = xText;
+                        array[i][j].xAdjusted = false;
+                    }
+                }
+            }
+            else if ((2*Math.PI < featureAngle && featureAngle < 2.5*Math.PI) || (2.5*Math.PI < featureAngle && featureAngle < 3*Math.PI)) {
+                if (xText + TextSpace > xTextLast) {
+                    console.log('dense');
+                    for (var j = 0; j < array[i].length; j++) {
+                        array[i][j].xText = xText - adjustment;
+                        array[i][j].xAdjusted = true;
+                    }
+                } else {
+                    xText = center + (r + 60) * Math.cos(array[i][0].angle);
+                    for (var j = 0; j < array[i].length; j++) {
+                        array[i][j].xText = xText;
+                        array[i][j].xAdjusted = false;
+                    }
+                }
+            }
+
+        }
+        labelDenseSites(array);
     }
 
     function labelDenseSites(array) {
         console.log(array);
         for (var i = 0; i < array.length; i++) {
-            var xText = center + (r + 60) * Math.cos(array[i][0].angle);
-            var yText = center + (r + 60) * Math.sin(array[i][0].angle);
+            var xText = array[i][0].xText;
+            var index = array[i].length-1;
+            var yCenter = (array[i][0].angle + array[i][index].angle)/2;
+            var yText = center + (r + 60) * Math.sin(yCenter);
+            var arrayMiddle = array[i].length/2;
+            var heightPerLetter = 10;
+            var yAdjustment = arrayMiddle*heightPerLetter;
+            var adjustedY;
+
+            if ((1.5*Math.PI < yCenter && yCenter < 2*Math.PI) || (3*Math.PI < yCenter && yCenter < 3.5*Math.PI)) {
+                adjustedY = yText - yAdjustment;
+            }
+            else if ((2*Math.PI < yCenter && yCenter < 2.5*Math.PI) || (2.5*Math.PI < yCenter && yCenter < 3*Math.PI)) {
+                adjustedY = yText;
+            }
 
             for (var j = 0; j < array[i].length; j++) {
                 ctx2.font = "10px sans-serif";
                 ctx2.fillStyle = 'black';
-                ctx2.fillText(array[i][j].id, xText, yText);
-                yText += 10;
+                ctx2.fillText(array[i][j].id, xText-10, adjustedY);
+                adjustedY += 10;
             }
         }
     }
