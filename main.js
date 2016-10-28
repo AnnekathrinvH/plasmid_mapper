@@ -63,12 +63,12 @@ $b.on('click', function(){
         noSelection.html(Handlebars.templates.noSel({
             selectionError: 'choose features'
         }));
-        $("#demo").css("visibility", "hidden");
+        $("#demo").css("display", "none");
 
         return;
     }
 
-    $("#demo").css("visibility", "visible");
+    $("#demo").css("display", "table");
 
     var numberOfFeatures = 0;
 
@@ -117,7 +117,6 @@ $b.on('click', function(){
         };
 
         createWorkerAndMenageData(message);
-
 
     }
 
@@ -232,12 +231,12 @@ $b.on('click', function(){
             vizData.push(viz.visualize(fullData[i]));
 
             if (fullData.length == numberOfFeatures) {
-                $("#demo").css("visibility", "hidden");
+                $("#demo").css("display", "none");
 
 
             }
             results.html(Handlebars.templates.mapRes({
-                featuresDescription: fullData[i]
+                featuresDescription: vizData[i]
             }));
         }
         console.log(vizData);
