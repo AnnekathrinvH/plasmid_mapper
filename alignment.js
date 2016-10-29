@@ -47,10 +47,10 @@ function bsg_enc_seq(seq, table)
 	if (table == null) return null;
 	var s = [];
 	s.length = seq.length;
+
 	for (var i = 0; i < seq.length; ++i)
 
 		s[i] = table[seq.charCodeAt(i)];
-
 
 	return s;
 }
@@ -75,7 +75,7 @@ function bsg_enc_seq(seq, table)
  * where q is the gap open penalty, r the gap extension penalty and S(i,j) is
  * the score between the i-th residue in the row sequence and the j-th residue
  * in the column sequence. Note that the original Durbin formulation disallows
- * transitions between between E and F states, but we allow them here.
+ * transitions between E and F states, but we allow them here.
  *
  * In the Green formulation, we introduce:
  *
@@ -161,7 +161,6 @@ function bsa_gen_query_profile(_s, _m, table)
 		for (var i = 0; i < s.length; ++i)
 			qpj[i] = mj[s[i]];
 	}
-
 	return qp;
 }
 
@@ -187,7 +186,8 @@ exports.bsa_align = function(is_local, target, query, matrix, gapsc, w, table)
 	var t = bsg_enc_seq(target, table);
 
 	var qp = bsa_gen_query_profile(query, matrix, table);
-
+	// console.log('qp')
+	// console.log(qp)
 	var qlen = qp[0].length;
 
 
@@ -208,13 +208,14 @@ exports.bsa_align = function(is_local, target, query, matrix, gapsc, w, table)
 	var H = [], E = [], z = [], score, max = 0, end_i = -1, end_j = -1;
 	if (is_local) {
 		for (var j = 0; j <= qlen; ++j) H[j] = E[j] = 0;
-	} else {
-		H[0] = 0; E[0] = -gapoe - gapoe;
-		for (var j = 1; j <= qlen; ++j) {
-			if (j >= w) H[j] = E[j] = NEG_INF; // everything is -inf outside the band
-			else H[j] = -(gapo + gape * j), E[j] = E[j-1] - gape;
-		}
 	}
+	// else {
+	// 	H[0] = 0; E[0] = -gapoe - gapoe;
+	// 	for (var j = 1; j <= qlen; ++j) {
+	// 		if (j >= w) H[j] = E[j] = NEG_INF; // everything is -inf outside the band
+	// 		else H[j] = -(gapo + gape * j), E[j] = E[j-1] - gape;
+	// 	}
+	// }
 
 	// the DP loop
 	for (var i = 0; i < t.length; ++i) {
@@ -225,32 +226,32 @@ exports.bsa_align = function(is_local, target, query, matrix, gapsc, w, table)
 		zi = z[i] = [];
 		var beg = i > w? i - w : 0;
 		var end = i + w + 1 < qlen? i + w + 1 : qlen; // only loop through [beg,end) of the query sequence
-		if (!is_local) {
-			h1 = beg > 0? NEG_INF : -gapoe - gape * i;
-			f = beg > 0? NEG_INF : -gapoe - gapoe - gape * i;
-		}
+		// if (!is_local) {
+		// 	h1 = beg > 0? NEG_INF : -gapoe - gape * i;
+		// 	f = beg > 0? NEG_INF : -gapoe - gapoe - gape * i;
+		// }
 		for (var j = beg; j < end; ++j) {
 			// At the beginning of the loop: h=H[j]=H(i-1,j-1), e=E[j]=E(i,j), f=F(i,j) and h1=H(i,j-1)
 			// If we only want to compute the max score, delete all lines involving direction "d".
 			var e = E[j], h = H[j], d;
 			H[j] = h1;           // set H(i,j-1) for the next row
 			h += qpi[j];         // h = H(i-1,j-1) + S(i,j)
-			d = h > e? 0 : 1;
+//			d = h > e? 0 : 1;
 			h = h > e? h : e;
-			d = h > f? d : 2;
+//			d = h > f? d : 2;
 			h = h > f? h : f;    // h = H(i,j) = max{H(i-1,j-1)+S(i,j), E(i,j), F(i,j)}
-			d = !is_local || h > 0? d : 1<<6;
+//			d = !is_local || h > 0? d : 1<<6;
 			h1 = h;              // save H(i,j) to h1 for the next column
 			mj = m > h? mj : j;
 			m = m > h? m : h;    // update the max score in this row
 			h -= gapoe;
 			h = !is_local || h > 0? h : 0;
 			e -= gape;
-			d |= e > h? 1<<2 : 0;
+//			d |= e > h? 1<<2 : 0;
 			e = e > h? e : h;    // e = E(i+1,j)
 			E[j] = e;            // save E(i+1,j) for the next row
 			f -= gape;
-			d |= f > h? 2<<4 : 0;
+//			d |= f > h? 2<<4 : 0;
 			f = f > h? f : h;    // f = F(i,j+1)
 			zi[j] = d;           // z[i,j] keeps h for the current cell and e/f for the next cell
 		}
@@ -271,7 +272,8 @@ exports.bsa_align = function(is_local, target, query, matrix, gapsc, w, table)
 		i = end_i, k = end_j;
 		if (end_j != qlen - 1) // then add soft cliping
 			push_cigar(cigar, 4, qlen - 1 - end_j);
-	} else i = t.length - 1, k = (i + w + 1 < qlen? i + w + 1 : qlen) - 1; // (i,k) points to the last cell
+	}
+	//else i = t.length - 1, k = (i + w + 1 < qlen? i + w + 1 : qlen) - 1; // (i,k) points to the last cell
 	while (i >= 0 && k >= 0) {
 		tmp = z[i][k - (i > w? i - w : 0)];
 		which = tmp >> (which << 1) & 3;
@@ -284,40 +286,40 @@ exports.bsa_align = function(is_local, target, query, matrix, gapsc, w, table)
 	if (is_local) {
 		if (k >= 0) push_cigar(cigar, 4, k + 1); // add soft clipping
 		start_i = i + 1;
-	} else { // add the first insertion or deletion
-		if (i >= 0) push_cigar(cigar, 2, i + 1);
-		if (k >= 0) push_cigar(cigar, 1, k + 1);
 	}
+	// else { // add the first insertion or deletion
+	// 	if (i >= 0) push_cigar(cigar, 2, i + 1);
+	// 	if (k >= 0) push_cigar(cigar, 1, k + 1);
+	// }
 	for (var i = 0; i < cigar.length>>1; ++i) // reverse CIGAR
 		tmp = cigar[i], cigar[i] = cigar[cigar.length-1-i], cigar[cigar.length-1-i] = tmp;
 	return [score, start_i, cigar];
 }
 
-// function bsa_cigar2gaps(target, query, start, cigar)
-// {
-// 	var oq = '', ot = '', lq = 0, lt = start;
-// 	for (var k = 0; k < cigar.length; ++k) {
-// 		var op = cigar[k]&0xf, len = cigar[k]>>4;
-// 		if (op == 0) { // match
-// 			oq += query.substr(lq, len);
-// 			ot += target.substr(lt, len);
-// 			lq += len, lt += len;
-// 		} else if (op == 1) { // insertion
-// 			oq += query.substr(lq, len);
-// 			ot += Array(len+1).join("-");
-// 			lq += len;
-// 		} else if (op == 2) { // deletion
-// 			oq += Array(len+1).join("-");
-// 			ot += target.substr(lt, len);
-// 			lt += len;
-// 		} else if (op == 4) { // soft clip
-// 			lq += len;
-// 		}
-// 		console.log(op)
-// 	}
-//
-// 	return [ot, oq];
-// }
+exports.bsa_cigar2gaps = function(target, query, start, cigar)
+{
+	var oq = '', ot = '', lq = 0, lt = start;
+	for (var k = 0; k < cigar.length; ++k) {
+		var op = cigar[k]&0xf, len = cigar[k]>>4;
+		if (op == 0) { // match
+			oq += query.substr(lq, len);
+			ot += target.substr(lt, len);
+			lq += len, lt += len;
+		} else if (op == 1) { // insertion
+			oq += query.substr(lq, len);
+			ot += Array(len+1).join("-");
+			lq += len;
+		} else if (op == 2) { // deletion
+			oq += Array(len+1).join("-");
+			ot += target.substr(lt, len);
+			lt += len;
+		} else if (op == 4) { // soft clip
+			lq += len;
+		}
+	}
+
+	return [ot, oq];
+}
 
 exports.bsa_cigar2str = function(cigar)
 {

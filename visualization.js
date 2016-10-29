@@ -6,13 +6,10 @@ exports.visualize = function(res) {
     var plasmidLength = res[0].fullLength;
 
 
-    console.log(plasmidLength);
     var U = 2*r*Math.PI;
     var visualizedData = [];
     var restrictionEnzymePositionsArray = [];
 
-    console.log('visualize');
-    console.log(res);
 
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
@@ -269,7 +266,7 @@ exports.visualize = function(res) {
     }
 
     function labelDenseSites(array) {
-        console.log(array);
+
         for (var i = 0; i < array.length; i++) {
             var xText = array[i][0].xText;
             var index = array[i].length-1;

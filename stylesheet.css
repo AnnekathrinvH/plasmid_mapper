@@ -6,8 +6,9 @@
 body{
     margin: 0px;
 
+
 }
-#header {
+span, #header {
     top: 0px;
     height: auto;;
     text-align: center;
