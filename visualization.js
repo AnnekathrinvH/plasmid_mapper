@@ -282,10 +282,6 @@ exports.visualize = function(res) {
     }
 
     function labelDenseSites(array) {
-<<<<<<< HEAD
-=======
-
->>>>>>> 9037f9ab621957a4ed4f1a5485873425200410df
         for (var i = 0; i < array.length; i++) {
             var xText = array[i][0].xText;
             var index = array[i].length-1;
