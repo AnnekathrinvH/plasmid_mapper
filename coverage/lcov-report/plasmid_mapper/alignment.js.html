@@ -1,0 +1,1055 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for plasmid_mapper/alignment.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">plasmid_mapper/</a> alignment.js
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">74.47% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>105/141</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">58.25% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>60/103</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">71.43% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>5/7</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">78.4% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>98/125</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line medium'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">16×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">20×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">13×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13×</span>
+<span class="cline-any cline-yes">13×</span>
+<span class="cline-any cline-yes">13×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">52×</span>
+<span class="cline-any cline-yes">52×</span>
+<span class="cline-any cline-yes">52×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">52×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">52×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">52×</span>
+<span class="cline-any cline-yes">52×</span>
+<span class="cline-any cline-yes">52×</span>
+<span class="cline-any cline-yes">52×</span>
+<span class="cline-any cline-yes">52×</span>
+<span class="cline-any cline-yes">52×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">52×</span>
+<span class="cline-any cline-yes">52×</span>
+<span class="cline-any cline-yes">52×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">52×</span>
+<span class="cline-any cline-yes">52×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13×</span>
+<span class="cline-any cline-yes">13×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">&nbsp;
+var exports = module.exports = {};
+&nbsp;
+&nbsp;
+/**************************
+ *** Common data tables ***
+ **************************/
+&nbsp;
+var bst_nt5 = [
+	4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 0, 4, 1,  4, 4, 4, 2,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 4, 4, 4,  3, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 0, 4, 1,  4, 4, 4, 2,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 4, 4, 4,  3, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+&nbsp;
+	4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+	4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4
+];
+&nbsp;
+/************************
+ *** Generic routines ***
+ ************************/
+&nbsp;
+/**
+ * Encode a sequence string with table
+ *
+ * @param seq    sequence
+ * @param table  encoding table; must be of size 256
+ *
+ * @return an integer array
+ */
+&nbsp;
+function bsg_enc_seq(seq, table)
+//seq parameter are both sequences
+//but probably this function is called twice for both seqences
+{
+&nbsp;
+	<span class="missing-if-branch" title="if path not taken" >I</span>if (table == null) <span class="cstat-no" title="statement not covered" >return null;</span>
+	var s = [];
+	s.length = seq.length;
+&nbsp;
+	for (var i = 0; i &lt; seq.length; ++i)
+&nbsp;
+		s[i] = table[seq.charCodeAt(i)];
+&nbsp;
+	return s;
+}
+&nbsp;
+/**************************
+ *** Pairwise alignment ***
+ **************************/
+&nbsp;
+/*
+ * The following implements local and global pairwise alignment with affine gap
+ * penalties. There are two formulations: the Durbin formulation as is
+ * described in his book and the Green formulation as is implemented in phrap.
+ * The Durbin formulation is easier to understand, while the Green formulation
+ * is simpler to code and probably faster in practice.
+ *
+ * The Durbin formulation is:
+ *
+ *   M(i,j) = max{M(i-1,j-1)+S(i,j), E(i-1,j-1), F(i-1,j-1)}
+ *   E(i,j) = max{M(i-1,j)-q-r, F(i-1,j)-q-r, E(i-1,j)-r}
+ *   F(i,j) = max{M(i,j-1)-q-r, F(i,j-1)-r, E(i,j-1)-q-r}
+ *
+ * where q is the gap open penalty, r the gap extension penalty and S(i,j) is
+ * the score between the i-th residue in the row sequence and the j-th residue
+ * in the column sequence. Note that the original Durbin formulation disallows
+ * transitions between E and F states, but we allow them here.
+ *
+ * In the Green formulation, we introduce:
+ *
+ *   H(i,j) = max{M(i,j), E(i,j), F(i,j)}
+ *
+ * The recursion becomes:
+ *
+ *   H(i,j) = max{H(i-1,j-1)+S(i,j), E(i,j), F(i,j)}
+ *   E(i,j) = max{H(i-1,j)-q, E(i-1,j)} - r
+ *   F(i,j) = max{H(i,j-1)-q, F(i,j-1)} - r
+ *
+ * It is in fact equivalent to the Durbin formulation. In implementation, we
+ * calculate the scores in a different order:
+ *
+ *   H(i,j)   = max{H(i-1,j-1)+S(i,j), E(i,j), F(i,j)}
+ *   E(i+1,j) = max{H(i,j)-q, E(i,j)} - r
+ *   F(i,j+1) = max{H(i,j)-q, F(i,j)} - r
+ *
+ * i.e. at cell (i,j), we compute E for the next row and F for the next column.
+ * Please see inline comments below for details.
+ *
+ *
+ * The following implementation is ported from klib/ksw.c. The original C
+ * implementation has a few bugs which have been fixed here. Like the C
+ * version, this implementation should be very efficient. It could be made more
+ * efficient if we use typed integer arrays such as Uint8Array. In addition,
+ * I mixed the local and global alignments together. For performance,
+ * it would be preferred to separate them out.
+ */
+&nbsp;
+/**
+ * Generate scoring matrix from match/mismatch score
+ *
+ * @param n     size of the alphabet
+ * @param a     match score, positive
+ * @param b     mismatch score, negative
+ *
+ * @return sqaure scoring matrix. The last row and column are zero, for
+ * matching an ambiguous residue.
+ */
+function bsa_gen_score_matrix(n, a, b)
+{
+&nbsp;
+	var m = [];
+	<span class="missing-if-branch" title="if path not taken" >I</span>if (b &gt; 0) <span class="cstat-no" title="statement not covered" >b = -b; </span>// mismatch score b should be non-positive
+	for (var i = 0; i &lt; n - 1; ++i) {
+		m[i] = [];
+		for (var j = 0; j &lt; n - 1; ++j)
+			m[i][j] = i == j? a : b;
+		m[i][j] = 0;
+	}
+	m[n-1] = [];
+	for (var j = 0; j &lt; n; ++j) m[n-1][j] = 0;
+&nbsp;
+	return m;
+}
+&nbsp;
+/**
+ * Generate query profile (a preprocessing step)
+ *
+ * @param _s      sequence in string or post bsg_enc_seq()
+ * @param _m      score matrix or [match,mismatch] array
+ * @param table   encoding table; must be consistent with _s and _m
+ *
+ * @return query profile. It is a two-dimensional integer matrix.
+ */
+function bsa_gen_query_profile(_s, _m, table)
+{
+	var s = typeof _s == 'string'? bsg_enc_seq(_s, table) : <span class="branch-1 cbranch-no" title="branch not covered" >_s;</span>
+	var qp = [], matrix;
+	<span class="missing-if-branch" title="else path not taken" >E</span>if (_m.length &gt;= 2 &amp;&amp; typeof _m[0] == 'number' &amp;&amp; typeof _m[1] == 'number') { // match/mismatch score
+		<span class="missing-if-branch" title="if path not taken" >I</span>if (table == null) <span class="cstat-no" title="statement not covered" >return null;</span>
+&nbsp;
+		var n = typeof table == 'number'? <span class="branch-0 cbranch-no" title="branch not covered" >table </span>: table[table.length-1] + 1;
+&nbsp;
+&nbsp;
+&nbsp;
+		matrix = bsa_gen_score_matrix(n, _m[0], _m[1]);
+	} else <span class="cstat-no" title="statement not covered" >matrix = _m; </span>// _m is already a matrix; FIXME: check if it is really a square matrix!
+	for (var j = 0; j &lt; matrix.length; ++j) {
+		var qpj, mj = matrix[j];
+		qpj = qp[j] = [];
+		for (var i = 0; i &lt; s.length; ++i)
+			qpj[i] = mj[s[i]];
+	}
+	return qp;
+}
+&nbsp;
+/**
+ * Local or global pairwise alignemnt
+ *
+ * @param is_local  perform local alignment
+ * @param target    target string
+ * @param query     query string or query profile
+ * @param matrix    square score matrix or [match,mismatch] array
+ * @param gapsc     [gap_open,gap_ext] array; k-length gap costs gap_open+gap_ext*k
+ * @param w         bandwidth, disabled by default
+ * @param table     encoding table. It defaults to bst_nt5.
+ *
+ * @return [score,target_start,cigar]. cigar is encoded in the BAM way, where
+ * higher 28 bits keeps the length and lower 4 bits the operation in order of
+ * "MIDNSH". See bsa_cigar2str() for converting cigar to string.
+ */
+exports.bsa_align = function(is_local, target, query, matrix, gapsc, w, table)
+{
+	// convert bases to integers
+	<span class="missing-if-branch" title="else path not taken" >E</span>if (table == null) table = bst_nt5;
+	var t = bsg_enc_seq(target, table);
+&nbsp;
+	var qp = bsa_gen_query_profile(query, matrix, table);
+	// console.log('qp')
+	// console.log(qp)
+	var qlen = qp[0].length;
+&nbsp;
+&nbsp;
+	// adjust band width
+	var max_len = qlen &gt; t.length? <span class="branch-0 cbranch-no" title="branch not covered" >qlen </span>: t.length;
+	w = w == null || <span class="branch-1 cbranch-no" title="branch not covered" >w &lt; 0?</span> max_len : <span class="branch-1 cbranch-no" title="branch not covered" >w;</span>
+	var len_diff = t.target &gt; qlen? <span class="branch-0 cbranch-no" title="branch not covered" >t.target - qlen </span>: qlen - t.target;
+	w = w &gt; len_diff? <span class="branch-0 cbranch-no" title="branch not covered" >w </span>: len_diff;
+&nbsp;
+	// set gap score
+	var gapo, gape; // these are penalties which should be non-negative
+	<span class="missing-if-branch" title="if path not taken" >I</span>if (typeof gapsc == 'number') <span class="cstat-no" title="statement not covered" >gapo = 0, gape = gapsc &gt; 0? gapsc : -gapsc;</span>
+	else gapo = gapsc[0] &gt; 0? <span class="branch-0 cbranch-no" title="branch not covered" >gapsc[0] </span>: -gapsc[0], gape = gapsc[1] &gt; 0? <span class="branch-0 cbranch-no" title="branch not covered" >gapsc[1] </span>: -gapsc[1];
+	var gapoe = gapo + gape; // penalty for opening the first gap
+&nbsp;
+	// initial values
+	var NEG_INF = -0x40000000;
+	var H = [], E = [], z = [], score, max = 0, end_i = -1, end_j = -1;
+	<span class="missing-if-branch" title="else path not taken" >E</span>if (is_local) {
+		for (var j = 0; j &lt;= qlen; ++j) H[j] = E[j] = 0;
+	}
+	// else {
+	// 	H[0] = 0; E[0] = -gapoe - gapoe;
+	// 	for (var j = 1; j &lt;= qlen; ++j) {
+	// 		if (j &gt;= w) H[j] = E[j] = NEG_INF; // everything is -inf outside the band
+	// 		else H[j] = -(gapo + gape * j), E[j] = E[j-1] - gape;
+	// 	}
+	// }
+&nbsp;
+	// the DP loop
+	for (var i = 0; i &lt; t.length; ++i) {
+		var h1 = 0, f = 0, m = 0, mj = -1;
+&nbsp;
+		var zi, qpi = qp[t[i]];
+&nbsp;
+		zi = z[i] = [];
+		var beg = i &gt; w? <span class="branch-0 cbranch-no" title="branch not covered" >i - w </span>: 0;
+		var end = i + w + 1 &lt; qlen? <span class="branch-0 cbranch-no" title="branch not covered" >i + w + 1 </span>: qlen; // only loop through [beg,end) of the query sequence
+		// if (!is_local) {
+		// 	h1 = beg &gt; 0? NEG_INF : -gapoe - gape * i;
+		// 	f = beg &gt; 0? NEG_INF : -gapoe - gapoe - gape * i;
+		// }
+		for (var j = beg; j &lt; end; ++j) {
+			// At the beginning of the loop: h=H[j]=H(i-1,j-1), e=E[j]=E(i,j), f=F(i,j) and h1=H(i,j-1)
+			// If we only want to compute the max score, delete all lines involving direction "d".
+			var e = E[j], h = H[j], d;
+			H[j] = h1;           // set H(i,j-1) for the next row
+			h += qpi[j];         // h = H(i-1,j-1) + S(i,j)
+//			d = h &gt; e? 0 : 1;
+			h = h &gt; e? h : e;
+//			d = h &gt; f? d : 2;
+			h = h &gt; f? h : f;    // h = H(i,j) = max{H(i-1,j-1)+S(i,j), E(i,j), F(i,j)}
+//			d = !is_local || h &gt; 0? d : 1&lt;&lt;6;
+			h1 = h;              // save H(i,j) to h1 for the next column
+			mj = m &gt; h? mj : j;
+			m = m &gt; h? m : h;    // update the max score in this row
+			h -= gapoe;
+			h = !is_local || h &gt; 0? h : 0;
+			e -= gape;
+//			d |= e &gt; h? 1&lt;&lt;2 : 0;
+			e = e &gt; h? <span class="branch-0 cbranch-no" title="branch not covered" >e </span>: h;    // e = E(i+1,j)
+			E[j] = e;            // save E(i+1,j) for the next row
+			f -= gape;
+//			d |= f &gt; h? 2&lt;&lt;4 : 0;
+			f = f &gt; h? <span class="branch-0 cbranch-no" title="branch not covered" >f </span>: h;    // f = F(i,j+1)
+			zi[j] = d;           // z[i,j] keeps h for the current cell and e/f for the next cell
+		}
+		H[end] = h1, E[end] = is_local? 0 : <span class="branch-1 cbranch-no" title="branch not covered" >NEG_INF;</span>
+		if (m &gt; max) max = m, end_i = i, end_j = mj;
+	}
+	<span class="missing-if-branch" title="if path not taken" >I</span>if (is_local &amp;&amp; max == 0) <span class="cstat-no" title="statement not covered" >return null;</span>
+	score = is_local? max : <span class="branch-1 cbranch-no" title="branch not covered" >H[qlen];</span>
+&nbsp;
+	// backtrack to recover the alignment/cigar
+	function push_cigar(ci, op, len) {
+		if (ci.length == 0 || op != (ci[ci.length-1]&amp;0xf))
+			ci.push(len&lt;&lt;4|op);
+		else ci[ci.length-1] += len&lt;&lt;4;
+	}
+	var cigar = [], tmp, which = 0, i, k, start_i = 0;
+	<span class="missing-if-branch" title="else path not taken" >E</span>if (is_local) {
+		i = end_i, k = end_j;
+		<span class="missing-if-branch" title="if path not taken" >I</span>if (end_j != qlen - 1) // then add soft cliping
+<span class="cstat-no" title="statement not covered" >			push_cigar(cigar, 4, qlen - 1 - end_j);</span>
+	}
+	//else i = t.length - 1, k = (i + w + 1 &lt; qlen? i + w + 1 : qlen) - 1; // (i,k) points to the last cell
+	while (i &gt;= 0 &amp;&amp; k &gt;= 0) {
+		tmp = z[i][k - (i &gt; w? <span class="branch-0 cbranch-no" title="branch not covered" >i - w </span>: 0)];
+		which = tmp &gt;&gt; (which &lt;&lt; 1) &amp; 3;
+		<span class="missing-if-branch" title="if path not taken" >I</span>if (which == 0 &amp;&amp; tmp&gt;&gt;6) <span class="cstat-no" title="statement not covered" >break;</span>
+		<span class="missing-if-branch" title="else path not taken" >E</span>if (which == 0) which = tmp &amp; 3;
+		<span class="missing-if-branch" title="else path not taken" >E</span>if (which == 0)      { push_cigar(cigar, 0, 1); --i, --k; } // match
+		else <span class="cstat-no" title="statement not covered" >if (which == 1) { <span class="cstat-no" title="statement not covered" >push_cigar(cigar, 2, 1); <span class="cstat-no" title="statement not covered" ></span>--i; </span>} // deletion</span>
+		else                 { <span class="cstat-no" title="statement not covered" >push_cigar(cigar, 1, 1), --k; </span>} // insertion
+	}
+	<span class="missing-if-branch" title="else path not taken" >E</span>if (is_local) {
+		<span class="missing-if-branch" title="if path not taken" >I</span>if (k &gt;= 0) <span class="cstat-no" title="statement not covered" >push_cigar(cigar, 4, k + 1); </span>// add soft clipping
+		start_i = i + 1;
+	}
+	// else { // add the first insertion or deletion
+	// 	if (i &gt;= 0) push_cigar(cigar, 2, i + 1);
+	// 	if (k &gt;= 0) push_cigar(cigar, 1, k + 1);
+	// }
+	for (var i = 0; i &lt; cigar.length&gt;&gt;1; ++i) // reverse CIGAR
+<span class="cstat-no" title="statement not covered" >		tmp = cigar[i], cigar[i] = cigar[cigar.length-1-i], cigar[cigar.length-1-i] = tmp;</span>
+	return [score, start_i, cigar];
+}
+&nbsp;
+exports.bsa_cigar2gaps = <span class="fstat-no" title="function not covered" >function(target, query, start, cigar)</span>
+{
+<span class="cstat-no" title="statement not covered" >	var oq = '', ot = '', lq = 0, lt = start;</span>
+<span class="cstat-no" title="statement not covered" >	for (var k = 0; k &lt; cigar.length; ++k) {</span>
+<span class="cstat-no" title="statement not covered" >		var op = cigar[k]&amp;0xf, len = cigar[k]&gt;&gt;4;</span>
+<span class="cstat-no" title="statement not covered" >		if (op == 0) { // match</span>
+<span class="cstat-no" title="statement not covered" >			oq += query.substr(lq, len);</span>
+<span class="cstat-no" title="statement not covered" >			ot += target.substr(lt, len);</span>
+<span class="cstat-no" title="statement not covered" >			lq += len, lt += len;</span>
+		} else <span class="cstat-no" title="statement not covered" >if (op == 1) { // insertion</span>
+<span class="cstat-no" title="statement not covered" >			oq += query.substr(lq, len);</span>
+<span class="cstat-no" title="statement not covered" >			ot += Array(len+1).join("-");</span>
+<span class="cstat-no" title="statement not covered" >			lq += len;</span>
+		} else <span class="cstat-no" title="statement not covered" >if (op == 2) { // deletion</span>
+<span class="cstat-no" title="statement not covered" >			oq += Array(len+1).join("-");</span>
+<span class="cstat-no" title="statement not covered" >			ot += target.substr(lt, len);</span>
+<span class="cstat-no" title="statement not covered" >			lt += len;</span>
+		} else <span class="cstat-no" title="statement not covered" >if (op == 4) { // soft clip</span>
+<span class="cstat-no" title="statement not covered" >			lq += len;</span>
+		}
+	}
+&nbsp;
+<span class="cstat-no" title="statement not covered" >	return [ot, oq];</span>
+}
+&nbsp;
+exports.bsa_cigar2str = <span class="fstat-no" title="function not covered" >function(cigar)</span>
+{
+<span class="cstat-no" title="statement not covered" >	var s = [];</span>
+<span class="cstat-no" title="statement not covered" >	for (var k = 0; k &lt; cigar.length; ++k)</span>
+<span class="cstat-no" title="statement not covered" >		s.push((cigar[k]&gt;&gt;4).toString() + "MIDNSHP=XB".charAt(cigar[k]&amp;0xf));</span>
+<span class="cstat-no" title="statement not covered" >	return s.join("");</span>
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Sat Oct 29 2016 18:44:39 GMT+0200 (CEST)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

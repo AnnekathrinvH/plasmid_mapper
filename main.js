@@ -217,10 +217,9 @@ $b.on('click', function(){
                 $("#demo").css("display", "none");
 
             }
-            //showTimeTextForMatches();
+            showTimeTextForMatches();
         }
     }
-
 
     function saveDataFromWorkerAndCallVizFunction(data, callback) {
 
@@ -234,22 +233,19 @@ $b.on('click', function(){
     function loopThroughReceivedDataAndViz(data) {
         var numPrinted = 0;
         var vizData = [];
-        // for (var i = 0; fullData[i]; i++) {
 
-            viz.visualize(fullData);
-        //     results.html(Handlebars.templates.mapRes({
-        //         featuresDescription: vizData[i]
-        //     }))
-        //
-        // }
-        counter = fullData.length;
+            vizData.push(viz.visualize(fullData));
+        results.html(Handlebars.templates.mapRes({
+            featuresDescription: fullData
+        }))
+
     }
+    function showTimeTextForMatches() {
 
-    // function showTimeTextForMatches() {
-    //
-    //     $("#visualizedText").css("visibility", "visible");
-    //     var elapse = (new Date().getTime() - time_start) / 1000.0;
-    //     document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
-    //
-    // }
+        $("#visualizedText").css("visibility", "visible");
+        var elapse = (new Date().getTime() - time_start) / 1000.0;
+        document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
+        console.log('elapse')
+        console.log(elapse)
+}
 });

@@ -1,9 +1,9 @@
-var restriction_emzymes = require('./restriction_emzymes.json');
-var selection_markers = require('./selection_markers.json');
-var features = require('./features.json');
-var tags = require('./tags.json');
+var restriction_emzymes = require('./data/restriction_emzymes.json');
+var selection_markers = require('./data/selection_markers.json');
+var features = require('./data/features.json');
+var tags = require('./data/tags.json');
 var alignFun = require('./alignment.js');
-var more_features = require('./featuresTwo.json');
+var more_features = require('./data/featuresTwo.json');
 
 onmessage = function(e) {
 
@@ -213,9 +213,21 @@ function do_align(query, target, [ms, mms], [gapo, gape]) {
         return rst;
     }
 
-	var str = 'score: ' + rst[0] + '\n';
-	str += 'start: ' + rst[1] + '\n';
-	str += 'cigar: ' + alignFun.bsa_cigar2str(rst[2]) + '\n\n';
+	// var str = 'score: ' + rst[0] + '\n';
+	// str += 'start: ' + rst[1] + '\n';
+	// str += 'cigar: ' + alignFun.bsa_cigar2str(rst[2]) + '\n\n';
+    // str += 'alignment:\n\n';
+    //var fmt = alignFun.bsa_cigar2gaps(target, query, rst[1], rst[2]);
+    // console.log('fmt is equal to ');
+    // console.log(fmt)
+    // var linelen = 100, n_lines = 10;
+    // for (var l = 0; l < fmt[0].length; l += linelen) {
+    //     str += fmt[0].substr(l, linelen) + '\n';
+    //     str += fmt[1].substr(l, linelen) + '\n\n';
+    //     n_lines += 3;
+    // }
+    // console.log('string')
+    // console.log(str);
 
 
     var length = target.length;
@@ -223,7 +235,8 @@ function do_align(query, target, [ms, mms], [gapo, gape]) {
     var score = parseInt(rst[0] + '\n', 10);
     var start = parseInt(rst[1] + '\n', 10);
     var cigar = alignFun.bsa_cigar2str(rst[2]) + '\n\n';
-
+    // console.log('rst is :');
+    // console.log(rst);
     return [length, featureLength, cigar, start, score];
 }
 
