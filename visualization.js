@@ -63,30 +63,22 @@ exports.visualize = function(res) {
     checkReversed(res);
 
     function checkReversed(res) {
-        var copied = Object.assign([], res);
-        console.log(copied[copied.length-1]);
 
-        for (var i = 0; i < copied.length; i++) {
-            var response = copied[i];
+        for (var i = 0; i < res.length; i++) {
+            var response = Object.assign({}, res[i]);
             if (response.reversed === false) {
                 calculateAngles(response, false);
             }
             else if (response.reversed === true) {
-                copied[i].calculatedStart = plasmidLength - copied[i].start - copied[i].featureLength;
-                copied[i].hello = 'yes';
+                response.start = plasmidLength - response.start - response.featureLength;
+                response.hello = 'yes';
                 calculateAngles(response, true);
             }
         }
     }
 
     function calculateAngles(properties, reversed) {
-        var featureStart;
-        if (reversed === false) {
-            featureStart = properties.start;
-        }
-        else if (reversed === true) {
-            featureStart = properties.calculatedStart;
-        }
+        var featureStart = properties.start;
 
         var featureLength = properties.featureLength;
         var featureEnd = featureStart + featureLength;
@@ -113,22 +105,8 @@ exports.visualize = function(res) {
 
     function drawMap(startAngle, endAngle, properties) {
         var space = endAngle - startAngle;
-        if (properties.featureLength > 350) {
+        if (properties.featureLength >= 18) {
             ctx2.strokeStyle = "rgb(117, 200, 252)";
-            ctx2.lineWidth = 35;
-            ctx2.beginPath();
-            ctx2.arc(center, center, r, startAngle, endAngle, false);
-            ctx2.stroke();
-            ctx2.fillTextCircle(properties.id, endAngle, startAngle);
-            var entry = {};
-            entry.id = properties.id;
-            entry.position = properties.start;
-            entry.startAngle = startAngle;
-            entry.endAngle = endAngle;
-            featurePositionsArray.push(entry);
-        }
-        else if (properties.featureLength <= 350 && properties.featureLength >= 18) {
-            ctx2.strokeStyle = "rgb(108, 240, 184)";
             ctx2.lineWidth = 35;
             ctx2.beginPath();
             ctx2.arc(center, center, r, startAngle, endAngle, false);
@@ -199,9 +177,8 @@ exports.visualize = function(res) {
     }
 
 
-    sortPositions();
-    function sortPositions() {
-        restrictionEnzymePositionsArray.sort(function (a, b) {
+    function sortPositions(array) {
+        array.sort(function (a, b) {
             if (a.position > b.position) {
             return 1;
             }
@@ -210,30 +187,49 @@ exports.visualize = function(res) {
             }
             return 0;
         });
-        checkDensity(restrictionEnzymePositionsArray);
+        return array;
     }
+    var sort = checkOverlappingFeatures();
+    function checkOverlappingFeatures() {
+        var sortedArray = sortPositions(featurePositionsArray);
+        console.log(sortedArray);
+        for (var i = 0; i < sortedArray.length; i++) {
+            var feature = sortedArray[i];
+            var lastFeature = (sortedArray[i-1]) ? sortedArray[i-1] : sortedArray[sortedArray.length-1];
+            var nextFeature = (sortedArray[i+1]) ? sortedArray[i+1] : sortedArray[0];
+            feature.overlap = 0;
+            if (feature.startAngle <= lastFeature.endAngle) {
+                feature.overlap = +1;
+                console.log('overlap');
+            }
+        }
+        return sortedArray;
+    }
+    console.log(sort);
 
-    function checkDensity(array) {
+    checkDensity();
+    function checkDensity() {
+        var sortedArray = sortPositions(restrictionEnzymePositionsArray);
         var denseSites = [];
         var denseSitesArray = [];
         var limit = 40;
 
-        for (var i = 0; i < array.length; i++) {
-            var lastArrayPosition = (array[i-1]) ? array[i-1].position : array[array.length-1].position - plasmidLength;
-            var nextArrayPosition = (array[i+1]) ? array[i+1].position : plasmidLength + array[0].position;
+        for (var i = 0; i < sortedArray.length; i++) {
+            var lastArrayPosition = (sortedArray[i-1]) ? sortedArray[i-1].position : sortedArray[sortedArray.length-1].position - plasmidLength;
+            var nextArrayPosition = (sortedArray[i+1]) ? sortedArray[i+1].position : plasmidLength + sortedArray[0].position;
 
-            if ((array[i].position < (lastArrayPosition + limit)) && (array[i].position > (nextArrayPosition - limit))) {
-                denseSites.push(array[i]);
+            if ((sortedArray[i].position < (lastArrayPosition + limit)) && (sortedArray[i].position > (nextArrayPosition - limit))) {
+                denseSites.push(sortedArray[i]);
             }
-            else if (array[i].position > (nextArrayPosition - limit)) {
-                denseSites.push(array[i]);
+            else if (sortedArray[i].position > (nextArrayPosition - limit)) {
+                denseSites.push(sortedArray[i]);
             }
-            else if (array[i].position < (lastArrayPosition + limit)) {
-                denseSites.push(array[i]);
+            else if (sortedArray[i].position < (lastArrayPosition + limit)) {
+                denseSites.push(sortedArray[i]);
                 denseSitesArray.push(denseSites);
                 denseSites = [];
             } else {
-                denseSites.push(array[i]);
+                denseSites.push(sortedArray[i]);
                 denseSitesArray.push(denseSites);
                 denseSites = [];
             }
@@ -311,5 +307,4 @@ exports.visualize = function(res) {
             }
         }
     }
-    res = [];
 };
