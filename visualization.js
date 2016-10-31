@@ -5,14 +5,10 @@ exports.visualize = function(res) {
     var name = 'pcDNA3.1';
     var plasmidLength = res[0].fullLength;
 
-
-    console.log(plasmidLength);
     var U = 2*r*Math.PI;
-    var visualizedData = [];
     var restrictionEnzymePositionsArray = [];
+    var featurePositionsArray = [];
 
-    console.log('visualize');
-    console.log(res);
 
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
@@ -25,8 +21,15 @@ exports.visualize = function(res) {
 
     CanvasRenderingContext2D.prototype.fillTextCircle = function(text, endAngle, startAngle){
         var space = endAngle - startAngle;
-        var numRadsPerLetter = 0.06;
+        var numRadsPerLetter = 0.05;
         var textLengthInRad = text.length * numRadsPerLetter;
+        var radius;
+        if (space > textLengthInRad) {
+            radius = r;
+        }
+        else if (space <= textLengthInRad) {
+            radius = r - 35;
+        }
 
         var textMiddle = textLengthInRad/2;
         var featureMiddle = (endAngle + startAngle)/2;
@@ -41,7 +44,7 @@ exports.visualize = function(res) {
             this.rotate(i*numRadsPerLetter);
             this.font ="18px Courier";
             this.fillStyle = "black";
-            this.fillText(text[i],0,-(r-5));
+            this.fillText(text[i],0,-(radius-5));
             this.restore();
         }
         this.restore();
@@ -57,22 +60,34 @@ exports.visualize = function(res) {
     var textWidth = metrics.width;
     ctx.fillText(name, center-(textWidth/2), center);
 
+    checkReversed(res);
 
+    function checkReversed(res) {
+        var copied = Object.assign([], res);
+        console.log(copied[copied.length-1]);
 
-    for (var i = 0; i < res.length; i++) {
-        if (res[i].reversed === false) {
-
-            calculateAngles(res[i]);
-
-        }
-        else if (res[i].reversed === true) {
-            res[i].start = plasmidLength - res[i].start - res[i].featureLength;
-            calculateAngles(res[i]);
+        for (var i = 0; i < copied.length; i++) {
+            var response = copied[i];
+            if (response.reversed === false) {
+                calculateAngles(response, false);
+            }
+            else if (response.reversed === true) {
+                copied[i].calculatedStart = plasmidLength - copied[i].start - copied[i].featureLength;
+                copied[i].hello = 'yes';
+                calculateAngles(response, true);
+            }
         }
     }
 
-    function calculateAngles(properties) {
-        var featureStart = properties.start;
+    function calculateAngles(properties, reversed) {
+        var featureStart;
+        if (reversed === false) {
+            featureStart = properties.start;
+        }
+        else if (reversed === true) {
+            featureStart = properties.calculatedStart;
+        }
+
         var featureLength = properties.featureLength;
         var featureEnd = featureStart + featureLength;
         var percentageStart = featureStart/plasmidLength;
@@ -82,12 +97,12 @@ exports.visualize = function(res) {
         var startAngle = firstLength/r+1.5*Math.PI;
         var endAngle = secondLength/r+1.5*Math.PI;
 
-        if (featureLength>300 && properties.reversed === true) {
+        if (featureLength>350 && reversed === true) {
             drawArrow(startAngle, true);
             drawMap(startAngle+0.2, endAngle, properties);
         }
 
-        else if (featureLength>300 && properties.reversed === false) {
+        else if (featureLength>350 && reversed === false) {
             drawArrow(endAngle, false);
             drawMap(startAngle, endAngle-0.2, properties);
         } else {
@@ -98,29 +113,33 @@ exports.visualize = function(res) {
 
     function drawMap(startAngle, endAngle, properties) {
         var space = endAngle - startAngle;
-        if (properties.featureLength > 300) {
-            console.log(properties);
+        if (properties.featureLength > 350) {
             ctx2.strokeStyle = "rgb(117, 200, 252)";
             ctx2.lineWidth = 35;
             ctx2.beginPath();
             ctx2.arc(center, center, r, startAngle, endAngle, false);
             ctx2.stroke();
             ctx2.fillTextCircle(properties.id, endAngle, startAngle);
+            var entry = {};
+            entry.id = properties.id;
+            entry.position = properties.start;
+            entry.startAngle = startAngle;
+            entry.endAngle = endAngle;
+            featurePositionsArray.push(entry);
         }
-        else if (properties.featureLength <= 300 && properties.featureLength >= 18) {
-            console.log(properties);
+        else if (properties.featureLength <= 350 && properties.featureLength >= 18) {
             ctx2.strokeStyle = "rgb(108, 240, 184)";
             ctx2.lineWidth = 35;
             ctx2.beginPath();
             ctx2.arc(center, center, r, startAngle, endAngle, false);
             ctx2.stroke();
-
-            var x = center + (r + 30) * Math.cos(startAngle);
-            var y = center + (r + 30) * Math.sin(startAngle + (space/2));
-
-            ctx2.font = "20px sans-serif";
-            ctx2.fillStyle = 'black';
-            ctx2.fillText(properties.id, x, y);
+            ctx2.fillTextCircle(properties.id, endAngle, startAngle);
+            var entry = {};
+            entry.id = properties.id;
+            entry.position = properties.start;
+            entry.startAngle = startAngle;
+            entry.endAngle = endAngle;
+            featurePositionsArray.push(entry);
         } else {
             var xIn = center + r * Math.cos(startAngle);
             var yIn = center + r * Math.sin(startAngle);
@@ -236,7 +255,6 @@ exports.visualize = function(res) {
 
             if ((1.5*Math.PI < featureAngle && featureAngle < 2*Math.PI) || (3*Math.PI < featureAngle && featureAngle < 3.5*Math.PI)) {
                 if (xText - TextSpace < xTextLast) {
-                    console.log('dense');
                     for (var j = 0; j < array[i].length; j++) {
                         array[i][j].xText = xText + adjustment;
                         array[i][j].xAdjusted = true;
@@ -250,7 +268,6 @@ exports.visualize = function(res) {
             }
             else if ((2*Math.PI < featureAngle && featureAngle < 2.5*Math.PI) || (2.5*Math.PI < featureAngle && featureAngle < 3*Math.PI)) {
                 if (xText + TextSpace > xTextLast) {
-                    console.log('dense');
                     for (var j = 0; j < array[i].length; j++) {
                         array[i][j].xText = xText - adjustment;
                         array[i][j].xAdjusted = true;
@@ -269,7 +286,6 @@ exports.visualize = function(res) {
     }
 
     function labelDenseSites(array) {
-        console.log(array);
         for (var i = 0; i < array.length; i++) {
             var xText = array[i][0].xText;
             var index = array[i].length-1;
@@ -295,7 +311,5 @@ exports.visualize = function(res) {
             }
         }
     }
-
-
-    return visualizedData;
+    res = [];
 };
