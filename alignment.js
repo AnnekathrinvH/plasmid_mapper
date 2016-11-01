@@ -51,60 +51,12 @@ function bsg_enc_seq(seq, table)
 	for (var i = 0; i < seq.length; ++i)
 
 		s[i] = table[seq.charCodeAt(i)];
+		// console.log('s')
+		// console.log(s);
+
 
 	return s;
 }
-
-/**************************
- *** Pairwise alignment ***
- **************************/
-
-/*
- * The following implements local and global pairwise alignment with affine gap
- * penalties. There are two formulations: the Durbin formulation as is
- * described in his book and the Green formulation as is implemented in phrap.
- * The Durbin formulation is easier to understand, while the Green formulation
- * is simpler to code and probably faster in practice.
- *
- * The Durbin formulation is:
- *
- *   M(i,j) = max{M(i-1,j-1)+S(i,j), E(i-1,j-1), F(i-1,j-1)}
- *   E(i,j) = max{M(i-1,j)-q-r, F(i-1,j)-q-r, E(i-1,j)-r}
- *   F(i,j) = max{M(i,j-1)-q-r, F(i,j-1)-r, E(i,j-1)-q-r}
- *
- * where q is the gap open penalty, r the gap extension penalty and S(i,j) is
- * the score between the i-th residue in the row sequence and the j-th residue
- * in the column sequence. Note that the original Durbin formulation disallows
- * transitions between E and F states, but we allow them here.
- *
- * In the Green formulation, we introduce:
- *
- *   H(i,j) = max{M(i,j), E(i,j), F(i,j)}
- *
- * The recursion becomes:
- *
- *   H(i,j) = max{H(i-1,j-1)+S(i,j), E(i,j), F(i,j)}
- *   E(i,j) = max{H(i-1,j)-q, E(i-1,j)} - r
- *   F(i,j) = max{H(i,j-1)-q, F(i,j-1)} - r
- *
- * It is in fact equivalent to the Durbin formulation. In implementation, we
- * calculate the scores in a different order:
- *
- *   H(i,j)   = max{H(i-1,j-1)+S(i,j), E(i,j), F(i,j)}
- *   E(i+1,j) = max{H(i,j)-q, E(i,j)} - r
- *   F(i,j+1) = max{H(i,j)-q, F(i,j)} - r
- *
- * i.e. at cell (i,j), we compute E for the next row and F for the next column.
- * Please see inline comments below for details.
- *
- *
- * The following implementation is ported from klib/ksw.c. The original C
- * implementation has a few bugs which have been fixed here. Like the C
- * version, this implementation should be very efficient. It could be made more
- * efficient if we use typed integer arrays such as Uint8Array. In addition,
- * I mixed the local and global alignments together. For performance,
- * it would be preferred to separate them out.
- */
 
 /**
  * Generate scoring matrix from match/mismatch score
@@ -127,9 +79,13 @@ function bsa_gen_score_matrix(n, a, b)
 			m[i][j] = i == j? a : b;
 		m[i][j] = 0;
 	}
-	m[n-1] = [];
-	for (var j = 0; j < n; ++j) m[n-1][j] = 0;
 
+	m[n-1] = [];
+	// console.log('m[n-1]');
+	// console.log(m);
+	for (var j = 0; j < n; ++j) m[n-1][j] = 0;
+	// console.log('m resturned:')
+	// console.log(m)
 	return m;
 }
 
@@ -144,16 +100,23 @@ function bsa_gen_score_matrix(n, a, b)
  */
 function bsa_gen_query_profile(_s, _m, table)
 {
+	// console.log('_s');
+	// console.log(_s);
 	var s = typeof _s == 'string'? bsg_enc_seq(_s, table) : _s;
 	var qp = [], matrix;
 	if (_m.length >= 2 && typeof _m[0] == 'number' && typeof _m[1] == 'number') { // match/mismatch score
 		if (table == null) return null;
-
+		// console.log('strange expression')
+		// //console.log(table[table.length-1]+5)
+		// console.log(table[table.length-1] + 1)
 		var n = typeof table == 'number'? table : table[table.length-1] + 1;
-
+		// console.log('n is:');
+		// console.log(n)
 
 
 		matrix = bsa_gen_score_matrix(n, _m[0], _m[1]);
+		// console.log('matrix is:');
+		// console.log(matrix);
 	} else matrix = _m; // _m is already a matrix; FIXME: check if it is really a square matrix!
 	for (var j = 0; j < matrix.length; ++j) {
 		var qpj, mj = matrix[j];
@@ -161,6 +124,8 @@ function bsa_gen_query_profile(_s, _m, table)
 		for (var i = 0; i < s.length; ++i)
 			qpj[i] = mj[s[i]];
 	}
+	// console.log('query profile');
+	// console.log(qp)
 	return qp;
 }
 
@@ -184,15 +149,18 @@ exports.bsa_align = function(is_local, target, query, matrix, gapsc, w, table)
 	// convert bases to integers
 	if (table == null) table = bst_nt5;
 	var t = bsg_enc_seq(target, table);
+	// console.log('t is: ');
+	// console.log(t);
 
 	var qp = bsa_gen_query_profile(query, matrix, table);
-	// console.log('qp')
-	// console.log(qp)
+
 	var qlen = qp[0].length;
+
 
 
 	// adjust band width
 	var max_len = qlen > t.length? qlen : t.length;
+
 	w = w == null || w < 0? max_len : w;
 	var len_diff = t.target > qlen? t.target - qlen : qlen - t.target;
 	w = w > len_diff? w : len_diff;
@@ -209,27 +177,18 @@ exports.bsa_align = function(is_local, target, query, matrix, gapsc, w, table)
 	if (is_local) {
 		for (var j = 0; j <= qlen; ++j) H[j] = E[j] = 0;
 	}
-	// else {
-	// 	H[0] = 0; E[0] = -gapoe - gapoe;
-	// 	for (var j = 1; j <= qlen; ++j) {
-	// 		if (j >= w) H[j] = E[j] = NEG_INF; // everything is -inf outside the band
-	// 		else H[j] = -(gapo + gape * j), E[j] = E[j-1] - gape;
-	// 	}
-	// }
+
 
 	// the DP loop
 	for (var i = 0; i < t.length; ++i) {
 		var h1 = 0, f = 0, m = 0, mj = -1;
-
 		var zi, qpi = qp[t[i]];
 
 		zi = z[i] = [];
 		var beg = i > w? i - w : 0;
+
 		var end = i + w + 1 < qlen? i + w + 1 : qlen; // only loop through [beg,end) of the query sequence
-		// if (!is_local) {
-		// 	h1 = beg > 0? NEG_INF : -gapoe - gape * i;
-		// 	f = beg > 0? NEG_INF : -gapoe - gapoe - gape * i;
-		// }
+
 		for (var j = beg; j < end; ++j) {
 			// At the beginning of the loop: h=H[j]=H(i-1,j-1), e=E[j]=E(i,j), f=F(i,j) and h1=H(i,j-1)
 			// If we only want to compute the max score, delete all lines involving direction "d".
@@ -287,10 +246,7 @@ exports.bsa_align = function(is_local, target, query, matrix, gapsc, w, table)
 		if (k >= 0) push_cigar(cigar, 4, k + 1); // add soft clipping
 		start_i = i + 1;
 	}
-	// else { // add the first insertion or deletion
-	// 	if (i >= 0) push_cigar(cigar, 2, i + 1);
-	// 	if (k >= 0) push_cigar(cigar, 1, k + 1);
-	// }
+
 	for (var i = 0; i < cigar.length>>1; ++i) // reverse CIGAR
 		tmp = cigar[i], cigar[i] = cigar[cigar.length-1-i], cigar[cigar.length-1-i] = tmp;
 	return [score, start_i, cigar];

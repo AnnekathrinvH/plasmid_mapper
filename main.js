@@ -188,7 +188,7 @@ $b.on('click', function(){
     }
 
     function checkNumberofFeatures() {
-
+//trzeba spróbować przerobić to na map ciekawe czy zadziała
         for (var i = 0; i < featuresList.length; i ++) {
             if (featuresList[i] == true) {
                 numberOfFeatures++
@@ -203,6 +203,7 @@ $b.on('click', function(){
         worker.postMessage(message); // send the worker a message
         worker.onmessage = function(e) {
             numberOfmessagesFromWorkers++;
+            //tutaj możnaby spróbować zastosować reduce
 
             var filteredDataBasedOnScore = e.data.filter(function (obj) {
 

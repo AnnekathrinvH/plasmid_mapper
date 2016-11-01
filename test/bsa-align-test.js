@@ -5,11 +5,11 @@ var align = require('../alignment.js');
 
 describe('alignment', function () {
 
-    it ('should return 4 for specified values', function(done) {
+    it ('should return 3 for specified values', function(done) {
         //arrange
         var is_local = true;
-        var target = 'AAAAAACCCCCCC';
-        var query = 'ACCC';
+        var target = 'ACC';
+        var query = 'ACC';
         var ms = 1;
         var mms = -1;
         var gapo = -1;
@@ -21,7 +21,7 @@ describe('alignment', function () {
         var result = align.bsa_align(is_local, target, query, [ms, mms], [gapo, gape]);
 
         //assert
-        expect(result[0]).to.equal(4);
+        expect(result[0]).to.equal(3);
 
         done();
     });
