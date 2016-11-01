@@ -18,21 +18,16 @@ exports.visualize = function(res) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx2.clearRect(0, 0, canvas.width, canvas.height);
 
+    var numRadsPerLetter = 0.05;
 
-    CanvasRenderingContext2D.prototype.fillTextCircle = function(text, endAngle, startAngle){
-        var space = endAngle - startAngle;
-        var numRadsPerLetter = 0.05;
-        var textLengthInRad = text.length * numRadsPerLetter;
-        var radius;
-        if (space > textLengthInRad) {
-            radius = r;
-        }
-        else if (space <= textLengthInRad) {
-            radius = r - 35;
-        }
 
-        var textMiddle = textLengthInRad/2;
-        var featureMiddle = (endAngle + startAngle)/2;
+
+    CanvasRenderingContext2D.prototype.fillTextCircle = function(properties){
+        var text = properties.id;
+
+
+        var textMiddle = properties.textLengthInRad/2;
+        var featureMiddle = (properties.endAngle + properties.startAngle)/2;
         var startRotation = featureMiddle - textMiddle;
 
         this.save();
@@ -44,11 +39,24 @@ exports.visualize = function(res) {
             this.rotate(i*numRadsPerLetter);
             this.font ="18px Courier";
             this.fillStyle = "black";
-            this.fillText(text[i],0,-(radius-5));
+            this.fillText(text[i],0,-(properties.textRadius-5));
             this.restore();
         }
         this.restore();
     };
+
+    function sortPositions(array) {
+        array.sort(function (a, b) {
+            if (a.position > b.position) {
+            return 1;
+            }
+            if (a.position < b.position) {
+            return -1;
+            }
+            return 0;
+        });
+        return array;
+    }
 
     ctx.beginPath();
 
@@ -63,23 +71,22 @@ exports.visualize = function(res) {
     checkReversed(res);
 
     function checkReversed(res) {
-
         for (var i = 0; i < res.length; i++) {
             var response = Object.assign({}, res[i]);
             if (response.reversed === false) {
-                calculateAngles(response, false);
             }
             else if (response.reversed === true) {
                 response.start = plasmidLength - response.start - response.featureLength;
-                response.hello = 'yes';
-                calculateAngles(response, true);
             }
+            calculateAngles(response);
         }
+        checkOverlappingFeatures();
+        checkDensity();
+
     }
 
-    function calculateAngles(properties, reversed) {
+    function calculateAngles(properties) {
         var featureStart = properties.start;
-
         var featureLength = properties.featureLength;
         var featureEnd = featureStart + featureLength;
         var percentageStart = featureStart/plasmidLength;
@@ -88,83 +95,144 @@ exports.visualize = function(res) {
         var secondLength = U*percentageEnd;
         var startAngle = firstLength/r+1.5*Math.PI;
         var endAngle = secondLength/r+1.5*Math.PI;
+        var entry = {};
 
-        if (featureLength>350 && reversed === true) {
-            drawArrow(startAngle, true);
-            drawMap(startAngle+0.2, endAngle, properties);
-        }
-
-        else if (featureLength>350 && reversed === false) {
-            drawArrow(endAngle, false);
-            drawMap(startAngle, endAngle-0.2, properties);
-        } else {
-            drawMap(startAngle, endAngle, properties);
-        }
-
-    }
-
-    function drawMap(startAngle, endAngle, properties) {
-        var space = endAngle - startAngle;
-        if (properties.featureLength >= 18) {
-            ctx2.strokeStyle = "rgb(117, 200, 252)";
-            ctx2.lineWidth = 35;
-            ctx2.beginPath();
-            ctx2.arc(center, center, r, startAngle, endAngle, false);
-            ctx2.stroke();
-            ctx2.fillTextCircle(properties.id, endAngle, startAngle);
-            var entry = {};
+        if (featureLength>=18) {
             entry.id = properties.id;
             entry.position = properties.start;
             entry.startAngle = startAngle;
             entry.endAngle = endAngle;
+            entry.featureLength = featureLength;
             featurePositionsArray.push(entry);
+            entry.reversed = properties.reversed;
         } else {
-            var xIn = center + r * Math.cos(startAngle);
-            var yIn = center + r * Math.sin(startAngle);
-
-            var xOut = center + (r + 25) * Math.cos(startAngle);
-            var yOut = center + (r + 25) * Math.sin(startAngle);
-
-            var xAngle = center + (r + 45) * Math.cos(startAngle + 0.05);
-            var yAngle = center + (r + 45) * Math.sin(startAngle + 0.05);
-
-
-            ctx.strokeStyle = "black";
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(xIn, yIn);
-            ctx.lineTo(xOut, yOut);
-            ctx.stroke();
-
-            var entry = {};
             entry.id = properties.id;
             entry.position = properties.start;
             entry.angle = startAngle;
+            entry.featureLength = featureLength;
+
             restrictionEnzymePositionsArray.push(entry);
+            drawSmallFeatures(startAngle, endAngle, properties);
+
         }
     }
 
-    function drawArrow(angle, reversed) {
-        var x = center + r * Math.cos(angle);
-        var y = center + r * Math.sin(angle);
+    function checkOverlappingFeatures() {
+        var sortedArray = sortPositions(featurePositionsArray);
+        for (var i = 0; i < sortedArray.length; i++) {
+            var feature = sortedArray[i];
+            var lastFeatureEndAngle = (sortedArray[i-1]) ? sortedArray[i-1].endAngle : sortedArray[sortedArray.length-1].endAngle - 2*Math.PI;
+            feature.overlap = 0;
+            if (feature.startAngle <= lastFeatureEndAngle) {
+                feature.overlap = +1;
+                console.log('overlap');
+            }
+        }
+        calculateTextSpace(sortedArray);
+    }
+    function calculateTextSpace(array) {
+        for (var i = 0; i < array.length; i++) {
+            var properties = array[i];
+            var factor = properties.overlap;
+            var radius = r - 35*factor;
+            properties.radius = radius;
+
+            var space = properties.endAngle - properties.startAngle;
+            var textLengthInRad = properties.id.length * numRadsPerLetter;
+            properties.textLengthInRad = textLengthInRad;
+
+            if (space <= textLengthInRad) {
+                properties.textRadius = properties.radius - 35;
+            } else {
+                properties.textRadius = properties.radius;
+            }
+        }
+        modifyRadiusToFitText(array);
+    }
+
+    function modifyRadiusToFitText(array) {
+        for (var i = 0; i < array.length; i++) {
+            var feature = array[i];
+            var lastFeatureTextRadius = (array[i-1]) ? array[i-1].textRadius : array[array.length-1].textRadius;
+            if (feature.overlap !== 0 && lastFeatureTextRadius >= feature.radius) {
+                feature.radius = feature.radius -40;
+                feature.textRadius = feature.textRadius-40;
+            }
+        }
+        loopThroughArray(array);
+
+    }
+
+    function loopThroughArray(array) {
+        console.log(array);
+        for (var i = 0; i < array.length; i++) {
+            var properties = array[i];
+
+            if (properties.featureLength >= 350 && properties.reversed === false) {
+                drawArrow(properties.endAngle, false, properties.radius);
+                properties.endAngle = properties.endAngle - 0.2;
+                drawLargeFeatures(properties);
+            }
+            else if (properties.featureLength < 350 && properties.featureLength > 18) {
+                drawLargeFeatures(properties);
+
+            }
+            else if (properties.featureLength >= 18 && properties.reversed === true) {
+                drawArrow(properties.startAngle, true, properties.radius);
+                properties.startAngle = properties.startAngle + 0.2;
+                drawLargeFeatures(properties);
+            }
+        }
+    }
+
+    function drawLargeFeatures(properties) {
+
+        ctx2.strokeStyle = "rgb(117, 200, 252)";
+        ctx2.lineWidth = 35;
+        ctx2.beginPath();
+        ctx2.arc(center, center, properties.radius, properties.startAngle, properties.endAngle, false);
+        ctx2.stroke();
+        ctx2.fillTextCircle(properties);
+    }
+
+    function drawSmallFeatures(startAngle, endAngle, properties) {
+        var xIn = center + r * Math.cos(startAngle);
+        var yIn = center + r * Math.sin(startAngle);
+
+        var xOut = center + (r + 25) * Math.cos(startAngle);
+        var yOut = center + (r + 25) * Math.sin(startAngle);
+
+        var xAngle = center + (r + 45) * Math.cos(startAngle + 0.05);
+        var yAngle = center + (r + 45) * Math.sin(startAngle + 0.05);
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(xIn, yIn);
+        ctx.lineTo(xOut, yOut);
+        ctx.stroke();
+    }
+
+    function drawArrow(angle, reversed, radius) {
+        var x = center + radius * Math.cos(angle);
+        var y = center + radius * Math.sin(angle);
         var xOut;
         var yOut;
         var xIn;
         var yIn;
 
         if (reversed === false) {
-            xOut = center + (r + 25) * Math.cos(angle-0.25);
-            yOut = center + (r + 25) * Math.sin(angle-0.25);
+            xOut = center + (radius + 25) * Math.cos(angle-0.25);
+            yOut = center + (radius + 25) * Math.sin(angle-0.25);
 
-            xIn = center + (r - 25) * Math.cos(angle-0.25);
-            yIn = center + (r - 25) * Math.sin(angle-0.25);
+            xIn = center + (radius - 25) * Math.cos(angle-0.25);
+            yIn = center + (radius - 25) * Math.sin(angle-0.25);
         }
         if (reversed === true) {
-            xOut = center + (r + 25) * Math.cos(angle+0.25);
-            yOut = center + (r + 25) * Math.sin(angle+0.25);
+            xOut = center + (radius + 25) * Math.cos(angle+0.25);
+            yOut = center + (radius + 25) * Math.sin(angle+0.25);
 
-            xIn = center + (r - 25) * Math.cos(angle+0.25);
-            yIn = center + (r - 25) * Math.sin(angle+0.25);
+            xIn = center + (radius - 25) * Math.cos(angle+0.25);
+            yIn = center + (radius - 25) * Math.sin(angle+0.25);
         }
 
         ctx2.strokeStyle = "rgb(117, 200, 252)";
@@ -176,38 +244,6 @@ exports.visualize = function(res) {
         ctx2.fill();
     }
 
-
-    function sortPositions(array) {
-        array.sort(function (a, b) {
-            if (a.position > b.position) {
-            return 1;
-            }
-            if (a.position < b.position) {
-            return -1;
-            }
-            return 0;
-        });
-        return array;
-    }
-    var sort = checkOverlappingFeatures();
-    function checkOverlappingFeatures() {
-        var sortedArray = sortPositions(featurePositionsArray);
-        console.log(sortedArray);
-        for (var i = 0; i < sortedArray.length; i++) {
-            var feature = sortedArray[i];
-            var lastFeature = (sortedArray[i-1]) ? sortedArray[i-1] : sortedArray[sortedArray.length-1];
-            var nextFeature = (sortedArray[i+1]) ? sortedArray[i+1] : sortedArray[0];
-            feature.overlap = 0;
-            if (feature.startAngle <= lastFeature.endAngle) {
-                feature.overlap = +1;
-                console.log('overlap');
-            }
-        }
-        return sortedArray;
-    }
-    console.log(sort);
-
-    checkDensity();
     function checkDensity() {
         var sortedArray = sortPositions(restrictionEnzymePositionsArray);
         var denseSites = [];
@@ -282,6 +318,7 @@ exports.visualize = function(res) {
     }
 
     function labelDenseSites(array) {
+
         for (var i = 0; i < array.length; i++) {
             var xText = array[i][0].xText;
             var index = array[i].length-1;
