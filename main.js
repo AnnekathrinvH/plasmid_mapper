@@ -10,19 +10,39 @@ Array.prototype.slice.call(templates).forEach(function(script) {
 });
 
 var $b = $('#button');
-var customButton = $('#customButton');
+var customFeatureCheckbox = $('#custom');
 var customFeatureArea = $('#customFeatureArea');
 var customFeatureText = $('#customFeatureText');
 var results = $('#results');
 var noSelection = $('#noSelection');
 var targetTextAreaAndOptions = $('#textAreaAndOptions');
+var resEnzymes = $('#cbox6');
+var resEnzymesContainer = $('#resEnzyme');
+var advancedOptionsCheckbox = $('#advanced');
+var advancedOptions = $('#advancedOptions');
 
+resEnzymes.on('click', function() {
+    if(resEnzymes.prop('checked')) {
+        resEnzymesContainer.css('display', 'block');
+    } else {
+        resEnzymesContainer.css('display', 'none');
+    }
+});
 
-customButton.on('click', function () {
-    customButton.css('visibility', 'hidden');
-    customFeatureArea.css('visibility', 'visible');
-    customFeatureText.css('visibility', 'visible');
+customFeatureCheckbox.on('click', function () {
+    if(customFeatureCheckbox.prop('checked')) {
+        customFeatureText.css('display', 'block');
+    } else {
+        customFeatureText.css('display', 'none');
+    }
+});
 
+advancedOptionsCheckbox.on('click', function () {
+    if(advancedOptionsCheckbox.prop('checked')) {
+        advancedOptions.css('display', 'block');
+    } else {
+        advancedOptions.css('display', 'none');
+    }
 });
 
 $b.on('click', function(){

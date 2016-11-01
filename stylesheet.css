@@ -1,12 +1,16 @@
 *{
     box-sizing: border-box;
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Open Sans', sans-serif;
     font-weight: normal;
 }
 body{
     margin: 0px;
-
-
+    text-align: center;
+}
+#containsEverything{
+    width: 900px;
+    text-align: center;
+    margin: 0 auto;
 }
 span, #header {
     top: 0px;
@@ -20,65 +24,80 @@ span, #header {
     text-align: center;
 }
 #seqInput{
-    text-align: center;
+    text-align: left;
+}
+#seqInputTitle{
+    margin-left: 10px;
+}
+#seqInputName{
+    border-radius: 4px;
+    margin: 10px;
 }
 #textAreaTitle{
-    padding: 10px;
+    margin-left: 10px;
 }
 #target{
     outline:none;
     margin: 10px;
     border-radius: 20px;
     padding: 16px;
+    font-family: 'Source Code Pro', sans-serif;
 }
 
 #options2 {
     margin: 0 auto;
-    width: 40%;
+    width: 895px;
+
 }
 .element{
-    width: 200px;
+    width: 250px;
     display: inline-block;
     text-align: left;
+    margin: 5px;
+}
+
+.element2{
+    display: inline-block;
+    text-align: left;
+    margin: 5px;
+    width: 300px;
 }
 .button{
     text-align: center;
 }
 
-#customButton {
-    outline:none;
-    border-radius: 60px;
-    width: 60px;
-    height: 40px;
-    border: 0.5px black solid;
-    margin: 10px;
-    background-color: white;
-    cursor: pointer;
-    white-space: normal;
+#advancedOptions{
+    display: none;
 }
-
+#customFeatureName{
+    border-radius: 4px;
+}
 #customFeatureArea {
     outline:none;
-    margin: 10px;
-    border-radius: 20px;
+    border-radius: 10px;
     padding: 16px;
 
 }
 
 #customFeatureText {
-    visibility: hidden;
+    display: none;;
 }
 
 
 #button{
     outline:none;
     border-radius: 60px;
-    width: 60px;
-    height: 40px;
+    width: 80px;
+    height: 50px;
     border: 0.5px black solid;
-    margin: 10px;
+    margin: 30px;
     background-color: white;
     cursor: pointer;
+    font-size: 20px;
+    font-family: 'Share Tech Mono', monospace;
+}
+#resEnzyme{
+    display: none;
 }
 
 #demo {
@@ -90,20 +109,17 @@ span, #header {
 }
 
 #outer{
-
     height: 1000px;
     width: 1000px;
     margin: 0 auto;
-    bottom: -100px;
-    right: 420px;
-
+    position: relative;
     visibility: hidden;
-
+    text-align: left;
 }
 
 .canvas {
     position: absolute;
-
+    text-align: left;
 }
 
 #matches{

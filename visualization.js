@@ -130,6 +130,7 @@ exports.visualize = function(res) {
         }
         calculateTextSpace(sortedArray);
     }
+    
     function calculateTextSpace(array) {
         for (var i = 0; i < array.length; i++) {
             var properties = array[i];
