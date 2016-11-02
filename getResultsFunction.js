@@ -8,13 +8,14 @@ var more_features = require('./data/featuresTwo.json');
 onmessage = function(e) {
 
     var eD = e.data;
+    console.log(eD)
 
-    var res = getResults(eD.generalFeaturesCbox, eD.single_cuttersCbox, eD.double_cuttersCbox, eD.selection_markersCbox, eD.tagsCbox, eD.target, [eD.ms, eD.mms], [eD.gapo, eD.gape], eD.customFeatFlag, eD.customFeature, eD.featuresTwo);
+    var res = getResults(eD.generalFeaturesCbox, eD.single_cuttersCbox, eD.double_cuttersCbox, eD.selection_markersCbox, eD.tagsCbox, eD.target, [eD.ms, eD.mms], [eD.gapo, eD.gape], eD.customFeatFlag, eD.customFeature, eD.featuresTwo, eD.customFeatureName);
 
     postMessage(res);
 }
 
-function getResults(generalFeaturesCbox, single_cuttersCbox, double_cuttersCbox, selection_markersCbox, tagsCbox, target, [ms, mms], [gapo, gape], customFeatFlag, customFeature, featuresTwo) {
+function getResults(generalFeaturesCbox, single_cuttersCbox, double_cuttersCbox, selection_markersCbox, tagsCbox, target, [ms, mms], [gapo, gape], customFeatFlag, customFeature, featuresTwo, customFeatureName) {
 
     var receivedFeatures = [generalFeaturesCbox, single_cuttersCbox, double_cuttersCbox, selection_markersCbox, tagsCbox, customFeatFlag, featuresTwo];
 
@@ -22,7 +23,7 @@ function getResults(generalFeaturesCbox, single_cuttersCbox, double_cuttersCbox,
 
         var customFeatureObj = {
             "1": {
-                "id":"custom",
+                "id":customFeatureName,
                 "seq":customFeature
                 }
         }

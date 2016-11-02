@@ -53,6 +53,8 @@ $b.on('click', function(){
     var double_cuttersCbox = document.getElementById('cbox3').checked;
     var tagsCbox = document.getElementById('cbox4').checked;
     var selection_markersCbox = document.getElementById('cbox5').checked;
+    var customFeatureName = $('#customFeatureName').val();
+
 
     var ms   = parseInt(document.getElementById('match').value);
     var mms  = parseInt(document.getElementById('mismatch').value);
@@ -190,9 +192,9 @@ $b.on('click', function(){
     }
 
     if (customFeature.length > 0) {
-
+        console.log(customFeatureName)
         var message = {
-
+            customFeatureName: customFeatureName,
             customFeatFlag: customFeatFlag,
             ms: ms,
             mms: mms,
