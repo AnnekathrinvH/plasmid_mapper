@@ -60,7 +60,7 @@ $b.on('click', function(){
     var mms  = parseInt(document.getElementById('mismatch').value);
     var gapo = parseInt(document.getElementById('gapo').value);
     var gape = parseInt(document.getElementById('gape').value);
-    var target = document.getElementById('target').value.replace(/[\s\n]+/g, '');
+    var target = document.getElementById('target').value.replace(/[\s\n]+/g, '').toUpperCase();
 
     targetTextAreaAndOptions.css('display', 'none');
     $('#outer').css('visibility','visible');
