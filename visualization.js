@@ -1,8 +1,8 @@
 var exports = module.exports = {};
 exports.visualize = function(res) {
-    var r = 250;
+    var r = 350;
     var center = 500;
-    var name = 'pcDNA3.1';
+    var name = $('#seqInputName').val();
     var plasmidLength = res[0].fullLength;
 
     var U = 2*r*Math.PI;
@@ -20,8 +20,6 @@ exports.visualize = function(res) {
 
     var numRadsPerLetter = 0.05;
 
-
-
     CanvasRenderingContext2D.prototype.fillTextCircle = function(properties){
         var text = properties.id;
 
@@ -37,7 +35,7 @@ exports.visualize = function(res) {
         for(var i=0;i<text.length;i++){
             this.save();
             this.rotate(i*numRadsPerLetter);
-            this.font ="18px Courier";
+            this.font ="bold 18px 'Source Code Pro'";
             this.fillStyle = "black";
             this.fillText(text[i],0,-(properties.textRadius-5));
             this.restore();
@@ -59,11 +57,11 @@ exports.visualize = function(res) {
     }
 
     ctx.beginPath();
-
+    ctx.lineWidth = 2;
     ctx.arc(center, center, r, 0, 2*Math.PI, false);
     ctx.stroke();
 
-    ctx.font = "40px sans-serif";
+    ctx.font = "40px 'Open Sans'";
     var metrics = ctx.measureText(name);
     var textWidth = metrics.width;
     ctx.fillText(name, center-(textWidth/2), center);
@@ -130,7 +128,7 @@ exports.visualize = function(res) {
         }
         calculateTextSpace(sortedArray);
     }
-    
+
     function calculateTextSpace(array) {
         for (var i = 0; i < array.length; i++) {
             var properties = array[i];
@@ -160,11 +158,11 @@ exports.visualize = function(res) {
                 feature.textRadius = feature.textRadius-40;
             }
         }
-        loopThroughArray(array);
+        sortFeaturesForDisplay(array);
 
     }
 
-    function loopThroughArray(array) {
+    function sortFeaturesForDisplay(array) {
         console.log(array);
         for (var i = 0; i < array.length; i++) {
             var properties = array[i];
@@ -189,7 +187,7 @@ exports.visualize = function(res) {
     function drawLargeFeatures(properties) {
 
         ctx2.strokeStyle = "rgb(117, 200, 252)";
-        ctx2.lineWidth = 35;
+        ctx2.lineWidth = 40;
         ctx2.beginPath();
         ctx2.arc(center, center, properties.radius, properties.startAngle, properties.endAngle, false);
         ctx2.stroke();
@@ -206,7 +204,7 @@ exports.visualize = function(res) {
         var xAngle = center + (r + 45) * Math.cos(startAngle + 0.05);
         var yAngle = center + (r + 45) * Math.sin(startAngle + 0.05);
         ctx.strokeStyle = "black";
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(xIn, yIn);
         ctx.lineTo(xOut, yOut);
@@ -222,18 +220,18 @@ exports.visualize = function(res) {
         var yIn;
 
         if (reversed === false) {
-            xOut = center + (radius + 25) * Math.cos(angle-0.25);
-            yOut = center + (radius + 25) * Math.sin(angle-0.25);
+            xOut = center + (radius + 30) * Math.cos(angle-0.25);
+            yOut = center + (radius + 30) * Math.sin(angle-0.25);
 
-            xIn = center + (radius - 25) * Math.cos(angle-0.25);
-            yIn = center + (radius - 25) * Math.sin(angle-0.25);
+            xIn = center + (radius - 30) * Math.cos(angle-0.25);
+            yIn = center + (radius - 30) * Math.sin(angle-0.25);
         }
         if (reversed === true) {
-            xOut = center + (radius + 25) * Math.cos(angle+0.25);
-            yOut = center + (radius + 25) * Math.sin(angle+0.25);
+            xOut = center + (radius + 30) * Math.cos(angle+0.25);
+            yOut = center + (radius + 30) * Math.sin(angle+0.25);
 
-            xIn = center + (radius - 25) * Math.cos(angle+0.25);
-            yIn = center + (radius - 25) * Math.sin(angle+0.25);
+            xIn = center + (radius - 30) * Math.cos(angle+0.25);
+            yIn = center + (radius - 30) * Math.sin(angle+0.25);
         }
 
         ctx2.strokeStyle = "rgb(117, 200, 252)";
@@ -275,11 +273,12 @@ exports.visualize = function(res) {
     }
 
     function modifyTooCloseX(array) {
+        console.log(array);
         for (var i = 0; i < array.length; i++) {
             var lastArray = (array[i-1]) ? array[i-1] : array[array.length-1];
             var nextArray = (array[i+1]) ? array[i+1] : array[0];
             var index = array[i].length-1;
-            var xCenter = (array[i][0].angle + array[i][index].angle)/2;
+            var xCenter = array[i][index].angle;
             var xText = center + (r + 60) * Math.cos(xCenter);
             var xTextLast = center + (r + 60) * Math.cos(lastArray[0].angle);
             var TextSpace = 40;
@@ -338,10 +337,11 @@ exports.visualize = function(res) {
             }
 
             for (var j = 0; j < array[i].length; j++) {
-                ctx2.font = "10px sans-serif";
+                var text = array[i][j].id;
+                ctx2.font = "600 12px 'Open Sans'";
                 ctx2.fillStyle = 'black';
-                ctx2.fillText(array[i][j].id, xText-10, adjustedY);
-                adjustedY += 10;
+                ctx2.fillText(text, xText, adjustedY);
+                adjustedY += 12;
             }
         }
     }

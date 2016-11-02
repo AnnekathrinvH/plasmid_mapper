@@ -26,12 +26,18 @@ span, #header {
 #seqInput{
     text-align: left;
 }
-#seqInputTitle{
+#seqNameDiv{
     margin-left: 10px;
+    display: inline-block;
 }
 #seqInputName{
     border-radius: 4px;
     margin: 10px;
+    vertical-align: bottom;
+}
+#seqName{
+    display: inline-block;
+    padding-bottom: 10px;
 }
 #textAreaTitle{
     margin-left: 10px;
@@ -47,6 +53,7 @@ span, #header {
 #options2 {
     margin: 0 auto;
     width: 895px;
+    text-align: left;
 
 }
 .element{
@@ -57,11 +64,17 @@ span, #header {
 }
 
 .element2{
-    display: inline-block;
     text-align: left;
     margin: 5px;
-    width: 300px;
+    width: 400px;
 }
+#resEnzyme{
+    display: none;
+}
+.resEnzyme{
+    display: inline-block;
+}
+
 .button{
     text-align: center;
 }
@@ -96,9 +109,7 @@ span, #header {
     font-size: 20px;
     font-family: 'Share Tech Mono', monospace;
 }
-#resEnzyme{
-    display: none;
-}
+
 
 #demo {
     margin-left: auto;
