@@ -9,8 +9,6 @@ onmessage = function(e) {
 
     var eD = e.data;
 
-
-
     var res = getResults(eD.generalFeaturesCbox, eD.single_cuttersCbox, eD.double_cuttersCbox, eD.selection_markersCbox, eD.tagsCbox, eD.target, [eD.ms, eD.mms], [eD.gapo, eD.gape], eD.customFeatFlag, eD.customFeature, eD.featuresTwo);
 
     postMessage(res);
@@ -116,6 +114,7 @@ function getData(features, target, reversed, [ms, mms], [gapo, gape], tuple) {
 
                 tempData.push({
                     reversed: reversed,
+                    type: features[feature].type,
                     id: features[feature].id,
                     fullLength: target.length,
                     featureLength: f[1],
@@ -147,6 +146,7 @@ function getData(features, target, reversed, [ms, mms], [gapo, gape], tuple) {
                     for (var i = 0; indexOfFeature[0][i]; i++) {
 
                         tempData.push({
+                            type: features[feature].type,
                             reversed: reversed,
                             fullLength: target.length,
                             id: features[feature].id,
@@ -168,6 +168,7 @@ function getData(features, target, reversed, [ms, mms], [gapo, gape], tuple) {
                     for (var i = 0; indexOfFeature[0][i]; i++) {
 
                         tempData.push({
+                            type: features[feature].type,
                             reversed: reversed,
                             fullLength: target.length,
                             id: features[feature].id,
