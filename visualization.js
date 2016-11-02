@@ -4,6 +4,7 @@ exports.visualize = function(res) {
     var center = 500;
     var name = $('#seqInputName').val();
     var plasmidLength = res[0].fullLength;
+    console.log(res);
 
     var U = 2*r*Math.PI;
     var restrictionEnzymePositionsArray = [];
