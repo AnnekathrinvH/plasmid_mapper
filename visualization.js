@@ -4,7 +4,6 @@ exports.visualize = function(res) {
     var center = 500;
     var name = $('#seqInputName').val();
     var plasmidLength = res[0].fullLength;
-    console.log(res);
 
     var U = 2*r*Math.PI;
     var restrictionEnzymePositionsArray = [];
@@ -23,7 +22,6 @@ exports.visualize = function(res) {
 
     CanvasRenderingContext2D.prototype.fillTextCircle = function(properties){
         var text = properties.id;
-
 
         var textMiddle = properties.textLengthInRad/2;
         var featureMiddle = (properties.endAngle + properties.startAngle)/2;
@@ -103,6 +101,7 @@ exports.visualize = function(res) {
             entry.endAngle = endAngle;
             entry.featureLength = featureLength;
             featurePositionsArray.push(entry);
+            entry.type = properties.type;
             entry.reversed = properties.reversed;
         } else {
             entry.id = properties.id;
@@ -159,8 +158,35 @@ exports.visualize = function(res) {
                 feature.textRadius = feature.textRadius-40;
             }
         }
-        sortFeaturesForDisplay(array);
+        setUpColors(array);
 
+    }
+
+    function setUpColors(array) {
+        for (var i = 0; i < array.length; i++) {
+            var properties = array[i];
+            if (properties.type === 'general') {
+                properties.color = "rgb(117, 252, 200)";
+            }
+            else if (properties.type === 'prom') {
+                properties.color = "rgb(117, 200, 252)";
+            }
+            else if (properties.type === 'ori') {
+                properties.color = "rgb(63, 155, 164)";
+            }
+            else if (properties.type === 'terminator') {
+                properties.color = "rgb(58, 189, 181)";
+            }
+            else if (properties.type === 'tag') {
+                properties.color = "rgb(117, 228, 252)";
+            }
+            else if (properties.type === 'marker') {
+                properties.color = "rgb(252, 117, 117)";
+            } else {
+                properties.color = "rgb(117, 200, 252)";
+            }
+        }
+        sortFeaturesForDisplay(array);
     }
 
     function sortFeaturesForDisplay(array) {
@@ -169,7 +195,7 @@ exports.visualize = function(res) {
             var properties = array[i];
 
             if (properties.featureLength >= 350 && properties.reversed === false) {
-                drawArrow(properties.endAngle, false, properties.radius);
+                drawArrow(properties.endAngle, false, properties);
                 properties.endAngle = properties.endAngle - 0.2;
                 drawLargeFeatures(properties);
             }
@@ -178,7 +204,7 @@ exports.visualize = function(res) {
 
             }
             else if (properties.featureLength >= 18 && properties.reversed === true) {
-                drawArrow(properties.startAngle, true, properties.radius);
+                drawArrow(properties.startAngle, true, properties);
                 properties.startAngle = properties.startAngle + 0.2;
                 drawLargeFeatures(properties);
             }
@@ -186,8 +212,8 @@ exports.visualize = function(res) {
     }
 
     function drawLargeFeatures(properties) {
-
-        ctx2.strokeStyle = "rgb(117, 200, 252)";
+        console.log(properties);
+        ctx2.strokeStyle = properties.color;
         ctx2.lineWidth = 40;
         ctx2.beginPath();
         ctx2.arc(center, center, properties.radius, properties.startAngle, properties.endAngle, false);
@@ -212,7 +238,9 @@ exports.visualize = function(res) {
         ctx.stroke();
     }
 
-    function drawArrow(angle, reversed, radius) {
+    function drawArrow(angle, reversed, properties) {
+        var radius = properties.radius;
+
         var x = center + radius * Math.cos(angle);
         var y = center + radius * Math.sin(angle);
         var xOut;
@@ -235,8 +263,8 @@ exports.visualize = function(res) {
             yIn = center + (radius - 30) * Math.sin(angle+0.25);
         }
 
-        ctx2.strokeStyle = "rgb(117, 200, 252)";
-        ctx2.fillStyle = "rgb(117, 200, 252)";
+        ctx2.strokeStyle = properties.color;
+        ctx2.fillStyle = properties.color;
         ctx2.beginPath();
         ctx2.moveTo(x,y);
         ctx2.lineTo(xOut,yOut);

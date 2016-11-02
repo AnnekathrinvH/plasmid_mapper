@@ -61,19 +61,18 @@ span, #header {
     display: inline-block;
     text-align: left;
     margin: 5px;
+    vertical-align: top;
 }
 
 .element2{
     text-align: left;
     margin: 5px;
-    width: 400px;
+    width: 250px;
 }
 #resEnzyme{
     display: none;
 }
-.resEnzyme{
-    display: inline-block;
-}
+
 
 .button{
     text-align: center;
