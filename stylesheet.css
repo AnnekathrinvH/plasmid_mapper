@@ -25,6 +25,7 @@ span, #header {
 }
 #seqInput{
     text-align: left;
+    display: inline-block;
 }
 #seqNameDiv{
     margin-left: 10px;
@@ -39,8 +40,24 @@ span, #header {
     display: inline-block;
     padding-bottom: 10px;
 }
+#upper{
+    position: relative;
+    width: 100%;
+    height: 45px;
+}
 #textAreaTitle{
+    position: absolute;
     margin-left: 10px;
+    width: 100%;
+    text-align: left;
+    vertical-align: bottom;
+    height: 40px;
+    padding-top: 18px;
+}
+#clear{
+    position: absolute;
+    width: 100%;
+    text-align: right;
 }
 #target{
     outline:none;
@@ -95,6 +112,16 @@ span, #header {
     display: none;;
 }
 
+#clearButton{
+    border-radius: 60px;
+    width: 120px;
+    height: 40px;
+    border: 0.5px black solid;
+    background-color: white;
+    cursor: pointer;
+    font-size: 15px;
+    font-family: 'Share Tech Mono', monospace;
+}
 
 #button{
     outline:none;
@@ -131,6 +158,7 @@ span, #header {
     position: absolute;
     text-align: left;
 }
+
 
 #matches{
     position: relative;

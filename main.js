@@ -20,6 +20,8 @@ var resEnzymes = $('#cbox6');
 var resEnzymesContainer = $('#resEnzyme');
 var advancedOptionsCheckbox = $('#advanced');
 var advancedOptions = $('#advancedOptions');
+var clearButton = $('#clearButton');
+
 
 resEnzymes.on('click', function() {
     if(resEnzymes.prop('checked')) {
@@ -43,6 +45,10 @@ advancedOptionsCheckbox.on('click', function () {
     } else {
         advancedOptions.css('display', 'none');
     }
+});
+
+clearButton.on('click', function() {
+    $('#target').val('');
 });
 
 $b.on('click', function(){

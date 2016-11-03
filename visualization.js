@@ -14,9 +14,12 @@ exports.visualize = function(res) {
     var ctx = canvas.getContext("2d");
     var canvas2 = document.getElementById("canvas2");
     var ctx2 = canvas2.getContext("2d");
+    var canvas3 = document.getElementById("canvas3");
+    var ctx3 = canvas3.getContext("2d");
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx2.clearRect(0, 0, canvas.width, canvas.height);
+    ctx3.clearRect(0, 0, canvas.width, canvas.height);
 
     var numRadsPerLetter = 0.05;
 
@@ -213,12 +216,12 @@ exports.visualize = function(res) {
 
     function drawLargeFeatures(properties) {
         console.log(properties);
-        ctx2.strokeStyle = properties.color;
-        ctx2.lineWidth = 40;
-        ctx2.beginPath();
-        ctx2.arc(center, center, properties.radius, properties.startAngle, properties.endAngle, false);
-        ctx2.stroke();
-        ctx2.fillTextCircle(properties);
+        ctx3.strokeStyle = properties.color;
+        ctx3.lineWidth = 40;
+        ctx3.beginPath();
+        ctx3.arc(center, center, properties.radius, properties.startAngle, properties.endAngle, false);
+        ctx3.stroke();
+        ctx3.fillTextCircle(properties);
     }
 
     function drawSmallFeatures(startAngle, endAngle, properties) {
@@ -263,13 +266,13 @@ exports.visualize = function(res) {
             yIn = center + (radius - 30) * Math.sin(angle+0.25);
         }
 
-        ctx2.strokeStyle = properties.color;
-        ctx2.fillStyle = properties.color;
-        ctx2.beginPath();
-        ctx2.moveTo(x,y);
-        ctx2.lineTo(xOut,yOut);
-        ctx2.lineTo(xIn,yIn);
-        ctx2.fill();
+        ctx3.strokeStyle = properties.color;
+        ctx3.fillStyle = properties.color;
+        ctx3.beginPath();
+        ctx3.moveTo(x,y);
+        ctx3.lineTo(xOut,yOut);
+        ctx3.lineTo(xIn,yIn);
+        ctx3.fill();
     }
 
     function checkDensity() {
@@ -302,7 +305,6 @@ exports.visualize = function(res) {
     }
 
     function modifyTooCloseX(array) {
-        console.log(array);
         for (var i = 0; i < array.length; i++) {
             var lastArray = (array[i-1]) ? array[i-1] : array[array.length-1];
             var nextArray = (array[i+1]) ? array[i+1] : array[0];
@@ -310,7 +312,7 @@ exports.visualize = function(res) {
             var xCenter = array[i][index].angle;
             var xText = center + (r + 60) * Math.cos(xCenter);
             var xTextLast = center + (r + 60) * Math.cos(lastArray[0].angle);
-            var TextSpace = 40;
+            var TextSpace = 50;
             var adjustment = 25;
             var featureAngle = array[i][0].angle;
 
@@ -329,6 +331,10 @@ exports.visualize = function(res) {
             }
             else if ((2*Math.PI < featureAngle && featureAngle < 2.5*Math.PI) || (2.5*Math.PI < featureAngle && featureAngle < 3*Math.PI)) {
                 if (xText + TextSpace > xTextLast) {
+                    if (lastArray[0].xAdjusted) {
+                        console.log('2xAdjustment');
+                        adjustment += adjustment;
+                    }
                     for (var j = 0; j < array[i].length; j++) {
                         array[i][j].xText = xText - adjustment;
                         array[i][j].xAdjusted = true;
@@ -347,7 +353,6 @@ exports.visualize = function(res) {
     }
 
     function labelDenseSites(array) {
-
         for (var i = 0; i < array.length; i++) {
             var xText = array[i][0].xText;
             var index = array[i].length-1;
@@ -370,8 +375,50 @@ exports.visualize = function(res) {
                 ctx2.font = "600 12px 'Open Sans'";
                 ctx2.fillStyle = 'black';
                 ctx2.fillText(text, xText, adjustedY);
+                array[i][j].yPosition = adjustedY;
                 adjustedY += 12;
             }
         }
+        console.log(array);
+        listenToEvents(array);
+    }
+    function listenToEvents(array) {
+        var elem = canvas2,
+            top = document.getElementById('outer'),
+            left = document.getElementById('containsEverything'),
+            elemLeft = left.offsetLeft,
+            elemTop = top.offsetTop,
+            elements = [];
+            console.log(elemLeft);
+            console.log(elemTop);
+
+        elem.addEventListener('mousemove', function(event) {
+            var x = event.pageX - elemLeft,
+                y = event.pageY - elemTop;
+            console.log(x, y);
+
+            ctx2.clearRect(0, 0, canvas.width, canvas.height);
+            for (var i = 0; i < array.length; i++) {
+                for (var j = 0; j < array[i].length; j++) {
+                    var element = array[i][j];
+                    if (y > element.yPosition -12 && y < element.yPosition && x > element.xText && x < element.xText + 80) {
+                        console.log(element.id);
+                        var text = element.id+' ('+element.position+')';
+                        ctx2.fillStyle = 'white';
+                        ctx2.fillRect(element.xText, element.yPosition-18, 100, 24);
+                        ctx2.font = "bold 20px 'Open Sans'";
+                        ctx2.fillStyle = 'black';
+                        ctx2.fillText(text, element.xText, element.yPosition);
+
+                    }
+                    else {
+                        ctx2.font = "600 12px 'Open Sans'";
+                        ctx2.fillStyle = 'black';
+                        ctx2.fillText(element.id, element.xText, element.yPosition);
+                    }
+                }
+            }
+        }, false);
+
     }
 };
