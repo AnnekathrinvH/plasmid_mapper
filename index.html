@@ -120,7 +120,6 @@
                     </script>
                 </div>
             </div>
-
         </div>
 
 
@@ -138,9 +137,13 @@
 
             <div id="results">
                 <script id='mapRes' type="text/handlebars">
-                {{#featuresDescription}}
-                <p class="alignRes"> ID: <b>{{id}}</b> length: {{fullLength}} Length of Feature: {{featureLength}} cigar: {{cigar}} start: <b>{{start}}</b> reversed: {{reversed}}
-                {{/featuresDescription}}
+                    <div id="select">
+                        <ul>
+                            {{#featuresDescription}}
+                            <li><input class="features" type="checkbox" id={{id}}>{{id}} {{start}}</input>
+                            {{/featuresDescription}}
+                        </ul>
+                    </div>
                 </script>
             </div>
         </div>

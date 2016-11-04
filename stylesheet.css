@@ -163,3 +163,13 @@ span, #header {
 #matches{
     position: relative;
 }
+ul{
+    list-style-type: none;
+    padding: 0;
+    text-align: left;
+}
+#select{
+    height: 500px;
+    overflow-y: scroll;
+    width: 140px;
+}
