@@ -122,33 +122,26 @@
             </div>
         </div>
 
-
-
+    </div>
         <div id="outer">
             <canvas class="canvas" id="canvas" width="1000" height="1000"></canvas>
             <canvas class="canvas" id="canvas3" width="1000" height="1000"></canvas>
-
             <canvas class="canvas" id="canvas2" width="1000" height="1000"></canvas>
             <div id="demo"></div>
         </div>
-
         <div id="matches">
-            <h3 id="visualizedText" style="visibility:hidden">Visualized matches:</h3>
-
             <div id="results">
                 <script id='mapRes' type="text/handlebars">
                     <div id="select">
                         <ul>
                             {{#featuresDescription}}
-                            <li><input class="features" type="checkbox" id={{id}}>{{id}} {{start}}</input>
+                            <li><input class="listOfFeatures" type="checkbox" id={{uniqueId}} {{checked}}>{{id}} {{start}}</input>
                             {{/featuresDescription}}
                         </ul>
                     </div>
                 </script>
             </div>
         </div>
-    </div>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
     <script src="bundle.js"></script>
 

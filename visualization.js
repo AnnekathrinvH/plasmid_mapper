@@ -1,10 +1,17 @@
 var exports = module.exports = {};
 exports.visualize = function(res) {
+    var templates = document.querySelectorAll('script[type="text/handlebars"]');
+    Handlebars.templates = Handlebars.templates || {};
+    Array.prototype.slice.call(templates).forEach(function(script) {
+        Handlebars.templates[script.id] = Handlebars.compile(script.innerHTML);
+    });
+
+    var results = $('#results');
+
     var r = 350;
     var center = 500;
     var name = $('#seqInputName').val();
-    var plasmidLength = res[0].fullLength;
-
+    var plasmidLength = $("#target").val().length;
     var U = 2*r*Math.PI;
     var restrictionEnzymePositionsArray = [];
     var featurePositionsArray = [];
@@ -48,10 +55,10 @@ exports.visualize = function(res) {
 
     function sortPositions(array) {
         array.sort(function (a, b) {
-            if (a.position > b.position) {
+            if (a.start > b.start) {
             return 1;
             }
-            if (a.position < b.position) {
+            if (a.start < b.start) {
             return -1;
             }
             return 0;
@@ -65,30 +72,64 @@ exports.visualize = function(res) {
     ctx.stroke();
 
     ctx.font = "40px 'Open Sans'";
-    var metrics = ctx.measureText(name);
-    var textWidth = metrics.width;
-    ctx.fillText(name, center-(textWidth/2), center);
+    var nameMetrics = ctx.measureText(name);
+    var nameWidth = nameMetrics.width;
+    var lengthLabel = plasmidLength + ' bp';
+    var bpMetrics = ctx.measureText(lengthLabel);
+    var bpWidth = bpMetrics.width;
+    ctx.fillText(name, center-(nameWidth/2), center);
+    ctx.fillText(lengthLabel, center-(bpWidth/2), center+40);
 
-    checkReversed(res);
 
-    function checkReversed(res) {
+    check(res);
+    function check(res) {
         for (var i = 0; i < res.length; i++) {
-            var response = Object.assign({}, res[i]);
-            if (response.reversed === false) {
+            res[i].checked = 'checked';
+            res[i].uniqueId = i;
+        }
+        copyResponse(res);
+    }
+
+    function copyResponse(res) {
+        console.log(res);
+        var copiedResponse = [];
+        restrictionEnzymePositionsArray = [];
+        featurePositionsArray = [];
+        allFeatures = [];
+        for (var i = 0; i < res.length; i++) {
+            var element = Object.assign({}, res[i]);
+
+            allFeatures.push(element);
+
+            if (element.reversed === true) {
+                element.start = plasmidLength - element.start - element.featureLength;
             }
-            else if (response.reversed === true) {
-                response.start = plasmidLength - response.start - response.featureLength;
+            copiedResponse.push(element);
+        }
+        allFeatures = sortPositions(allFeatures);
+
+        sortOutUnchecked(copiedResponse);
+    }
+
+    function sortOutUnchecked(copiedResponse) {
+        function isChecked(value) {
+            if (value.checked === 'checked') {
+              return true;
+            } else {
+              return false;
             }
-            calculateAngles(response);
+        }
+        var filteredResponse = copiedResponse.filter(isChecked);
+        for (var i = 0; i < filteredResponse.length; i++) {
+            calculateAngles(filteredResponse[i]);
         }
         checkOverlappingFeatures();
         checkDensity();
-
     }
 
-    function calculateAngles(properties) {
-        var featureStart = properties.start;
-        var featureLength = properties.featureLength;
+    function calculateAngles(element) {
+        var featureStart = element.start;
+        var featureLength = element.featureLength;
         var featureEnd = featureStart + featureLength;
         var percentageStart = featureStart/plasmidLength;
         var percentageEnd = featureEnd/plasmidLength;
@@ -96,30 +137,28 @@ exports.visualize = function(res) {
         var secondLength = U*percentageEnd;
         var startAngle = firstLength/r+1.5*Math.PI;
         var endAngle = secondLength/r+1.5*Math.PI;
-        var entry = {};
+        var modifiedElement = {};
+        modifiedElement.id = element.id;
+        modifiedElement.start = element.start;
+        modifiedElement.featureLength = featureLength;
+        modifiedElement.startAngle = startAngle;
+        modifiedElement.checked = element.checked;
+        modifiedElement.uniqueId = element.uniqueId;
 
         if (featureLength>=18) {
-            entry.id = properties.id;
-            entry.position = properties.start;
-            entry.startAngle = startAngle;
-            entry.endAngle = endAngle;
-            entry.featureLength = featureLength;
-            featurePositionsArray.push(entry);
-            entry.type = properties.type;
-            entry.reversed = properties.reversed;
-        } else {
-            entry.id = properties.id;
-            entry.position = properties.start;
-            entry.angle = startAngle;
-            entry.featureLength = featureLength;
-
-            restrictionEnzymePositionsArray.push(entry);
-            drawSmallFeatures(startAngle, endAngle, properties);
-
+            modifiedElement.endAngle = endAngle;
+            modifiedElement.type = element.type;
+            modifiedElement.reversed = element.reversed;
+            featurePositionsArray.push(modifiedElement);
+        }
+        else {
+            restrictionEnzymePositionsArray.push(modifiedElement);
+            drawSmallFeatures(modifiedElement);
         }
     }
 
     function checkOverlappingFeatures() {
+        console.log(featurePositionsArray);
         var sortedArray = sortPositions(featurePositionsArray);
         for (var i = 0; i < sortedArray.length; i++) {
             var feature = sortedArray[i];
@@ -127,8 +166,8 @@ exports.visualize = function(res) {
             feature.overlap = 0;
             if (feature.startAngle <= lastFeatureEndAngle) {
                 feature.overlap = +1;
-                console.log('overlap');
             }
+
         }
         calculateTextSpace(sortedArray);
     }
@@ -194,7 +233,6 @@ exports.visualize = function(res) {
     }
 
     function sortFeaturesForDisplay(array) {
-        console.log(array);
         for (var i = 0; i < array.length; i++) {
             var properties = array[i];
 
@@ -216,9 +254,6 @@ exports.visualize = function(res) {
     }
 
     function drawLargeFeatures(properties) {
-        properties.checked = true;
-        allFeatures.push(properties);
-        console.log(properties);
         ctx3.strokeStyle = properties.color;
         ctx3.lineWidth = 40;
         ctx3.beginPath();
@@ -227,8 +262,8 @@ exports.visualize = function(res) {
         ctx3.fillTextCircle(properties);
     }
 
-    function drawSmallFeatures(startAngle, endAngle, properties) {
-
+    function drawSmallFeatures(properties) {
+        var startAngle = properties.startAngle;
         var xIn = center + r * Math.cos(startAngle);
         var yIn = center + r * Math.sin(startAngle);
 
@@ -286,16 +321,16 @@ exports.visualize = function(res) {
         var limit = 40;
 
         for (var i = 0; i < sortedArray.length; i++) {
-            var lastArrayPosition = (sortedArray[i-1]) ? sortedArray[i-1].position : sortedArray[sortedArray.length-1].position - plasmidLength;
-            var nextArrayPosition = (sortedArray[i+1]) ? sortedArray[i+1].position : plasmidLength + sortedArray[0].position;
+            var lastArrayPosition = (sortedArray[i-1]) ? sortedArray[i-1].start : sortedArray[sortedArray.length-1].start - plasmidLength;
+            var nextArrayPosition = (sortedArray[i+1]) ? sortedArray[i+1].start : plasmidLength + sortedArray[0].start;
 
-            if ((sortedArray[i].position < (lastArrayPosition + limit)) && (sortedArray[i].position > (nextArrayPosition - limit))) {
+            if ((sortedArray[i].start < (lastArrayPosition + limit)) && (sortedArray[i].start > (nextArrayPosition - limit))) {
                 denseSites.push(sortedArray[i]);
             }
-            else if (sortedArray[i].position > (nextArrayPosition - limit)) {
+            else if (sortedArray[i].start > (nextArrayPosition - limit)) {
                 denseSites.push(sortedArray[i]);
             }
-            else if (sortedArray[i].position < (lastArrayPosition + limit)) {
+            else if (sortedArray[i].start < (lastArrayPosition + limit)) {
                 denseSites.push(sortedArray[i]);
                 denseSitesArray.push(denseSites);
                 denseSites = [];
@@ -304,6 +339,7 @@ exports.visualize = function(res) {
                 denseSitesArray.push(denseSites);
                 denseSites = [];
             }
+
         }
         modifyTooCloseX(denseSitesArray);
     }
@@ -313,12 +349,12 @@ exports.visualize = function(res) {
             var lastArray = (array[i-1]) ? array[i-1] : array[array.length-1];
             var nextArray = (array[i+1]) ? array[i+1] : array[0];
             var index = array[i].length-1;
-            var xCenter = array[i][index].angle;
+            var xCenter = array[i][index].startAngle;
             var xText = center + (r + 60) * Math.cos(xCenter);
-            var xTextLast = center + (r + 60) * Math.cos(lastArray[0].angle);
+            var xTextLast = center + (r + 60) * Math.cos(lastArray[0].startAngle);
             var TextSpace = 50;
             var adjustment = 25;
-            var featureAngle = array[i][0].angle;
+            var featureAngle = array[i][0].startAngle;
 
             if ((1.5*Math.PI < featureAngle && featureAngle < 2*Math.PI) || (3*Math.PI < featureAngle && featureAngle < 3.5*Math.PI)) {
                 if (xText - TextSpace < xTextLast) {
@@ -336,7 +372,6 @@ exports.visualize = function(res) {
             else if ((2*Math.PI < featureAngle && featureAngle < 2.5*Math.PI) || (2.5*Math.PI < featureAngle && featureAngle < 3*Math.PI)) {
                 if (xText + TextSpace > xTextLast) {
                     if (lastArray[0].xAdjusted) {
-                        console.log('2xAdjustment');
                         adjustment += adjustment;
                     }
                     for (var j = 0; j < array[i].length; j++) {
@@ -344,7 +379,7 @@ exports.visualize = function(res) {
                         array[i][j].xAdjusted = true;
                     }
                 } else {
-                    xText = center + (r + 60) * Math.cos(array[i][0].angle);
+                    xText = center + (r + 60) * Math.cos(array[i][0].startAngle);
                     for (var j = 0; j < array[i].length; j++) {
                         array[i][j].xText = xText;
                         array[i][j].xAdjusted = false;
@@ -360,7 +395,7 @@ exports.visualize = function(res) {
         for (var i = 0; i < array.length; i++) {
             var xText = array[i][0].xText;
             var index = array[i].length-1;
-            var yCenter = (array[i][0].angle + array[i][index].angle)/2;
+            var yCenter = (array[i][0].startAngle + array[i][index].startAngle)/2;
             var yText = center + (r + 60) * Math.sin(yCenter);
             var arrayMiddle = array[i].length/2;
             var heightPerLetter = 10;
@@ -381,29 +416,23 @@ exports.visualize = function(res) {
                 ctx2.fillText(text, xText, adjustedY);
                 array[i][j].yPosition = adjustedY;
                 adjustedY += 12;
-                array[i][j].checked = true;
-                console.log(array[i][j]);
-                allFeatures.push(array[i][j]);
-
             }
         }
-        console.log(array);
         listenToEvents(array);
     }
-    console.log(allFeatures);
     function listenToEvents(array) {
         var elem = canvas2,
             top = document.getElementById('outer'),
-            left = document.getElementById('containsEverything'),
+            left = document.getElementById('outer'),
             elemLeft = left.offsetLeft,
             elemTop = top.offsetTop,
             elements = [];
+            console.log(array);
 
 
         elem.addEventListener('mousemove', function(event) {
             var x = event.pageX - elemLeft,
                 y = event.pageY - elemTop;
-
             ctx2.clearRect(0, 0, canvas.width, canvas.height);
             var highlightedElement;
             for (var i = 0; i < array.length; i++) {
@@ -411,7 +440,6 @@ exports.visualize = function(res) {
                     var element = array[i][j];
                     if (y > element.yPosition -12 && y < element.yPosition && x > element.xText && x < element.xText + 80) {
                         highlightedElement = element;
-
                     }
                     else {
                         ctx2.font = "600 12px 'Open Sans'";
@@ -421,7 +449,7 @@ exports.visualize = function(res) {
                 }
             }
             if (highlightedElement) {
-                var text = highlightedElement.id+' ('+highlightedElement.position+')';
+                var text = highlightedElement.id+' ('+highlightedElement.start+')';
                 ctx2.font = "bold 20px 'Open Sans'";
                 var textMetrics = ctx2.measureText(text);
                 var textWidth = textMetrics.width;
@@ -433,4 +461,38 @@ exports.visualize = function(res) {
         }, false);
 
     }
+
+    results.html(Handlebars.templates.mapRes({
+        featuresDescription: allFeatures
+    }));
+
+    var listOfFeatures = $('.listOfFeatures');
+
+    listOfFeatures.on('click', function (event) {
+        var selectedFeature = event.target.id;
+        console.log(selectedFeature);
+        console.log($('#'+ selectedFeature).prop('checked'));
+        ctx2.clearRect(0, 0, canvas.width, canvas.height);
+        ctx3.clearRect(0, 0, canvas.width, canvas.height);
+
+        function isInArray(element) {
+          return element.uniqueId == selectedFeature;
+        }
+        console.log(res.find(isInArray));
+        if (res.find(isInArray)) {
+            var index = res.findIndex(isInArray);
+            console.log(res[index]);
+            console.log(index);
+            if (($('#'+ selectedFeature).prop('checked'))=== false) {
+                res[index].checked = '';
+            }
+            else if ($('#'+ selectedFeature).prop('checked')) {
+                res[index].checked = 'checked';
+            }
+        }
+
+        copyResponse(res);
+
+
+    });
 };

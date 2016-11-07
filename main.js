@@ -1,7 +1,6 @@
 var work = require('webworkify');
 var viz = require('./visualization.js');
 
-console.log('hello')
 
 var templates = document.querySelectorAll('script[type="text/handlebars"]');
 Handlebars.templates = Handlebars.templates || {};
@@ -264,9 +263,7 @@ $b.on('click', function(){
         var vizData = [];
 
             vizData.push(viz.visualize(fullData));
-        results.html(Handlebars.templates.mapRes({
-            featuresDescription: fullData
-        }))
+
 
     }
     function showTimeTextForMatches() {

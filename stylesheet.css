@@ -146,6 +146,7 @@ span, #header {
 }
 
 #outer{
+    display: inline-block;
     height: 1000px;
     width: 1000px;
     margin: 0 auto;
@@ -153,14 +154,28 @@ span, #header {
     visibility: hidden;
     text-align: left;
 }
-
+#canvas{
+    z-index: 10;
+}
+#canvas3{
+    z-index: 20;
+}
+#canvas2{
+    z-index: 30;
+}
 .canvas {
     position: absolute;
     text-align: left;
 }
-
-
 #matches{
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+    padding-left: 60px;
+    padding-top: 100px;
+}
+#resultsPage{
+    width: 100%;
     position: relative;
 }
 ul{
