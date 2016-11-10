@@ -134,7 +134,7 @@ $b.on('click', function(){
 
 
     targetTextAreaAndOptions.css('display', 'none');
-    $('#outer').css('visibility','visible');
+    $('#outer').css('display', 'inline-block');
 
     var customFeature = customFeatureArea.val();
 
@@ -332,14 +332,14 @@ $b.on('click', function(){
 
 
     }
-    function showTimeTextForMatches() {
-
-        $("#visualizedText").css("visibility", "visible");
-        var elapse = (new Date().getTime() - time_start) / 1000.0;
-        document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
-        console.log('elapse')
-        console.log(elapse)
-    }
+    // function showTimeTextForMatches() {
+    //
+    //     $("#visualizedText").css("visibility", "visible");
+    //     var elapse = (new Date().getTime() - time_start) / 1000.0;
+    //     document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
+    //     console.log('elapse')
+    //     console.log(elapse)
+    // }
     function getOppositeStrand(sequence) {
         var oppStrand = '';
 
