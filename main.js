@@ -59,6 +59,7 @@ $b.on('click', function(){
     var tagsCbox = document.getElementById('cbox4').checked;
     var selection_markersCbox = document.getElementById('cbox5').checked;
     var customFeatureName = $('#customFeatureName').val();
+    var orfCBox = document.getElementById('cbox7').checked;
 
 
     var ms   = parseInt(document.getElementById('match').value);
@@ -67,16 +68,18 @@ $b.on('click', function(){
     var gape = parseInt(document.getElementById('gape').value);
     var target = document.getElementById('target').value.replace(/[\s\n]+/g, '').toUpperCase();
 
+    var orfMinLength = parseInt(document.getElementById('orfMinLength').value);
+    var orfMaxLength = parseInt(document.getElementById('orfMaxLength').value);
 
 
     var fullData = [];
     var targetReversed = getOppositeStrand(target);
 
+    if (orfCBox) {
+        doLook(target, false);
+        doLook(targetReversed, true);
 
-    doLook(target, false);
-    doLook(targetReversed, true);
-
-
+    }
 
     function doLook (target, reversed) {
         var counter = 0;
@@ -89,28 +92,32 @@ $b.on('click', function(){
             seq[1] += start;
             start = seq[1];
             searchTarget = target.slice(start);
+            var rev;
+            if (reversed) {
+                rev = 'rev'
+            } else {
+                rev = ''
+            }
             fullData.push({
                 reversed: reversed,
                 type: 'ORF',
-                id: 'ORF ' + counter,
+                id: 'ORF ' + counter + ' ' + rev,
                 fullLength: target.length,
                 featureLength: seq[1] - seq[0],
                 cigar: '',
                 start: seq[0],
                 score: ''
             });
-            console.log('fulldata', fullData)
-            //console.log('seq', seq[0]);
         }
     }
 
     function look(target) {
         var distance = 0;
         var start = target.indexOf('ATG');
-        var subTar = target.slice(start + 500, start + 3000);
+        var subTar = target.slice(start + orfMinLength, start + orfMaxLength);
         var idx;
         idx = subTar.indexOf('TAA');
-        distance += start + 500;
+        distance += start + orfMinLength;
         while ((idx - start)%3!==0 && idx>0) {
 
             distance +=idx + 3;
@@ -122,12 +129,9 @@ $b.on('click', function(){
 
         if (idx > 0) {
             return [start, distance + idx + 3];
-            //arr.push([start, distance + idx + 3]);
+
         }
     }
-
-
-
 
 
     targetTextAreaAndOptions.css('display', 'none');
@@ -149,7 +153,7 @@ $b.on('click', function(){
 
     var featuresList = [generalFeaturesCbox, single_cuttersCbox, double_cuttersCbox, tagsCbox, selection_markersCbox, customFeatFlag, featuresTwo];
 
-    if (generalFeaturesCbox == false && single_cuttersCbox == false && double_cuttersCbox == false && tagsCbox == false && selection_markersCbox == false && customFeature.length == 0) {
+    if (generalFeaturesCbox == false && single_cuttersCbox == false && double_cuttersCbox == false && tagsCbox == false && selection_markersCbox == false && customFeature.length == 0 && orfCBox == false) {
         noSelection.html(Handlebars.templates.noSel({
             selectionError: 'choose features'
         }));
