@@ -8,7 +8,7 @@ body{
     text-align: center;
 }
 #containsEverything{
-    width: 1220px;
+    width: 1240px;
     text-align: center;
     margin: 0 auto;
     position: relative;
@@ -99,7 +99,8 @@ span, #header {
 #advancedOptions{
     display: none;
 }
-#customFeatureName{
+
+.smallTextArea{
     border-radius: 4px;
 }
 #customFeatureArea {
@@ -142,9 +143,16 @@ span, #header {
     font-family: 'Share Tech Mono', monospace;
 }
 
+
 #button:hover{
     background-color: green;
 }
+
+.orfOptions{
+    display: none;
+}
+
+
 #demo {
     position: relative;
     margin-left: auto;
