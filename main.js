@@ -61,7 +61,7 @@ clearButton.on('click', function() {
 
 $b.on('click', function(){
 
-    var time_start = new Date().getTime();
+    //var time_start = new Date().getTime();
     var generalFeaturesCbox = document.getElementById('cbox1').checked;
     var single_cuttersCbox = document.getElementById('cbox2').checked;
     var double_cuttersCbox = document.getElementById('cbox3').checked;
@@ -69,7 +69,6 @@ $b.on('click', function(){
     var selection_markersCbox = document.getElementById('cbox5').checked;
     var customFeatureName = $('#customFeatureName').val();
     var orfCBox = document.getElementById('cbox7').checked;
-
 
     var ms   = parseInt(document.getElementById('match').value);
     var mms  = parseInt(document.getElementById('mismatch').value);
@@ -85,17 +84,17 @@ $b.on('click', function(){
     var targetReversed = getOppositeStrand(target);
 
     if (orfCBox) {
-        doLook(target, false);
-        doLook(targetReversed, true);
+        searchForORFSequence(target, false);
+        searchForORFSequence(targetReversed, true);
 
     }
 
-    function doLook (target, reversed) {
+    function searchForORFSequence (target, reversed) {
         var counter = 0;
         var start = 0;
         var searchTarget = target;
         var seq;
-        while(seq = look(searchTarget)) {
+        while(seq = searchForORFSequenceHELPER(searchTarget)) {
             counter++;
             seq[0] += start;
             seq[1] += start;
@@ -120,7 +119,7 @@ $b.on('click', function(){
         }
     }
 
-    function look(target) {
+    function searchForORFSequenceHELPER(target) {
         var distance = 0;
         var start = target.indexOf('ATG');
         var subTar = target.slice(start + orfMinLength, start + orfMaxLength);
@@ -144,7 +143,7 @@ $b.on('click', function(){
 
 
     targetTextAreaAndOptions.css('display', 'none');
-    $('#outer').css('visibility','visible');
+    $('#outer').css('display', 'inline-block');
 
     var customFeature = customFeatureArea.val();
 
@@ -321,7 +320,7 @@ $b.on('click', function(){
                 $("#demo").css("display", "none");
 
             }
-            showTimeTextForMatches();
+            //showTimeTextForMatches();
         }
     }
 
@@ -342,14 +341,14 @@ $b.on('click', function(){
 
 
     }
-    function showTimeTextForMatches() {
-
-        $("#visualizedText").css("visibility", "visible");
-        var elapse = (new Date().getTime() - time_start) / 1000.0;
-        document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
-        console.log('elapse')
-        console.log(elapse)
-    }
+    // function showTimeTextForMatches() {
+    //
+    //     $("#visualizedText").css("visibility", "visible");
+    //     var elapse = (new Date().getTime() - time_start) / 1000.0;
+    //     document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
+    //     console.log('elapse')
+    //     console.log(elapse)
+    // }
     function getOppositeStrand(sequence) {
         var oppStrand = '';
 

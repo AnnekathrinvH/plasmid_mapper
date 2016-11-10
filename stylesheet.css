@@ -153,12 +153,12 @@ span, #header {
 }
 
 #outer{
-    display: inline-block;
+    display: none;
     height: 1000px;
     width: 1000px;
     margin: 0 auto;
     position: relative;
-    visibility: hidden;
+
     text-align: left;
 }
 #canvas{
