@@ -67,6 +67,69 @@ $b.on('click', function(){
     var gape = parseInt(document.getElementById('gape').value);
     var target = document.getElementById('target').value.replace(/[\s\n]+/g, '').toUpperCase();
 
+
+
+    var fullData = [];
+    var targetReversed = getOppositeStrand(target);
+
+
+    doLook(target, false);
+    doLook(targetReversed, true);
+
+
+
+    function doLook (target, reversed) {
+        var counter = 0;
+        var start = 0;
+        var searchTarget = target;
+        var seq;
+        while(seq = look(searchTarget)) {
+            counter++;
+            seq[0] += start;
+            seq[1] += start;
+            start = seq[1];
+            searchTarget = target.slice(start);
+            fullData.push({
+                reversed: reversed,
+                type: 'ORF',
+                id: 'ORF ' + counter,
+                fullLength: target.length,
+                featureLength: seq[1] - seq[0],
+                cigar: '',
+                start: seq[0],
+                score: ''
+            });
+            console.log('fulldata', fullData)
+            //console.log('seq', seq[0]);
+        }
+    }
+
+    function look(target) {
+        var distance = 0;
+        var start = target.indexOf('ATG');
+        var subTar = target.slice(start + 500, start + 3000);
+        var idx;
+        idx = subTar.indexOf('TAA');
+        distance += start + 500;
+        while ((idx - start)%3!==0 && idx>0) {
+
+            distance +=idx + 3;
+            subTar = subTar.slice(idx + 3);
+
+            idx = subTar.indexOf('TAA');
+
+        }
+
+        if (idx > 0) {
+            return [start, distance + idx + 3];
+            //arr.push([start, distance + idx + 3]);
+        }
+    }
+
+
+
+
+
     targetTextAreaAndOptions.css('display', 'none');
     $('#outer').css('visibility','visible');
 
@@ -102,7 +165,7 @@ $b.on('click', function(){
 
     checkNumberofFeatures();
 
-    var fullData = [];
+
 
     if (generalFeaturesCbox) {
 
@@ -254,7 +317,7 @@ $b.on('click', function(){
         for (var i = 0; data[i]; i++) {
             fullData.push(data[i]);
         }
-
+        console.log('fulldata', fullData)
         callback(fullData);
     }
 
@@ -273,5 +336,30 @@ $b.on('click', function(){
         document.getElementById('runtime').innerHTML = "in " + elapse.toFixed(3) + "s";
         console.log('elapse')
         console.log(elapse)
-}
+    }
+    function getOppositeStrand(sequence) {
+        var oppStrand = '';
+
+        for (var i = 0; i < sequence.length; i++) {
+            switch(sequence[i]) {
+                case 'C':
+                oppStrand += 'G';
+                break;
+                case 'T':
+                oppStrand += 'A';
+                break;
+                case 'A':
+                oppStrand += 'T';
+                break;
+                case 'G':
+                oppStrand += 'C';
+                default:
+                break;
+            }
+        }
+
+        oppStrand = oppStrand.split('').reverse().join('');
+        return oppStrand;
+    }
+
 });

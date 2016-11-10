@@ -15,7 +15,7 @@ onmessage = function(e) {
     postMessage(res);
 }
 
-function getResults(generalFeaturesCbox, single_cuttersCbox, double_cuttersCbox, selection_markersCbox, tagsCbox, target, [ms, mms], [gapo, gape], customFeatFlag, customFeature, featuresTwo, customFeatureName) {
+getResults = function(generalFeaturesCbox, single_cuttersCbox, double_cuttersCbox, selection_markersCbox, tagsCbox, target, [ms, mms], [gapo, gape], customFeatFlag, customFeature, featuresTwo, customFeatureName) {
 
     var receivedFeatures = [generalFeaturesCbox, single_cuttersCbox, double_cuttersCbox, selection_markersCbox, tagsCbox, customFeatFlag, featuresTwo];
 
