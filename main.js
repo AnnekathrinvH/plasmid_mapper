@@ -20,7 +20,16 @@ var resEnzymesContainer = $('#resEnzyme');
 var advancedOptionsCheckbox = $('#advanced');
 var advancedOptions = $('#advancedOptions');
 var clearButton = $('#clearButton');
+var orfs = $('#cbox7');
+var orfOptions = $(".orfOptions");
 
+orfs.on('click', function() {
+    if(orfs.prop('checked')) {
+        orfOptions.css('display', 'block');
+    } else {
+        orfOptions.css('display', 'none');
+    }
+});
 
 resEnzymes.on('click', function() {
     if(resEnzymes.prop('checked')) {

@@ -99,7 +99,8 @@ span, #header {
 #advancedOptions{
     display: none;
 }
-#customFeatureName{
+
+.smallTextArea{
     border-radius: 4px;
 }
 #customFeatureArea {
@@ -137,6 +138,9 @@ span, #header {
     font-family: 'Share Tech Mono', monospace;
 }
 
+.orfOptions{
+    display: none;
+}
 
 #demo {
     position: relative;

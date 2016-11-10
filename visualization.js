@@ -264,6 +264,7 @@ exports.visualize = function(res) {
     }
 
     function sortFeaturesForDisplay(array) {
+        console.log(array);
         for (var i = 0; i < array.length; i++) {
             var properties = array[i];
 
