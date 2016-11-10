@@ -124,7 +124,12 @@ span, #header {
     font-family: 'Share Tech Mono', monospace;
 }
 
-#button{
+#clearButton:hover {
+    background-color: green;
+}
+
+#button {
+
     outline:none;
     border-radius: 60px;
     width: 80px;
@@ -137,7 +142,9 @@ span, #header {
     font-family: 'Share Tech Mono', monospace;
 }
 
-
+#button:hover{
+    background-color: green;
+}
 #demo {
     position: relative;
     margin-left: auto;

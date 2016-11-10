@@ -1,7 +1,6 @@
 var work = require('webworkify');
 var viz = require('./visualization.js');
 
-
 var templates = document.querySelectorAll('script[type="text/handlebars"]');
 Handlebars.templates = Handlebars.templates || {};
 Array.prototype.slice.call(templates).forEach(function(script) {
