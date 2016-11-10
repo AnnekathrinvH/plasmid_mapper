@@ -52,7 +52,7 @@ clearButton.on('click', function() {
 
 $b.on('click', function(){
 
-    var time_start = new Date().getTime();
+    //var time_start = new Date().getTime();
     var generalFeaturesCbox = document.getElementById('cbox1').checked;
     var single_cuttersCbox = document.getElementById('cbox2').checked;
     var double_cuttersCbox = document.getElementById('cbox3').checked;
@@ -311,7 +311,7 @@ $b.on('click', function(){
                 $("#demo").css("display", "none");
 
             }
-            showTimeTextForMatches();
+            //showTimeTextForMatches();
         }
     }
 
