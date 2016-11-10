@@ -8,9 +8,10 @@ body{
     text-align: center;
 }
 #containsEverything{
-    width: 1000px;
+    width: 1220px;
     text-align: center;
     margin: 0 auto;
+    position: relative;
 }
 span, #header {
     top: 0px;
@@ -56,7 +57,7 @@ span, #header {
 }
 #clear{
     position: absolute;
-    width: 100%;
+    width: 960px;
     text-align: right;
 }
 #target{
@@ -144,6 +145,7 @@ span, #header {
     display: none;
     z-index: 20;
     padding-top: 360px;
+    position: relative;
 }
 
 #outer{
@@ -157,16 +159,27 @@ span, #header {
 }
 #canvas{
     z-index: 10;
+    background-color: white;
 }
 #canvas3{
     z-index: 20;
 }
 #canvas2{
-    z-index: 30;
+    z-index: 20;
+}
+#canvasAll{
+    visibility: hidden;
 }
 .canvas {
     position: absolute;
     text-align: left;
+}
+#mirror{
+    position: absolute;
+    text-align: left;
+    z-index: 35;
+    width: 1000px;
+    height: 1000px;
 }
 #matches{
     position: relative;
@@ -175,10 +188,7 @@ span, #header {
     padding-left: 60px;
     padding-top: 100px;
 }
-#resultsPage{
-    width: 100%;
-    position: relative;
-}
+
 ul{
     list-style-type: none;
     padding: 0;

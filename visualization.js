@@ -18,25 +18,33 @@ exports.visualize = function(res) {
     var allFeatures = [];
 
 
-    var canvas = document.getElementById("canvas");
+    var canvas = document.getElementById('canvas');
     var ctx = canvas.getContext("2d");
-    var canvas2 = document.getElementById("canvas2");
+    var canvas2 = document.getElementById('canvas2');
     var ctx2 = canvas2.getContext("2d");
-    var canvas3 = document.getElementById("canvas3");
+    var canvas3 = document.getElementById('canvas3');
     var ctx3 = canvas3.getContext("2d");
+    var canvasAll = document.getElementById('canvasAll');
+    var ctxAll = canvasAll.getContext("2d");
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx2.clearRect(0, 0, canvas.width, canvas.height);
     ctx3.clearRect(0, 0, canvas.width, canvas.height);
+    ctxAll.clearRect(0, 0, canvas.width, canvas.height);
+
 
     var numRadsPerLetter = 0.05;
 
     CanvasRenderingContext2D.prototype.fillTextCircle = function(properties){
-        var text = properties.id;
+        var text = properties.text;
+        var position = properties.start+'-'+(properties.start+properties.featureLength);
 
         var textMiddle = properties.textLengthInRad/2;
         var featureMiddle = (properties.endAngle + properties.startAngle)/2;
         var startRotation = featureMiddle - textMiddle;
+        if (properties.reversed === true) {
+            startRotation = featureMiddle -textMiddle;
+        }
 
         this.save();
         this.translate(center, center);
@@ -53,6 +61,12 @@ exports.visualize = function(res) {
         this.restore();
     };
 
+    function drawOneCanvas() {
+        ctxAll.drawImage(canvas, 0, 0);
+        ctxAll.drawImage(canvas3, 0, 0);
+        ctxAll.drawImage(canvas2, 0, 0);
+    }
+
     function sortPositions(array) {
         array.sort(function (a, b) {
             if (a.start > b.start) {
@@ -61,11 +75,21 @@ exports.visualize = function(res) {
             if (a.start < b.start) {
             return -1;
             }
+            if (a.start === b.start){
+                var nameA = a.id.toUpperCase();
+                var nameB = b.id.toUpperCase();
+                if (nameA < nameB) {
+                return -1;
+                }
+                if (nameA > nameB) {
+                return 1;
+                }
+                return 0;
+            }
             return 0;
         });
         return array;
     }
-
     ctx.beginPath();
     ctx.lineWidth = 2;
     ctx.arc(center, center, r, 0, 2*Math.PI, false);
@@ -78,7 +102,13 @@ exports.visualize = function(res) {
     var bpMetrics = ctx.measureText(lengthLabel);
     var bpWidth = bpMetrics.width;
     ctx.fillText(name, center-(nameWidth/2), center);
-    ctx.fillText(lengthLabel, center-(bpWidth/2), center+40);
+    var y;
+    if (name === '') {
+        y = center;
+    } else {
+        y = center + 40;
+    }
+    ctx.fillText(lengthLabel, center-(bpWidth/2), y);
 
 
     check(res);
@@ -158,7 +188,6 @@ exports.visualize = function(res) {
     }
 
     function checkOverlappingFeatures() {
-        console.log(featurePositionsArray);
         var sortedArray = sortPositions(featurePositionsArray);
         for (var i = 0; i < sortedArray.length; i++) {
             var feature = sortedArray[i];
@@ -178,12 +207,14 @@ exports.visualize = function(res) {
             var factor = properties.overlap;
             var radius = r - 35*factor;
             properties.radius = radius;
+            var text = properties.id;
 
             var space = properties.endAngle - properties.startAngle;
-            var textLengthInRad = properties.id.length * numRadsPerLetter;
+            var textLengthInRad = text.length * numRadsPerLetter;
             properties.textLengthInRad = textLengthInRad;
+            properties.text = text;
 
-            if (space <= textLengthInRad) {
+            if (space-0.1 <= textLengthInRad) {
                 properties.textRadius = properties.radius - 35;
             } else {
                 properties.textRadius = properties.radius;
@@ -238,28 +269,34 @@ exports.visualize = function(res) {
 
             if (properties.featureLength >= 350 && properties.reversed === false) {
                 drawArrow(properties.endAngle, false, properties);
-                properties.endAngle = properties.endAngle - 0.2;
                 drawLargeFeatures(properties);
             }
             else if (properties.featureLength < 350 && properties.featureLength > 18) {
                 drawLargeFeatures(properties);
-
             }
-            else if (properties.featureLength >= 18 && properties.reversed === true) {
+            else if (properties.featureLength >= 350 && properties.reversed === true) {
                 drawArrow(properties.startAngle, true, properties);
-                properties.startAngle = properties.startAngle + 0.2;
                 drawLargeFeatures(properties);
             }
         }
     }
 
     function drawLargeFeatures(properties) {
-        ctx3.strokeStyle = properties.color;
-        ctx3.lineWidth = 40;
-        ctx3.beginPath();
-        ctx3.arc(center, center, properties.radius, properties.startAngle, properties.endAngle, false);
-        ctx3.stroke();
-        ctx3.fillTextCircle(properties);
+        var start = properties.startAngle;
+        var end = properties.endAngle;
+
+        if (properties.featureLength >= 350 && properties.reversed === false) {
+            end -= 0.2;
+        }
+        else if (properties.featureLength >= 350 && properties.reversed ===true) {
+            start += 0.2;
+        }
+        ctx2.strokeStyle = properties.color;
+        ctx2.lineWidth = 40;
+        ctx2.beginPath();
+        ctx2.arc(center, center, properties.radius, start, end, false);
+        ctx2.stroke();
+        ctx2.fillTextCircle(properties);
     }
 
     function drawSmallFeatures(properties) {
@@ -272,12 +309,12 @@ exports.visualize = function(res) {
 
         var xAngle = center + (r + 45) * Math.cos(startAngle + 0.05);
         var yAngle = center + (r + 45) * Math.sin(startAngle + 0.05);
-        ctx.strokeStyle = "black";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(xIn, yIn);
-        ctx.lineTo(xOut, yOut);
-        ctx.stroke();
+        ctx2.strokeStyle = "black";
+        ctx2.lineWidth = 2;
+        ctx2.beginPath();
+        ctx2.moveTo(xIn, yIn);
+        ctx2.lineTo(xOut, yOut);
+        ctx2.stroke();
     }
 
     function drawArrow(angle, reversed, properties) {
@@ -305,13 +342,13 @@ exports.visualize = function(res) {
             yIn = center + (radius - 30) * Math.sin(angle+0.25);
         }
 
-        ctx3.strokeStyle = properties.color;
-        ctx3.fillStyle = properties.color;
-        ctx3.beginPath();
-        ctx3.moveTo(x,y);
-        ctx3.lineTo(xOut,yOut);
-        ctx3.lineTo(xIn,yIn);
-        ctx3.fill();
+        ctx2.strokeStyle = properties.color;
+        ctx2.fillStyle = properties.color;
+        ctx2.beginPath();
+        ctx2.moveTo(x,y);
+        ctx2.lineTo(xOut,yOut);
+        ctx2.lineTo(xIn,yIn);
+        ctx2.fill();
     }
 
     function checkDensity() {
@@ -356,7 +393,7 @@ exports.visualize = function(res) {
             var adjustment = 25;
             var featureAngle = array[i][0].startAngle;
 
-            if ((1.5*Math.PI < featureAngle && featureAngle < 2*Math.PI) || (3*Math.PI < featureAngle && featureAngle < 3.5*Math.PI)) {
+            if ((1.5*Math.PI < featureAngle && featureAngle < 2*Math.PI)) {
                 if (xText - TextSpace < xTextLast) {
                     for (var j = 0; j < array[i].length; j++) {
                         array[i][j].xText = xText + adjustment;
@@ -369,7 +406,37 @@ exports.visualize = function(res) {
                     }
                 }
             }
-            else if ((2*Math.PI < featureAngle && featureAngle < 2.5*Math.PI) || (2.5*Math.PI < featureAngle && featureAngle < 3*Math.PI)) {
+            else if ((3*Math.PI < featureAngle && featureAngle < 3.5*Math.PI)) {
+                if (xText - TextSpace < xTextLast) {
+                    for (var j = 0; j < array[i].length; j++) {
+                        array[i][j].xText = xText + adjustment;
+                        array[i][j].xAdjusted = true;
+                    }
+                } else {
+                    for (var j = 0; j < array[i].length; j++) {
+                        array[i][j].xText = xText;
+                        array[i][j].xAdjusted = false;
+                    }
+                }
+            }
+            else if ((2*Math.PI < featureAngle && featureAngle < 2.5*Math.PI)) {
+                if (xText + TextSpace > xTextLast) {
+                    if (lastArray[0].xAdjusted) {
+                        adjustment += adjustment;
+                    }
+                    for (var j = 0; j < array[i].length; j++) {
+                        array[i][j].xText = xText - adjustment;
+                        array[i][j].xAdjusted = true;
+                    }
+                } else {
+                    xText = center + (r + 60) * Math.cos(array[i][0].startAngle);
+                    for (var j = 0; j < array[i].length; j++) {
+                        array[i][j].xText = xText;
+                        array[i][j].xAdjusted = false;
+                    }
+                }
+            }
+            else if ((2.5*Math.PI < featureAngle && featureAngle < 3*Math.PI)) {
                 if (xText + TextSpace > xTextLast) {
                     if (lastArray[0].xAdjusted) {
                         adjustment += adjustment;
@@ -402,6 +469,12 @@ exports.visualize = function(res) {
             var yAdjustment = arrayMiddle*heightPerLetter;
             var adjustedY;
 
+            var heightOfArray = array[i].length*heightPerLetter;
+            var lastArray = (array[i-1]) ? array[i-1] : array[array.length-1];
+            var nextArray = (array[i+1]) ? array[i+1] : array[0];
+
+
+
             if ((1.5*Math.PI < yCenter && yCenter < 2*Math.PI) || (3*Math.PI < yCenter && yCenter < 3.5*Math.PI)) {
                 adjustedY = yText - yAdjustment;
             }
@@ -420,24 +493,39 @@ exports.visualize = function(res) {
         }
         listenToEvents(array);
     }
-    function listenToEvents(array) {
-        var elem = canvas2,
-            top = document.getElementById('outer'),
-            left = document.getElementById('outer'),
-            elemLeft = left.offsetLeft,
-            elemTop = top.offsetTop,
-            elements = [];
-            console.log(array);
 
+    function listenToEvents(array) {
+        var elem = document.getElementById('mirror'),
+            elements = [];
+
+            var left = elem.offsetLeft;
+            var top = elem.offsetTop;
+
+            var elemLeft = 0,
+                elemTop = 0,
+                parent = elem;
+
+            var outer = document.getElementById('outer');
+            var container = document.getElementById('containsEverything');
+
+            while (parent) {
+                elemLeft += parent.offsetLeft;
+                elemTop += parent.offsetTop;
+                parent = parent.offsetParent;
+            }
 
         elem.addEventListener('mousemove', function(event) {
             var x = event.pageX - elemLeft,
                 y = event.pageY - elemTop;
+            x = event.layerX;
+            y = event.layerY;
             ctx2.clearRect(0, 0, canvas.width, canvas.height);
+
             var highlightedElement;
             for (var i = 0; i < array.length; i++) {
                 for (var j = 0; j < array[i].length; j++) {
                     var element = array[i][j];
+                    drawSmallFeatures(element);
                     if (y > element.yPosition -12 && y < element.yPosition && x > element.xText && x < element.xText + 80) {
                         highlightedElement = element;
                     }
@@ -448,6 +536,22 @@ exports.visualize = function(res) {
                     }
                 }
             }
+            for (var k = 0; k < featurePositionsArray.length; k++) {
+                var properties = featurePositionsArray[k];
+
+                if (properties.featureLength >= 350 && properties.reversed === false) {
+                    drawArrow(properties.endAngle, false, properties);
+                    drawLargeFeatures(properties);
+                }
+                else if (properties.featureLength < 350 && properties.featureLength > 18) {
+                    drawLargeFeatures(properties);
+                }
+                else if (properties.featureLength >= 350 && properties.reversed === true) {
+                    drawArrow(properties.startAngle, true, properties);
+                    drawLargeFeatures(properties);
+                }
+            }
+
             if (highlightedElement) {
                 var text = highlightedElement.id+' ('+highlightedElement.start+')';
                 ctx2.font = "bold 20px 'Open Sans'";
@@ -470,19 +574,13 @@ exports.visualize = function(res) {
 
     listOfFeatures.on('click', function (event) {
         var selectedFeature = event.target.id;
-        console.log(selectedFeature);
-        console.log($('#'+ selectedFeature).prop('checked'));
         ctx2.clearRect(0, 0, canvas.width, canvas.height);
-        ctx3.clearRect(0, 0, canvas.width, canvas.height);
-
+        ctx2.clearRect(0, 0, canvas.width, canvas.height);
         function isInArray(element) {
           return element.uniqueId == selectedFeature;
         }
-        console.log(res.find(isInArray));
         if (res.find(isInArray)) {
             var index = res.findIndex(isInArray);
-            console.log(res[index]);
-            console.log(index);
             if (($('#'+ selectedFeature).prop('checked'))=== false) {
                 res[index].checked = '';
             }
@@ -492,7 +590,15 @@ exports.visualize = function(res) {
         }
 
         copyResponse(res);
-
-
     });
+
+    ctxAll.fillStyle = "white";
+    ctxAll.fillRect(0, 0, 1000, 1000);
+    drawOneCanvas();
+
+    mirror.addEventListener('contextmenu', function (e) {
+        var dataURL = canvasAll.toDataURL('image/png');
+        mirror.src = dataURL;
+    });
+
 };

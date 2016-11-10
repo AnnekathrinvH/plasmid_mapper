@@ -13,13 +13,14 @@
     <script type="text/javascript">
       $(window).ready(function() {
 
-      var canvas = $("<canvas />");
-      canvas.attr({ width: 300, height: 300 });
-
-      $("#demo").append(canvas);
-      canvas.DoubleHelix();
-      });
-      </script>
+    var canvas = $("<canvas />");
+    canvas.attr({ width: 300, height: 300 });
+    canvas.css("z-index", "40");
+    canvas.css("background-color", "white")
+    $("#demo").append(canvas);
+    canvas.DoubleHelix();
+    });
+    </script>
 
 </head>
 <body>
@@ -121,12 +122,12 @@
                 </div>
             </div>
         </div>
-
-    </div>
         <div id="outer">
             <canvas class="canvas" id="canvas" width="1000" height="1000"></canvas>
             <canvas class="canvas" id="canvas3" width="1000" height="1000"></canvas>
             <canvas class="canvas" id="canvas2" width="1000" height="1000"></canvas>
+            <canvas class="canvas" id="canvasAll" width="1000" height="1000"></canvas>
+            <img src="" id="mirror" class="canvas__mirror" />
             <div id="demo"></div>
         </div>
         <div id="matches">
@@ -142,6 +143,9 @@
                 </script>
             </div>
         </div>
+    </div>
+
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
     <script src="bundle.js"></script>
 
