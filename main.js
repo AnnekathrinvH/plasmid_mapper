@@ -61,7 +61,6 @@ $b.on('click', function(){
     var customFeatureName = $('#customFeatureName').val();
     var orfCBox = document.getElementById('cbox7').checked;
 
-
     var ms   = parseInt(document.getElementById('match').value);
     var mms  = parseInt(document.getElementById('mismatch').value);
     var gapo = parseInt(document.getElementById('gapo').value);
@@ -76,17 +75,17 @@ $b.on('click', function(){
     var targetReversed = getOppositeStrand(target);
 
     if (orfCBox) {
-        doLook(target, false);
-        doLook(targetReversed, true);
+        searchForORFSequence(target, false);
+        searchForORFSequence(targetReversed, true);
 
     }
 
-    function doLook (target, reversed) {
+    function searchForORFSequence (target, reversed) {
         var counter = 0;
         var start = 0;
         var searchTarget = target;
         var seq;
-        while(seq = look(searchTarget)) {
+        while(seq = searchForORFSequenceHELPER(searchTarget)) {
             counter++;
             seq[0] += start;
             seq[1] += start;
@@ -111,7 +110,7 @@ $b.on('click', function(){
         }
     }
 
-    function look(target) {
+    function searchForORFSequenceHELPER(target) {
         var distance = 0;
         var start = target.indexOf('ATG');
         var subTar = target.slice(start + orfMinLength, start + orfMaxLength);
