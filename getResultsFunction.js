@@ -8,7 +8,7 @@ var more_features = require('./data/featuresTwo.json');
 onmessage = function(e) {
 
     var eD = e.data;
-    console.log(eD)
+
 
     var res = getResults(eD.generalFeaturesCbox, eD.single_cuttersCbox, eD.double_cuttersCbox, eD.selection_markersCbox, eD.tagsCbox, eD.target, [eD.ms, eD.mms], [eD.gapo, eD.gape], eD.customFeatFlag, eD.customFeature, eD.featuresTwo, eD.customFeatureName);
 

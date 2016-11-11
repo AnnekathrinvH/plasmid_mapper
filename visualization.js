@@ -121,7 +121,7 @@ exports.visualize = function(res) {
     }
 
     function copyResponse(res) {
-        console.log(res);
+
         var copiedResponse = [];
         restrictionEnzymePositionsArray = [];
         featurePositionsArray = [];
@@ -264,7 +264,7 @@ exports.visualize = function(res) {
     }
 
     function sortFeaturesForDisplay(array) {
-        console.log(array);
+
         for (var i = 0; i < array.length; i++) {
             var properties = array[i];
 

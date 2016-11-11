@@ -143,6 +143,7 @@ $b.on('click', function(){
 
     targetTextAreaAndOptions.css('display', 'none');
     $('#outer').css('display', 'inline-block');
+    $('#newAlign').css('display', 'inline-block');
 
     var customFeature = customFeatureArea.val();
 
@@ -271,7 +272,7 @@ $b.on('click', function(){
     }
 
     if (customFeature.length > 0) {
-        console.log(customFeatureName)
+
         var message = {
             customFeatureName: customFeatureName,
             customFeatFlag: customFeatFlag,
@@ -328,7 +329,7 @@ $b.on('click', function(){
         for (var i = 0; data[i]; i++) {
             fullData.push(data[i]);
         }
-        console.log('fulldata', fullData)
+
         callback(fullData);
     }
 
