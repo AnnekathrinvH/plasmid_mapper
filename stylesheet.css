@@ -143,7 +143,12 @@ body{
     font-family: 'Share Tech Mono', monospace;
 }
 
-#button{
+#clearButton:hover {
+    background-color: gray;
+}
+
+#button {
+
     outline:none;
     border-radius: 60px;
     width: 80px;
@@ -156,9 +161,15 @@ body{
     font-family: 'Share Tech Mono', monospace;
 }
 
+
+#button:hover{
+    background-color: gray;
+}
+
 .orfOptions{
     display: none;
 }
+
 
 #demo {
     position: relative;
@@ -170,6 +181,12 @@ body{
     position: relative;
 }
 
+#loading {
+    padding-bottom: 5px;
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 20px;
+}
 #outer{
     display: none;
     height: 1000px;
