@@ -46,25 +46,25 @@
                     <div id ="seqName">
                         sequence name
                     </div>
-                    <textarea id="seqInputName" rows="1" cols="15">pcDNA3.1</textarea>
+                    <textarea id="seqInputName" rows="1" cols="15" placeholder="name"></textarea>
                 </div>
             </div>
 
             <div id="options2">
                 <div class="element">
-                    <input class="features" type="checkbox" id="cbox1">general features</input>
+                    <input class="features" type="checkbox" id="cbox1" checked>general features</input>
                 </div>
 
                 <div class="element">
-                    <input class="features" type="checkbox" id="cbox4">tags</input>
+                    <input class="features" type="checkbox" id="cbox4" checked>tags</input>
                 </div>
 
                 <div class="element">
-                    <input class="features" type="checkbox" id="cbox5" >selection markers</input>
+                    <input class="features" type="checkbox" id="cbox5" checked>selection markers</input>
                 </div>
 
                 <div class="element">
-                    <input class="features" type="checkbox" id="cbox6">restriction enzymes</input>
+                    <input class="features" type="checkbox" id="cbox6" checked>restriction enzymes</input>
 
                     <div id="resEnzyme" class="element2">
                         <div class="resEnzyme">
@@ -144,7 +144,9 @@
             <canvas class="canvas" id="canvas2" width="1000" height="1000"></canvas>
             <canvas class="canvas" id="canvasAll" width="1000" height="1000"></canvas>
             <img src="" id="mirror" class="canvas__mirror" />
-            <div id="demo"></div>
+            <div id="demo">
+                <div id="loading">calculating...</div>
+            </div>
         </div>
         <div id="matches">
             <div id="results">

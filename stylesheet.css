@@ -126,7 +126,7 @@ span, #header {
 }
 
 #clearButton:hover {
-    background-color: green;
+    background-color: gray;
 }
 
 #button {
@@ -145,7 +145,7 @@ span, #header {
 
 
 #button:hover{
-    background-color: green;
+    background-color: gray;
 }
 
 .orfOptions{
@@ -163,6 +163,12 @@ span, #header {
     position: relative;
 }
 
+#loading {
+    padding-bottom: 5px;
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 20px;
+}
 #outer{
     display: none;
     height: 1000px;
