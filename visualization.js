@@ -106,7 +106,7 @@ exports.visualize = function(res) {
     if (name === '') {
         y = center;
     } else {
-        y = center + 40;
+        y = center + 50;
     }
     ctx.fillText(lengthLabel, center-(bpWidth/2), y);
 
